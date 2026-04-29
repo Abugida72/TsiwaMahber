@@ -23,6 +23,8 @@ import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/user_management_screen.dart';
+import 'package:tsiwa_mahber/features/csv_io/presentation/csv_export_screen.dart';
+import 'package:tsiwa_mahber/features/csv_io/presentation/csv_import_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
@@ -422,6 +424,40 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => TelegramSettingsScreen(
+                    areaId: AppConstants.defaultAreaId,
+                  ),
+                ),
+              );
+            },
+          ),
+        if (widget.currentUser?.role.canEdit == true)
+          AppInfoCard(
+            icon: Icons.file_upload_outlined,
+            title: 'CSV ወደ ውጭ ላክ',
+            subtitle: 'መረጃ ወደ CSV ፋይል ላክ',
+            iconColor: Colors.teal,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CsvExportScreen(
+                    areaId: AppConstants.defaultAreaId,
+                  ),
+                ),
+              );
+            },
+          ),
+        if (widget.currentUser?.role.canEdit == true)
+          AppInfoCard(
+            icon: Icons.file_download_outlined,
+            title: 'CSV ከውጭ አስገባ',
+            subtitle: 'CSV ፋይል መረጃ አስገባ',
+            iconColor: Colors.green,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CsvImportScreen(
                     areaId: AppConstants.defaultAreaId,
                   ),
                 ),
