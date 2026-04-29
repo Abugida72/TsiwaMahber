@@ -13,10 +13,16 @@ import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/edir/presentation/edir_list_screen.dart';
+import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
+import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
+import 'package:tsiwa_mahber/features/auth/presentation/user_management_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
-  const AreaHomeScreen({super.key});
+  final AppUser? currentUser;
+
+  const AreaHomeScreen({super.key, this.currentUser});
 
   @override
   State<AreaHomeScreen> createState() => _AreaHomeScreenState();
@@ -27,6 +33,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _tsiwaRepository = TsiwaRepository();
   final _leaderRepository = LeaderRepository();
   final _edirRepository = EdirRepository();
+  final _authRepository = AuthRepository();
   String? _initError;
   bool _isInitializing = true;
 
@@ -57,6 +64,42 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppConstants.defaultAreaName),
+        actions: [
+          if (widget.currentUser?.role.canManageUsers == true)
+            IconButton(
+              icon: const Icon(Icons.people),
+              tooltip: 'ተጠቃሚዎች',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const UserManagementScreen(),
+                  ),
+                );
+              },
+            ),
+          if (widget.currentUser != null)
+            IconButton(
+              icon: const Icon(Icons.person),
+              tooltip: 'መገለጫ',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileScreen(user: widget.currentUser!),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'ውጣ',
+              onPressed: () => _authRepository.signOut(),
+            ),
+        ],
       ),
       body: _isInitializing
           ? const LoadingState(message: 'በመጫን ላይ...')

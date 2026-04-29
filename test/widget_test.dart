@@ -10,6 +10,7 @@ import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_event.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
 import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
+import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 
 void main() {
   group('AppConstants', () {
@@ -435,6 +436,69 @@ void main() {
       expect(PaymentType.monthly.firestoreValue, 'monthly');
       expect(PaymentType.penalty.firestoreValue, 'penalty');
       expect(PaymentType.other.firestoreValue, 'other');
+    });
+  });
+
+  group('AppUser', () {
+    test('UserRole displayName returns Amharic', () {
+      expect(UserRole.admin.displayName, 'አስተዳዳሪ');
+      expect(UserRole.leader.displayName, 'አመራር');
+      expect(UserRole.member.displayName, 'አባል');
+      expect(UserRole.viewer.displayName, 'ታዛቢ');
+    });
+
+    test('UserRole fromString parses correctly', () {
+      expect(UserRole.fromString('admin'), UserRole.admin);
+      expect(UserRole.fromString('leader'), UserRole.leader);
+      expect(UserRole.fromString('member'), UserRole.member);
+      expect(UserRole.fromString('viewer'), UserRole.viewer);
+      expect(UserRole.fromString(null), UserRole.viewer);
+      expect(UserRole.fromString('unknown'), UserRole.viewer);
+    });
+
+    test('UserRole firestoreValue maps correctly', () {
+      expect(UserRole.admin.firestoreValue, 'admin');
+      expect(UserRole.leader.firestoreValue, 'leader');
+      expect(UserRole.member.firestoreValue, 'member');
+      expect(UserRole.viewer.firestoreValue, 'viewer');
+    });
+
+    test('UserRole permissions are correct', () {
+      expect(UserRole.admin.canEdit, true);
+      expect(UserRole.admin.canDelete, true);
+      expect(UserRole.admin.canManageUsers, true);
+
+      expect(UserRole.leader.canEdit, true);
+      expect(UserRole.leader.canDelete, false);
+      expect(UserRole.leader.canManageUsers, false);
+
+      expect(UserRole.member.canEdit, false);
+      expect(UserRole.member.canDelete, false);
+      expect(UserRole.member.canManageUsers, false);
+
+      expect(UserRole.viewer.canEdit, false);
+      expect(UserRole.viewer.canDelete, false);
+      expect(UserRole.viewer.canManageUsers, false);
+    });
+
+    test('AppUser copyWith works correctly', () {
+      const original = AppUser(
+        uid: '123',
+        email: 'test@test.com',
+        displayName: 'Test User',
+        role: UserRole.viewer,
+      );
+
+      final updated = original.copyWith(
+        role: UserRole.admin,
+        phone: '0912345678',
+      );
+
+      expect(updated.uid, '123');
+      expect(updated.email, 'test@test.com');
+      expect(updated.displayName, 'Test User');
+      expect(updated.role, UserRole.admin);
+      expect(updated.phone, '0912345678');
     });
   });
 }
