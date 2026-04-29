@@ -19,20 +19,27 @@ class AreaRepository {
     });
   }
 
-  Future<void> ensureDefaultArea() async {
-    final docRef = _firestore.doc(
-      FirestorePaths.area(AppConstants.defaultAreaId),
-    );
-    final doc = await docRef.get();
-    if (!doc.exists) {
-      const defaultArea = Area(
-        id: '',
-        name: AppConstants.defaultAreaName,
-        shortName: AppConstants.defaultAreaShortName,
-        location: AppConstants.defaultAreaLocation,
-        description: AppConstants.defaultAreaDescription,
+  Future<String?> ensureDefaultArea() async {
+    try {
+      final docRef = _firestore.doc(
+        FirestorePaths.area(AppConstants.defaultAreaId),
       );
-      await docRef.set(defaultArea.toCreateMap());
+      final doc = await docRef.get();
+      if (!doc.exists) {
+        const defaultArea = Area(
+          id: '',
+          name: AppConstants.defaultAreaName,
+          shortName: AppConstants.defaultAreaShortName,
+          location: AppConstants.defaultAreaLocation,
+          description: AppConstants.defaultAreaDescription,
+        );
+        await docRef.set(defaultArea.toCreateMap());
+      }
+      return null;
+    } on FirebaseException catch (e) {
+      return 'Firebase error: ${e.message}';
+    } catch (e) {
+      return 'Error: $e';
     }
   }
 

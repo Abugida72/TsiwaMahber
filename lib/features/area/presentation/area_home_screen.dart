@@ -16,11 +16,29 @@ class AreaHomeScreen extends StatefulWidget {
 
 class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _areaRepository = AreaRepository();
+  String? _initError;
+  bool _isInitializing = true;
 
   @override
   void initState() {
     super.initState();
-    _areaRepository.ensureDefaultArea();
+    _initializeArea();
+  }
+
+  Future<void> _initializeArea() async {
+    setState(() {
+      _isInitializing = true;
+      _initError = null;
+    });
+
+    final error = await _areaRepository.ensureDefaultArea();
+
+    if (mounted) {
+      setState(() {
+        _initError = error;
+        _isInitializing = false;
+      });
+    }
   }
 
   @override
@@ -29,31 +47,132 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
       appBar: AppBar(
         title: const Text(AppConstants.defaultAreaName),
       ),
-      body: StreamBuilder<Area?>(
-        stream: _areaRepository.watchArea(AppConstants.defaultAreaId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
-          }
+      body: _isInitializing
+          ? const LoadingState(message: 'በመጫን ላይ...')
+          : _initError != null
+              ? _buildErrorState()
+              : _buildContent(),
+    );
+  }
 
-          final area = snapshot.data;
-          if (area == null) {
-            return const LoadingState(message: 'በመጫን ላይ...');
-          }
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.cloud_off,
+              size: 72,
+              color: Colors.red.shade300,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'ከFirestore ጋር መገናኘት አልተቻለም',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _initError!,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.textMuted,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Firestore security rules ያረጋግጡ\n'
+              'እና ኢንተርኔት መኖሩን ያረጋግጡ',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppTheme.textMuted,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _initializeArea,
+              icon: const Icon(Icons.refresh),
+              label: const Text('እንደገና ሞክር'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+  Widget _buildContent() {
+    return StreamBuilder<Area?>(
+      stream: _areaRepository.watchArea(AppConstants.defaultAreaId),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildHeader(area),
-                const SizedBox(height: 24),
-                _buildMenuSection(),
+                Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
+                const SizedBox(height: 16),
+                Text(
+                  'መረጃ ማግኘት አልተቻለም',
+                  style: TextStyle(color: Colors.red.shade300),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _initializeArea,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('እንደገና ሞክር'),
+                ),
               ],
             ),
           );
-        },
-      ),
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const LoadingState(message: 'በመጫን ላይ...');
+        }
+
+        final area = snapshot.data;
+        if (area == null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.hourglass_empty, size: 48,
+                    color: AppTheme.textMuted),
+                const SizedBox(height: 16),
+                const Text(
+                  'መረጃ በመዘጋጀት ላይ...',
+                  style: TextStyle(color: AppTheme.textMuted),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _initializeArea,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('እንደገና ሞክር'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(area),
+              const SizedBox(height: 24),
+              _buildMenuSection(),
+            ],
+          ),
+        );
+      },
     );
   }
 
