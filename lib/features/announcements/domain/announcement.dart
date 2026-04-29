@@ -1,0 +1,139 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+enum AnnouncementPriority {
+  normal,
+  important,
+  urgent;
+
+  String get displayName {
+    switch (this) {
+      case AnnouncementPriority.normal:
+        return 'መደበኛ';
+      case AnnouncementPriority.important:
+        return 'አስፈላጊ';
+      case AnnouncementPriority.urgent:
+        return 'አስቸኳይ';
+    }
+  }
+
+  String get firestoreValue {
+    switch (this) {
+      case AnnouncementPriority.normal:
+        return 'normal';
+      case AnnouncementPriority.important:
+        return 'important';
+      case AnnouncementPriority.urgent:
+        return 'urgent';
+    }
+  }
+
+  static AnnouncementPriority fromString(String? value) {
+    switch (value) {
+      case 'important':
+        return AnnouncementPriority.important;
+      case 'urgent':
+        return AnnouncementPriority.urgent;
+      default:
+        return AnnouncementPriority.normal;
+    }
+  }
+}
+
+class Announcement {
+  final String id;
+  final String title;
+  final String body;
+  final AnnouncementPriority priority;
+  final String authorId;
+  final String authorName;
+  final int readCount;
+  final bool isActive;
+  final DateTime? expiresAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const Announcement({
+    this.id = '',
+    this.title = '',
+    this.body = '',
+    this.priority = AnnouncementPriority.normal,
+    this.authorId = '',
+    this.authorName = '',
+    this.readCount = 0,
+    this.isActive = true,
+    this.expiresAt,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory Announcement.fromDoc(
+      DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data()!;
+    return Announcement(
+      id: doc.id,
+      title: data['title'] as String? ?? '',
+      body: data['body'] as String? ?? '',
+      priority: AnnouncementPriority.fromString(
+          data['priority'] as String?),
+      authorId: data['authorId'] as String? ?? '',
+      authorName: data['authorName'] as String? ?? '',
+      readCount: data['readCount'] as int? ?? 0,
+      isActive: data['isActive'] as bool? ?? true,
+      expiresAt: (data['expiresAt'] as Timestamp?)?.toDate(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  Map<String, dynamic> toCreateMap() {
+    return {
+      'title': title,
+      'body': body,
+      'priority': priority.firestoreValue,
+      'authorId': authorId,
+      'authorName': authorName,
+      'readCount': 0,
+      'isActive': true,
+      if (expiresAt != null)
+        'expiresAt': Timestamp.fromDate(expiresAt!),
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  Map<String, dynamic> toUpdateMap() {
+    return {
+      'title': title,
+      'body': body,
+      'priority': priority.firestoreValue,
+      'isActive': isActive,
+      if (expiresAt != null)
+        'expiresAt': Timestamp.fromDate(expiresAt!),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  Announcement copyWith({
+    String? id,
+    String? title,
+    String? body,
+    AnnouncementPriority? priority,
+    String? authorId,
+    String? authorName,
+    int? readCount,
+    bool? isActive,
+    DateTime? expiresAt,
+  }) {
+    return Announcement(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      priority: priority ?? this.priority,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      readCount: readCount ?? this.readCount,
+      isActive: isActive ?? this.isActive,
+      expiresAt: expiresAt ?? this.expiresAt,
+    );
+  }
+}

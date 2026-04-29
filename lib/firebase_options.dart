@@ -2,8 +2,6 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Placeholder Firebase options.
-/// Run `flutterfire configure` to generate real values before production use.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -22,27 +20,27 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'placeholder',
-    appId: '1:000000000000:web:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'tsiwa-app',
-    storageBucket: 'tsiwa-app.appspot.com',
+    apiKey: 'AIzaSyBfLd5efwiA-wbuhK20_6Dq5fry7wBw6dQ',
+    appId: '1:658277409136:android:a9bec92e9ab9e90842efb5',
+    messagingSenderId: '658277409136',
+    projectId: 'tsiwamahber',
+    storageBucket: 'tsiwamahber.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'placeholder',
-    appId: '1:000000000000:android:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'tsiwa-app',
-    storageBucket: 'tsiwa-app.appspot.com',
+    apiKey: 'AIzaSyBfLd5efwiA-wbuhK20_6Dq5fry7wBw6dQ',
+    appId: '1:658277409136:android:a9bec92e9ab9e90842efb5',
+    messagingSenderId: '658277409136',
+    projectId: 'tsiwamahber',
+    storageBucket: 'tsiwamahber.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'placeholder',
-    appId: '1:000000000000:ios:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'tsiwa-app',
-    storageBucket: 'tsiwa-app.appspot.com',
-    iosBundleId: 'com.tsiwa.tsiwaMahber',
+    apiKey: 'AIzaSyBfLd5efwiA-wbuhK20_6Dq5fry7wBw6dQ',
+    appId: '1:658277409136:android:a9bec92e9ab9e90842efb5',
+    messagingSenderId: '658277409136',
+    projectId: 'tsiwamahber',
+    storageBucket: 'tsiwamahber.firebasestorage.app',
+    iosBundleId: 'com.example.tsiwaMahber',
   );
 }

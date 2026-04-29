@@ -7,6 +7,14 @@ import 'package:tsiwa_mahber/core/utils/ethiopian_calendar.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
 import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_event.dart';
+import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
+import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
+import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
+import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
+import 'package:tsiwa_mahber/features/announcements/domain/read_receipt.dart';
+import 'package:tsiwa_mahber/features/notifications/domain/app_notification.dart';
+import 'package:tsiwa_mahber/features/notifications/data/telegram_service.dart';
 
 void main() {
   group('AppConstants', () {
@@ -320,6 +328,445 @@ void main() {
         FirestorePaths.leader('gelan', 'leader1'),
         'areas/gelan/leaders/leader1',
       );
+    });
+  });
+
+  group('Edir', () {
+    test('Edir copyWith works correctly', () {
+      const original = Edir(
+        id: '1',
+        name: 'Test Edir',
+        monthlyContribution: 100,
+        treasury: 5000,
+      );
+
+      final updated = original.copyWith(
+        monthlyContribution: 200,
+        penaltyAmount: 50,
+      );
+
+      expect(updated.id, '1');
+      expect(updated.name, 'Test Edir');
+      expect(updated.monthlyContribution, 200);
+      expect(updated.penaltyAmount, 50);
+      expect(updated.treasury, 5000);
+    });
+
+    test('edir paths are correct', () {
+      expect(
+        FirestorePaths.edirs('gelan'),
+        'areas/gelan/edirs',
+      );
+      expect(
+        FirestorePaths.edir('gelan', 'edir1'),
+        'areas/gelan/edirs/edir1',
+      );
+      expect(
+        FirestorePaths.edirMembers('gelan', 'edir1'),
+        'areas/gelan/edirs/edir1/members',
+      );
+      expect(
+        FirestorePaths.edirMember('gelan', 'edir1', 'member1'),
+        'areas/gelan/edirs/edir1/members/member1',
+      );
+      expect(
+        FirestorePaths.edirPayments('gelan', 'edir1'),
+        'areas/gelan/edirs/edir1/payments',
+      );
+    });
+  });
+
+  group('EdirMember', () {
+    test('EdirMemberStatus displayName returns Amharic', () {
+      expect(EdirMemberStatus.active.displayName, 'ንቁ');
+      expect(EdirMemberStatus.inactive.displayName, 'ቦዝኗል');
+      expect(EdirMemberStatus.suspended.displayName, 'የታገደ');
+    });
+
+    test('EdirMemberStatus fromString parses correctly', () {
+      expect(EdirMemberStatus.fromString('active'), EdirMemberStatus.active);
+      expect(
+          EdirMemberStatus.fromString('inactive'), EdirMemberStatus.inactive);
+      expect(EdirMemberStatus.fromString('suspended'),
+          EdirMemberStatus.suspended);
+      expect(EdirMemberStatus.fromString(null), EdirMemberStatus.active);
+      expect(EdirMemberStatus.fromString('unknown'), EdirMemberStatus.active);
+    });
+
+    test('EdirMemberStatus firestoreValue maps correctly', () {
+      expect(EdirMemberStatus.active.firestoreValue, 'active');
+      expect(EdirMemberStatus.inactive.firestoreValue, 'inactive');
+      expect(EdirMemberStatus.suspended.firestoreValue, 'suspended');
+    });
+
+    test('EdirMember copyWith works correctly', () {
+      const original = EdirMember(
+        id: '1',
+        fullName: 'Test Member',
+        totalPaid: 500,
+        paidMonths: 5,
+      );
+
+      final updated = original.copyWith(
+        status: EdirMemberStatus.suspended,
+        balance: 100,
+      );
+
+      expect(updated.id, '1');
+      expect(updated.fullName, 'Test Member');
+      expect(updated.status, EdirMemberStatus.suspended);
+      expect(updated.totalPaid, 500);
+      expect(updated.balance, 100);
+      expect(updated.paidMonths, 5);
+    });
+  });
+
+  group('Payment', () {
+    test('PaymentType displayName returns Amharic', () {
+      expect(PaymentType.monthly.displayName, 'ወርሃዊ');
+      expect(PaymentType.penalty.displayName, 'ቅጣት');
+      expect(PaymentType.other.displayName, 'ሌላ');
+    });
+
+    test('PaymentType fromString parses correctly', () {
+      expect(PaymentType.fromString('monthly'), PaymentType.monthly);
+      expect(PaymentType.fromString('penalty'), PaymentType.penalty);
+      expect(PaymentType.fromString('other'), PaymentType.other);
+      expect(PaymentType.fromString(null), PaymentType.other);
+      expect(PaymentType.fromString('unknown'), PaymentType.other);
+    });
+
+    test('PaymentType firestoreValue maps correctly', () {
+      expect(PaymentType.monthly.firestoreValue, 'monthly');
+      expect(PaymentType.penalty.firestoreValue, 'penalty');
+      expect(PaymentType.other.firestoreValue, 'other');
+    });
+  });
+
+  group('AppUser', () {
+    test('UserRole displayName returns Amharic', () {
+      expect(UserRole.admin.displayName, 'አስተዳዳሪ');
+      expect(UserRole.leader.displayName, 'አመራር');
+      expect(UserRole.member.displayName, 'አባል');
+      expect(UserRole.viewer.displayName, 'ታዛቢ');
+    });
+
+    test('UserRole fromString parses correctly', () {
+      expect(UserRole.fromString('admin'), UserRole.admin);
+      expect(UserRole.fromString('leader'), UserRole.leader);
+      expect(UserRole.fromString('member'), UserRole.member);
+      expect(UserRole.fromString('viewer'), UserRole.viewer);
+      expect(UserRole.fromString(null), UserRole.viewer);
+      expect(UserRole.fromString('unknown'), UserRole.viewer);
+    });
+
+    test('UserRole firestoreValue maps correctly', () {
+      expect(UserRole.admin.firestoreValue, 'admin');
+      expect(UserRole.leader.firestoreValue, 'leader');
+      expect(UserRole.member.firestoreValue, 'member');
+      expect(UserRole.viewer.firestoreValue, 'viewer');
+    });
+
+    test('UserRole permissions are correct', () {
+      expect(UserRole.admin.canEdit, true);
+      expect(UserRole.admin.canDelete, true);
+      expect(UserRole.admin.canManageUsers, true);
+
+      expect(UserRole.leader.canEdit, true);
+      expect(UserRole.leader.canDelete, false);
+      expect(UserRole.leader.canManageUsers, false);
+
+      expect(UserRole.member.canEdit, false);
+      expect(UserRole.member.canDelete, false);
+      expect(UserRole.member.canManageUsers, false);
+
+      expect(UserRole.viewer.canEdit, false);
+      expect(UserRole.viewer.canDelete, false);
+      expect(UserRole.viewer.canManageUsers, false);
+    });
+
+    test('AppUser copyWith works correctly', () {
+      const original = AppUser(
+        uid: '123',
+        email: 'test@test.com',
+        displayName: 'Test User',
+        role: UserRole.viewer,
+      );
+
+      final updated = original.copyWith(
+        role: UserRole.admin,
+        phone: '0912345678',
+      );
+
+      expect(updated.uid, '123');
+      expect(updated.email, 'test@test.com');
+      expect(updated.displayName, 'Test User');
+      expect(updated.role, UserRole.admin);
+      expect(updated.phone, '0912345678');
+    });
+  });
+
+  group('Announcement', () {
+    test('AnnouncementPriority displayName returns Amharic', () {
+      expect(AnnouncementPriority.normal.displayName, 'መደበኛ');
+      expect(AnnouncementPriority.important.displayName, 'አስፈላጊ');
+      expect(AnnouncementPriority.urgent.displayName, 'አስቸኳይ');
+    });
+
+    test('AnnouncementPriority fromString parses correctly', () {
+      expect(
+          AnnouncementPriority.fromString('normal'),
+          AnnouncementPriority.normal);
+      expect(
+          AnnouncementPriority.fromString('important'),
+          AnnouncementPriority.important);
+      expect(
+          AnnouncementPriority.fromString('urgent'),
+          AnnouncementPriority.urgent);
+      expect(
+          AnnouncementPriority.fromString('unknown'),
+          AnnouncementPriority.normal);
+      expect(
+          AnnouncementPriority.fromString(null),
+          AnnouncementPriority.normal);
+    });
+
+    test('AnnouncementPriority firestoreValue maps correctly', () {
+      expect(AnnouncementPriority.normal.firestoreValue, 'normal');
+      expect(AnnouncementPriority.important.firestoreValue, 'important');
+      expect(AnnouncementPriority.urgent.firestoreValue, 'urgent');
+    });
+
+    test('Announcement copyWith works correctly', () {
+      final original = Announcement(
+        id: 'ann1',
+        title: 'ተስት',
+        body: 'ዝርዝር',
+        priority: AnnouncementPriority.normal,
+        authorId: 'user1',
+        authorName: 'Admin',
+        readCount: 5,
+        isActive: true,
+      );
+
+      final updated = original.copyWith(
+        title: 'አዲስ ርዕስ',
+        priority: AnnouncementPriority.urgent,
+        readCount: 10,
+      );
+
+      expect(updated.id, 'ann1');
+      expect(updated.title, 'አዲስ ርዕስ');
+      expect(updated.body, 'ዝርዝር');
+      expect(updated.priority, AnnouncementPriority.urgent);
+      expect(updated.authorName, 'Admin');
+      expect(updated.readCount, 10);
+    });
+
+    test('Announcement toCreateMap includes required fields', () {
+      final announcement = Announcement(
+        title: 'ተስት ማስታወቂያ',
+        body: 'ይህ መልዕክት ነው',
+        priority: AnnouncementPriority.important,
+        authorId: 'user1',
+        authorName: 'Admin',
+      );
+
+      final map = announcement.toCreateMap();
+
+      expect(map['title'], 'ተስት ማስታወቂያ');
+      expect(map['body'], 'ይህ መልዕክት ነው');
+      expect(map['priority'], 'important');
+      expect(map['authorId'], 'user1');
+      expect(map['authorName'], 'Admin');
+      expect(map['readCount'], 0);
+      expect(map['isActive'], true);
+    });
+
+    test('Announcement toUpdateMap includes correct fields', () {
+      final announcement = Announcement(
+        id: 'ann1',
+        title: 'አስተካክል',
+        body: 'የተሰተከከለ',
+        priority: AnnouncementPriority.urgent,
+        isActive: false,
+      );
+
+      final map = announcement.toUpdateMap();
+
+      expect(map['title'], 'አስተካክል');
+      expect(map['body'], 'የተሰተከከለ');
+      expect(map['priority'], 'urgent');
+      expect(map['isActive'], false);
+      expect(map.containsKey('authorId'), false);
+    });
+
+    test('ReadReceipt toMap includes required fields', () {
+      final receipt = ReadReceipt(
+        userId: 'user1',
+        userName: 'Test User',
+      );
+
+      final map = receipt.toMap();
+
+      expect(map['userId'], 'user1');
+      expect(map['userName'], 'Test User');
+    });
+
+    test('Firestore paths for announcements are correct', () {
+      expect(
+        FirestorePaths.announcements('gelan'),
+        'areas/gelan/announcements',
+      );
+      expect(
+        FirestorePaths.announcement('gelan', 'ann1'),
+        'areas/gelan/announcements/ann1',
+      );
+      expect(
+        FirestorePaths.readReceipts('gelan', 'ann1'),
+        'areas/gelan/announcements/ann1/readReceipts',
+      );
+      expect(
+        FirestorePaths.readReceipt('gelan', 'ann1', 'user1'),
+        'areas/gelan/announcements/ann1/readReceipts/user1',
+      );
+    });
+  });
+
+  group('AppNotification', () {
+    test('NotificationType displayName returns Amharic', () {
+      expect(NotificationType.announcement.displayName, 'ማስታወቂያ');
+      expect(NotificationType.event.displayName, 'ክስተት');
+      expect(NotificationType.payment.displayName, 'ክፍያ');
+      expect(NotificationType.system.displayName, 'ስርዓት');
+    });
+
+    test('NotificationType fromString parses correctly', () {
+      expect(NotificationType.fromString('announcement'),
+          NotificationType.announcement);
+      expect(NotificationType.fromString('event'),
+          NotificationType.event);
+      expect(NotificationType.fromString('payment'),
+          NotificationType.payment);
+      expect(NotificationType.fromString('system'),
+          NotificationType.system);
+      expect(NotificationType.fromString(null),
+          NotificationType.system);
+      expect(NotificationType.fromString('unknown'),
+          NotificationType.system);
+    });
+
+    test('NotificationType firestoreValue maps correctly', () {
+      expect(NotificationType.announcement.firestoreValue,
+          'announcement');
+      expect(NotificationType.event.firestoreValue, 'event');
+      expect(NotificationType.payment.firestoreValue, 'payment');
+      expect(NotificationType.system.firestoreValue, 'system');
+    });
+
+    test('AppNotification copyWith works correctly', () {
+      const original = AppNotification(
+        id: 'notif1',
+        title: 'ሰላም',
+        body: 'ዝርዝር',
+        type: NotificationType.announcement,
+        isRead: false,
+      );
+
+      final updated = original.copyWith(
+        isRead: true,
+        title: 'አዲስ ርዕስ',
+      );
+
+      expect(updated.id, 'notif1');
+      expect(updated.title, 'አዲስ ርዕስ');
+      expect(updated.body, 'ዝርዝር');
+      expect(updated.type, NotificationType.announcement);
+      expect(updated.isRead, true);
+    });
+
+    test('AppNotification toCreateMap includes required fields', () {
+      const notification = AppNotification(
+        title: 'ተስት',
+        body: 'ሰላም',
+        type: NotificationType.event,
+        senderId: 'user1',
+        senderName: 'Admin',
+      );
+
+      final map = notification.toCreateMap();
+
+      expect(map['title'], 'ተስት');
+      expect(map['body'], 'ሰላም');
+      expect(map['type'], 'event');
+      expect(map['senderId'], 'user1');
+      expect(map['senderName'], 'Admin');
+      expect(map['isRead'], false);
+    });
+  });
+
+  group('TelegramConfig', () {
+    test('fromMap creates correct config', () {
+      final config = TelegramConfig.fromMap({
+        'botToken': 'token123',
+        'chatId': '-100123',
+        'isEnabled': true,
+        'sendAnnouncements': true,
+        'sendEvents': false,
+      });
+
+      expect(config.botToken, 'token123');
+      expect(config.chatId, '-100123');
+      expect(config.isEnabled, true);
+      expect(config.sendAnnouncements, true);
+      expect(config.sendEvents, false);
+    });
+
+    test('toMap returns correct map', () {
+      const config = TelegramConfig(
+        botToken: 'abc',
+        chatId: '-999',
+        isEnabled: true,
+        sendAnnouncements: false,
+        sendEvents: true,
+      );
+
+      final map = config.toMap();
+
+      expect(map['botToken'], 'abc');
+      expect(map['chatId'], '-999');
+      expect(map['isEnabled'], true);
+      expect(map['sendAnnouncements'], false);
+      expect(map['sendEvents'], true);
+    });
+
+    test('copyWith works correctly', () {
+      const original = TelegramConfig(
+        botToken: 'token',
+        chatId: 'chat',
+        isEnabled: false,
+      );
+
+      final updated = original.copyWith(
+        isEnabled: true,
+        sendEvents: true,
+      );
+
+      expect(updated.botToken, 'token');
+      expect(updated.chatId, 'chat');
+      expect(updated.isEnabled, true);
+      expect(updated.sendAnnouncements, true);
+      expect(updated.sendEvents, true);
+    });
+
+    test('default values are correct', () {
+      const config = TelegramConfig();
+
+      expect(config.botToken, '');
+      expect(config.chatId, '');
+      expect(config.isEnabled, false);
+      expect(config.sendAnnouncements, true);
+      expect(config.sendEvents, false);
     });
   });
 }

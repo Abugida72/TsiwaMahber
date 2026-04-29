@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "tsiwa-app",
-    "storage_bucket": "tsiwa-app.appspot.com"
+    "project_number": "658277409136",
+    "project_id": "tsiwamahber",
+    "storage_bucket": "tsiwamahber.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:658277409136:android:a9bec92e9ab9e90842efb5",
         "android_client_info": {
           "package_name": "com.tsiwa.tsiwa_mahber"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "placeholder"
+          "current_key": "AIzaSyBfLd5efwiA-wbuhK20_6Dq5fry7wBw6dQ"
         }
       ],
       "services": {

@@ -10,10 +10,25 @@ import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/leadership/presentation/leader_list_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
+import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
+import 'package:tsiwa_mahber/features/edir/presentation/edir_list_screen.dart';
+import 'package:tsiwa_mahber/features/announcements/data/announcement_repository.dart';
+import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
+import 'package:tsiwa_mahber/features/announcements/presentation/announcement_list_screen.dart';
+import 'package:tsiwa_mahber/features/notifications/data/notification_repository.dart';
+import 'package:tsiwa_mahber/features/notifications/presentation/notification_list_screen.dart';
+import 'package:tsiwa_mahber/features/notifications/presentation/telegram_settings_screen.dart';
+import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
+import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
+import 'package:tsiwa_mahber/features/auth/presentation/user_management_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
-  const AreaHomeScreen({super.key});
+  final AppUser? currentUser;
+
+  const AreaHomeScreen({super.key, this.currentUser});
 
   @override
   State<AreaHomeScreen> createState() => _AreaHomeScreenState();
@@ -23,6 +38,10 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _areaRepository = AreaRepository();
   final _tsiwaRepository = TsiwaRepository();
   final _leaderRepository = LeaderRepository();
+  final _edirRepository = EdirRepository();
+  final _announcementRepository = AnnouncementRepository();
+  final _notificationRepository = NotificationRepository();
+  final _authRepository = AuthRepository();
   String? _initError;
   bool _isInitializing = true;
 
@@ -53,6 +72,69 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppConstants.defaultAreaName),
+        actions: [
+          if (widget.currentUser != null)
+            StreamBuilder<int>(
+              stream: _notificationRepository.watchUnreadCount(
+                  widget.currentUser!.uid),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                return IconButton(
+                  icon: Badge(
+                    isLabelVisible: count > 0,
+                    label: Text(count.toString()),
+                    child: const Icon(Icons.notifications),
+                  ),
+                  tooltip: 'ማሳወቂያዎች',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NotificationListScreen(
+                          userId: widget.currentUser!.uid,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          if (widget.currentUser?.role.canManageUsers == true)
+            IconButton(
+              icon: const Icon(Icons.people),
+              tooltip: 'ተጠቃሚዎች',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const UserManagementScreen(),
+                  ),
+                );
+              },
+            ),
+          if (widget.currentUser != null)
+            IconButton(
+              icon: const Icon(Icons.person),
+              tooltip: 'መገለጫ',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileScreen(user: widget.currentUser!),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'ውጣ',
+              onPressed: () => _authRepository.signOut(),
+            ),
+        ],
       ),
       body: _isInitializing
           ? const LoadingState(message: 'በመጫን ላይ...')
@@ -300,15 +382,80 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         AppInfoCard(
           icon: Icons.account_balance_wallet,
           title: 'እድር',
-          subtitle: 'በቀጣይ ስሪት ይጨመራል',
-          iconColor: AppTheme.textMuted,
+          subtitle: 'እድርን ያስተዳድሩ',
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('በቀጣይ ስሪት ይጨመራል')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EdirListScreen(
+                  areaId: AppConstants.defaultAreaId,
+                ),
+              ),
             );
           },
         ),
+        AppInfoCard(
+          icon: Icons.campaign,
+          title: 'ማስታወቂያዎች',
+          subtitle: 'ማስታወቂያዎችን ያየ',
+          trailing: _buildUnreadBadge(),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AnnouncementListScreen(
+                  areaId: AppConstants.defaultAreaId,
+                  currentUser: widget.currentUser,
+                ),
+              ),
+            );
+          },
+        ),
+        if (widget.currentUser?.role.canManageUsers == true)
+          AppInfoCard(
+            icon: Icons.telegram,
+            title: 'ቴሌግራም',
+            subtitle: 'ቴሌግራም ባት ማገናኛ',
+            iconColor: Colors.blue,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TelegramSettingsScreen(
+                    areaId: AppConstants.defaultAreaId,
+                  ),
+                ),
+              );
+            },
+          ),
       ],
+    );
+  }
+
+  Widget _buildUnreadBadge() {
+    final userId = widget.currentUser?.uid ?? '';
+    if (userId.isEmpty) return const SizedBox.shrink();
+
+    return StreamBuilder<int>(
+      stream: _announcementRepository.watchUnreadCount(
+          AppConstants.defaultAreaId, userId),
+      builder: (context, snapshot) {
+        final count = snapshot.data ?? 0;
+        if (count == 0) return const SizedBox.shrink();
+        return Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            count.toString(),
+            style: const TextStyle(
+                color: Colors.white, fontSize: 12),
+          ),
+        );
+      },
     );
   }
 
@@ -342,6 +489,37 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   value: count.toString(),
                   icon: Icons.admin_panel_settings,
                   color: AppTheme.secondary,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: StreamBuilder<List<Edir>>(
+              stream: _edirRepository.watchEdirs(AppConstants.defaultAreaId),
+              builder: (context, snapshot) {
+                final count = snapshot.data?.length ?? 0;
+                return _StatCard(
+                  label: 'እድር',
+                  value: count.toString(),
+                  icon: Icons.account_balance_wallet,
+                  color: Colors.purple,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: StreamBuilder<List<Announcement>>(
+              stream: _announcementRepository.watchAnnouncements(
+                  AppConstants.defaultAreaId),
+              builder: (context, snapshot) {
+                final count = snapshot.data?.length ?? 0;
+                return _StatCard(
+                  label: 'ማስታወቂያ',
+                  value: count.toString(),
+                  icon: Icons.campaign,
+                  color: Colors.teal,
                 );
               },
             ),
