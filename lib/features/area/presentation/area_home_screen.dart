@@ -13,6 +13,9 @@ import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/edir/presentation/edir_list_screen.dart';
+import 'package:tsiwa_mahber/features/announcements/data/announcement_repository.dart';
+import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
+import 'package:tsiwa_mahber/features/announcements/presentation/announcement_list_screen.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
@@ -33,6 +36,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _tsiwaRepository = TsiwaRepository();
   final _leaderRepository = LeaderRepository();
   final _edirRepository = EdirRepository();
+  final _announcementRepository = AnnouncementRepository();
   final _authRepository = AuthRepository();
   String? _initError;
   bool _isInitializing = true;
@@ -359,7 +363,51 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
             );
           },
         ),
+        AppInfoCard(
+          icon: Icons.campaign,
+          title: 'ማስታወቂያዎች',
+          subtitle: 'ማስታወቂያዎችን ያየ',
+          trailing: _buildUnreadBadge(),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AnnouncementListScreen(
+                  areaId: AppConstants.defaultAreaId,
+                  currentUser: widget.currentUser,
+                ),
+              ),
+            );
+          },
+        ),
       ],
+    );
+  }
+
+  Widget _buildUnreadBadge() {
+    final userId = widget.currentUser?.uid ?? '';
+    if (userId.isEmpty) return const SizedBox.shrink();
+
+    return StreamBuilder<int>(
+      stream: _announcementRepository.watchUnreadCount(
+          AppConstants.defaultAreaId, userId),
+      builder: (context, snapshot) {
+        final count = snapshot.data ?? 0;
+        if (count == 0) return const SizedBox.shrink();
+        return Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            count.toString(),
+            style: const TextStyle(
+                color: Colors.white, fontSize: 12),
+          ),
+        );
+      },
     );
   }
 
@@ -408,6 +456,22 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   value: count.toString(),
                   icon: Icons.account_balance_wallet,
                   color: Colors.purple,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: StreamBuilder<List<Announcement>>(
+              stream: _announcementRepository.watchAnnouncements(
+                  AppConstants.defaultAreaId),
+              builder: (context, snapshot) {
+                final count = snapshot.data?.length ?? 0;
+                return _StatCard(
+                  label: 'ማስታወቂያ',
+                  value: count.toString(),
+                  icon: Icons.campaign,
+                  color: Colors.teal,
                 );
               },
             ),

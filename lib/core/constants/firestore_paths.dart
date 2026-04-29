@@ -41,4 +41,17 @@ class FirestorePaths {
 
   static String edirPayments(String areaId, String edirId) =>
       'areas/$areaId/edirs/$edirId/payments';
+
+  static String announcements(String areaId) =>
+      'areas/$areaId/announcements';
+
+  static String announcement(String areaId, String announcementId) =>
+      'areas/$areaId/announcements/$announcementId';
+
+  static String readReceipts(String areaId, String announcementId) =>
+      'areas/$areaId/announcements/$announcementId/readReceipts';
+
+  static String readReceipt(
+          String areaId, String announcementId, String userId) =>
+      'areas/$areaId/announcements/$announcementId/readReceipts/$userId';
 }

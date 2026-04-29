@@ -11,6 +11,8 @@ import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
 import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
+import 'package:tsiwa_mahber/features/announcements/domain/read_receipt.dart';
 
 void main() {
   group('AppConstants', () {
@@ -499,6 +501,133 @@ void main() {
       expect(updated.displayName, 'Test User');
       expect(updated.role, UserRole.admin);
       expect(updated.phone, '0912345678');
+    });
+  });
+
+  group('Announcement', () {
+    test('AnnouncementPriority displayName returns Amharic', () {
+      expect(AnnouncementPriority.normal.displayName, 'መደበኛ');
+      expect(AnnouncementPriority.important.displayName, 'አስፈላጊ');
+      expect(AnnouncementPriority.urgent.displayName, 'አስቸኳይ');
+    });
+
+    test('AnnouncementPriority fromString parses correctly', () {
+      expect(
+          AnnouncementPriority.fromString('normal'),
+          AnnouncementPriority.normal);
+      expect(
+          AnnouncementPriority.fromString('important'),
+          AnnouncementPriority.important);
+      expect(
+          AnnouncementPriority.fromString('urgent'),
+          AnnouncementPriority.urgent);
+      expect(
+          AnnouncementPriority.fromString('unknown'),
+          AnnouncementPriority.normal);
+      expect(
+          AnnouncementPriority.fromString(null),
+          AnnouncementPriority.normal);
+    });
+
+    test('AnnouncementPriority firestoreValue maps correctly', () {
+      expect(AnnouncementPriority.normal.firestoreValue, 'normal');
+      expect(AnnouncementPriority.important.firestoreValue, 'important');
+      expect(AnnouncementPriority.urgent.firestoreValue, 'urgent');
+    });
+
+    test('Announcement copyWith works correctly', () {
+      final original = Announcement(
+        id: 'ann1',
+        title: 'ተስት',
+        body: 'ዝርዝር',
+        priority: AnnouncementPriority.normal,
+        authorId: 'user1',
+        authorName: 'Admin',
+        readCount: 5,
+        isActive: true,
+      );
+
+      final updated = original.copyWith(
+        title: 'አዲስ ርዕስ',
+        priority: AnnouncementPriority.urgent,
+        readCount: 10,
+      );
+
+      expect(updated.id, 'ann1');
+      expect(updated.title, 'አዲስ ርዕስ');
+      expect(updated.body, 'ዝርዝር');
+      expect(updated.priority, AnnouncementPriority.urgent);
+      expect(updated.authorName, 'Admin');
+      expect(updated.readCount, 10);
+    });
+
+    test('Announcement toCreateMap includes required fields', () {
+      final announcement = Announcement(
+        title: 'ተስት ማስታወቂያ',
+        body: 'ይህ መልዕክት ነው',
+        priority: AnnouncementPriority.important,
+        authorId: 'user1',
+        authorName: 'Admin',
+      );
+
+      final map = announcement.toCreateMap();
+
+      expect(map['title'], 'ተስት ማስታወቂያ');
+      expect(map['body'], 'ይህ መልዕክት ነው');
+      expect(map['priority'], 'important');
+      expect(map['authorId'], 'user1');
+      expect(map['authorName'], 'Admin');
+      expect(map['readCount'], 0);
+      expect(map['isActive'], true);
+    });
+
+    test('Announcement toUpdateMap includes correct fields', () {
+      final announcement = Announcement(
+        id: 'ann1',
+        title: 'አስተካክል',
+        body: 'የተሰተከከለ',
+        priority: AnnouncementPriority.urgent,
+        isActive: false,
+      );
+
+      final map = announcement.toUpdateMap();
+
+      expect(map['title'], 'አስተካክል');
+      expect(map['body'], 'የተሰተከከለ');
+      expect(map['priority'], 'urgent');
+      expect(map['isActive'], false);
+      expect(map.containsKey('authorId'), false);
+    });
+
+    test('ReadReceipt toMap includes required fields', () {
+      final receipt = ReadReceipt(
+        userId: 'user1',
+        userName: 'Test User',
+      );
+
+      final map = receipt.toMap();
+
+      expect(map['userId'], 'user1');
+      expect(map['userName'], 'Test User');
+    });
+
+    test('Firestore paths for announcements are correct', () {
+      expect(
+        FirestorePaths.announcements('gelan'),
+        'areas/gelan/announcements',
+      );
+      expect(
+        FirestorePaths.announcement('gelan', 'ann1'),
+        'areas/gelan/announcements/ann1',
+      );
+      expect(
+        FirestorePaths.readReceipts('gelan', 'ann1'),
+        'areas/gelan/announcements/ann1/readReceipts',
+      );
+      expect(
+        FirestorePaths.readReceipt('gelan', 'ann1', 'user1'),
+        'areas/gelan/announcements/ann1/readReceipts/user1',
+      );
     });
   });
 }

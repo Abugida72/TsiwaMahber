@@ -48,6 +48,14 @@
 - **Role Permissions**: canEdit (admin/leader), canDelete (admin), canManageUsers (admin)
 - **Default Role**: New users start as ታዛቢ (viewer)
 
+### Version 7 — Announcements
+- **Announcement CRUD**: Create, edit, delete announcements (admin/leader only)
+- **Priority Levels**: መደበኛ (normal), አስፈላጊ (important), አስተካክል (urgent) with color badges
+- **Read Confirmation**: Users mark announcements as read (አንብቤአለሁ)
+- **Read Receipts**: See who read each announcement and when
+- **Unread Badge**: Home screen shows unread count on announcements card
+- **Detail View**: Full announcement with author, timestamp, and reader list
+
 ## Tech Stack
 
 - **Flutter** (Dart)
@@ -100,6 +108,10 @@ lib/
       domain/app_user.dart
       data/auth_repository.dart
       presentation/{auth_gate,login,register,profile,user_management}_screen.dart
+    announcements/
+      domain/{announcement,read_receipt}.dart
+      data/announcement_repository.dart
+      presentation/{announcement_list,announcement_detail,announcement_form}_screen.dart
 ```
 
 ## Firestore Structure
@@ -114,10 +126,14 @@ areas/{areaId}
   │     └── events/{eventId} — type, status, responsibleMemberId
   ├── leaders/{leaderId}
   │     └── fullName, role, assignedTsiwaIds, assignedEdirIds
-  └── edirs/{edirId}
-        ├── name, monthlyContribution, penaltyAmount, treasury, paymentDay
-        ├── members/{memberId} — fullName, status, totalPaid, balance
-        └── payments/{paymentId} — memberId, type, amount, forMonth/Year
+  ├── edirs/{edirId}
+  │     ├── name, monthlyContribution, penaltyAmount, treasury, paymentDay
+  │     ├── members/{memberId} — fullName, status, totalPaid, balance
+  │     └── payments/{paymentId} — memberId, type, amount, forMonth/Year
+  └── announcements/{announcementId}
+        ├── title, body, priority, authorId, authorName, readCount, isActive
+        └── readReceipts/{userId} — userName, readAt
+users/{uid} — email, displayName, phone, role, areaId, isActive
 ```
 
 ## Getting Started
