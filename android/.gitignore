@@ -12,3 +12,6 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Allow the shared debug keystore for consistent CI builds
+!app/debug.keystore
