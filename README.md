@@ -85,11 +85,27 @@
 - **Charts**: Interactive bar and pie charts via fl_chart
 - **Accessible to All**: Reports visible to all authenticated users
 
+### Version 11 — Multi-Area, Developer Auth, Theme & Language
+- **Area Selection**: Choose which area to enter (above home screen)
+- **Multi-Area Support**: Developers can create new areas; each area has full feature set
+- **Developer Role (ገንቢ)**: Top-level role with full access via Google Sign-In
+- **Developer Management**: Add/remove developer emails (Firestore-backed)
+- **3-Dot Menu**: On all pages — language toggle (AM/EN), dark/light theme, developer sign-in, exit
+- **Dark & Light Theme**: Toggle between dark (default) and light themes
+- **Language Toggle**: Switch between Amharic and English
+- **RBAC Hierarchy**: Developer > Admin > Leader > Member > Viewer
+  - **ገንቢ (Developer)**: Full access, create areas, manage developers
+  - **አስተዳዳሪ (Admin)**: Full access except developer features
+  - **አመራር (Leader)**: Announce events, manage Tsiwa data
+  - **አባል (Member)** / **ታዛቢ (Viewer)**: View only
+- **Edir Leader Badge**: የእድር አመራር ሹመት (ሊቀ መንበር, ም/ሊቀ መንበር, ጸሐፊ, ሒሳብ ሹም, ግምጃ ቤት) — admin/developer editable only
+
 ## Tech Stack
 
 - **Flutter** (Dart)
 - **Firebase Core** + **Cloud Firestore** + **Firebase Auth** + **Firebase Messaging**
-- Material 3 design
+- **Google Sign-In** (developer auth)
+- Material 3 design with dark/light theme support
 - Clean architecture (domain / data / presentation)
 
 ## Project Structure
@@ -107,6 +123,7 @@ lib/
       app_theme.dart
     widgets/
       app_card.dart
+      app_popup_menu.dart
       confirm_dialog.dart
       empty_state.dart
       loading_state.dart
@@ -114,7 +131,7 @@ lib/
     area/
       domain/area.dart
       data/area_repository.dart
-      presentation/area_home_screen.dart
+      presentation/{area_selection,area_home}_screen.dart
     tsiwa/
       domain/{tsiwa_mahber,tsiwa_event}.dart
       data/{tsiwa_repository,tsiwa_event_repository}.dart
@@ -151,6 +168,9 @@ lib/
     reports/
       data/report_service.dart
       presentation/{report_home,tsiwa_report,edir_report}_screen.dart
+    developer/
+      data/developer_service.dart
+      presentation/developer_management_screen.dart
 ```
 
 ## Firestore Structure
@@ -173,6 +193,7 @@ areas/{areaId}
         ├── title, body, priority, authorId, authorName, readCount, isActive
         └── readReceipts/{userId} — userName, readAt
 users/{uid} — email, displayName, phone, role, areaId, isActive
+developers/{email} — addedAt, addedBy
 ```
 
 ## Getting Started
@@ -211,12 +232,14 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 - Debug APK build
 - APK artifact upload
 
-## Future Versions
+## Version History
 
-| Version | Features |
-|---------|----------|
-| ~~v9~~ | ~~CSV import/export~~ (done) |
-| ~~v10~~ | ~~Advanced reports and analytics~~ (done) |
+| Version | Features | Status |
+|---------|----------|--------|
+| V1–V8 | Core, Members, Calendar, Leadership, Edir, Auth, Announcements, Notifications | Done |
+| V9 | CSV Import/Export | Done |
+| V10 | Advanced Reports & Analytics | Done |
+| V11 | Multi-Area, Developer Auth, Theme & Language, RBAC | Done |
 
 ## License
 
