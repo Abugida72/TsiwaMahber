@@ -30,6 +30,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
   late final TextEditingController _phone2Controller;
 
   late LeaderRole _role;
+  EdirLeaderRole? _edirRole;
   late bool _isActive;
   late Set<String> _selectedTsiwaIds;
   bool _isSaving = false;
@@ -48,6 +49,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
     _phone2Controller = TextEditingController(text: l?.phone2 ?? '');
 
     _role = l?.role ?? LeaderRole.amerar;
+    _edirRole = l?.edirRole;
     _isActive = l?.isActive ?? true;
     _selectedTsiwaIds = Set<String>.from(l?.assignedTsiwaIds ?? []);
   }
@@ -135,7 +137,14 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
                       label: Text(role.displayName),
                       selected: isSelected,
                       onSelected: (selected) {
-                        if (selected) setState(() => _role = role);
+                        if (selected) {
+                          setState(() {
+                            _role = role;
+                            if (role != LeaderRole.edirAmerar) {
+                              _edirRole = null;
+                            }
+                          });
+                        }
                       },
                       selectedColor: AppTheme.primary.withValues(alpha: 0.3),
                       labelStyle: TextStyle(
@@ -148,6 +157,39 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
                 ),
               ),
             ),
+            if (_role == LeaderRole.edirAmerar) ...[
+              const SizedBox(height: 24),
+              _buildSectionHeader('የእድር ሚና'),
+              const SizedBox(height: 8),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: EdirLeaderRole.values.map((eRole) {
+                      final isSelected = _edirRole == eRole;
+                      return ChoiceChip(
+                        label: Text(eRole.displayName),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            _edirRole = selected ? eRole : null;
+                          });
+                        },
+                        selectedColor:
+                            AppTheme.primary.withValues(alpha: 0.3),
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? AppTheme.primary
+                              : AppTheme.textMuted,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
             if (widget.availableTsiwas.isNotEmpty) ...[
               const SizedBox(height: 24),
               _buildSectionHeader('የተመደበባቸው ፅዋ ማህበሮች'),
@@ -252,6 +294,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
         phone2: _phone2Controller.text.trim(),
         role: _role,
         assignedTsiwaIds: _selectedTsiwaIds.toList(),
+        edirRole: _role == LeaderRole.edirAmerar ? _edirRole : null,
         isActive: _isActive,
       );
 

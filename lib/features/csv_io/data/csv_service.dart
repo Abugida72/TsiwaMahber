@@ -63,6 +63,7 @@ class CsvService {
     'ስልክ',
     'ስልክ 2',
     'ሚና',
+    'የእድር ሚና',
   ];
 
   static const List<String> edirMemberHeaders = [
@@ -114,6 +115,7 @@ class CsvService {
         l.phone,
         l.phone2,
         l.role.displayName,
+        l.edirRole?.displayName ?? '',
       ]);
     }
 
@@ -180,12 +182,15 @@ class CsvService {
 
       final roleName = row.length > 4 ? row[4].toString().trim() : '';
 
+      final edirRoleName = row.length > 5 ? row[5].toString().trim() : '';
+
       leaders.add(Leader(
         fullName: row[0].toString().trim(),
         christianName: row[1].toString().trim(),
         phone: row[2].toString().trim(),
         phone2: row.length > 3 ? row[3].toString().trim() : '',
         role: _parseLeaderRole(roleName),
+        edirRole: _parseEdirLeaderRole(edirRoleName),
       ));
     }
 
@@ -323,6 +328,14 @@ class CsvService {
       if (role.displayName == displayName) return role;
     }
     return LeaderRole.viewer;
+  }
+
+  EdirLeaderRole? _parseEdirLeaderRole(String displayName) {
+    if (displayName.isEmpty) return null;
+    for (final role in EdirLeaderRole.values) {
+      if (role.displayName == displayName) return role;
+    }
+    return null;
   }
 
   EdirMemberStatus _parseEdirMemberStatus(String displayName) {
