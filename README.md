@@ -65,6 +65,16 @@
 - **FCM Ready**: Firebase Cloud Messaging service for push notifications
 - **Relative Time**: Shows "አሁን", "5 ደቂቃ", "2 ሰአት" etc. for notification times
 
+### Version 9 — CSV Import/Export
+- **CSV Export**: Export Tsiwa members, Leaders, or Edir members to CSV files
+- **CSV Import**: Import data from CSV files with preview and validation
+- **Amharic Headers**: CSV columns use Amharic labels (ሙሉ ስም, ስልክ, ሚና, etc.)
+- **BOM Support**: UTF-8 BOM prefix for proper Amharic display in Excel
+- **Data Preview**: Preview parsed data in a table before importing
+- **Batch Write**: Efficient Firestore batch writes for imported records
+- **Role Permissions**: CSV features available to admin and leader roles only
+- **Share Integration**: Share exported CSV via system share sheet
+
 ## Tech Stack
 
 - **Flutter** (Dart)
@@ -125,6 +135,9 @@ lib/
       domain/app_notification.dart
       data/{notification_repository,fcm_service,telegram_service}.dart
       presentation/{notification_list,telegram_settings}_screen.dart
+    csv_io/
+      data/csv_service.dart
+      presentation/{csv_export,csv_import}_screen.dart
 ```
 
 ## Firestore Structure
@@ -189,7 +202,7 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 
 | Version | Features |
 |---------|----------|
-| v9 | CSV import/export |
+| ~~v9~~ | ~~CSV import/export~~ (done) |
 | v10 | Advanced reports and analytics |
 
 ## License
