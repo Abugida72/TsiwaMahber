@@ -113,23 +113,27 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
             ),
           ),
         ),
-        ...CsvEntityType.values.map((type) => Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: RadioListTile<CsvEntityType>(
-                title: Text(type.displayName),
-                value: type,
-                groupValue: _selectedType,
-                activeColor: AppTheme.primary,
-                onChanged: (value) {
-                  if (value == null) return;
-                  setState(() {
-                    _selectedType = value;
-                    _selectedTsiwaId = null;
-                    _selectedEdirId = null;
-                  });
-                },
-              ),
-            )),
+        RadioGroup<CsvEntityType>(
+          groupValue: _selectedType,
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selectedType = value;
+              _selectedTsiwaId = null;
+              _selectedEdirId = null;
+            });
+          },
+          child: Column(
+            children: CsvEntityType.values.map((type) => Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: RadioListTile<CsvEntityType>(
+                    title: Text(type.displayName),
+                    value: type,
+                    activeColor: AppTheme.primary,
+                  ),
+                )).toList(),
+          ),
+        ),
       ],
     );
   }
@@ -169,23 +173,27 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
                 ),
               ),
             ),
-            ...tsiwas.map((tsiwa) => Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: RadioListTile<String>(
-                    title: Text(tsiwa.name),
-                    subtitle: tsiwa.churchName.isNotEmpty
-                        ? Text(tsiwa.churchName,
-                            style: const TextStyle(
-                                fontSize: 12, color: AppTheme.textMuted))
-                        : null,
-                    value: tsiwa.id,
-                    groupValue: _selectedTsiwaId,
-                    activeColor: AppTheme.primary,
-                    onChanged: (value) {
-                      setState(() => _selectedTsiwaId = value);
-                    },
-                  ),
-                )),
+            RadioGroup<String>(
+              groupValue: _selectedTsiwaId,
+              onChanged: (value) {
+                setState(() => _selectedTsiwaId = value);
+              },
+              child: Column(
+                children: tsiwas.map((tsiwa) => Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: RadioListTile<String>(
+                        title: Text(tsiwa.name),
+                        subtitle: tsiwa.churchName.isNotEmpty
+                            ? Text(tsiwa.churchName,
+                                style: const TextStyle(
+                                    fontSize: 12, color: AppTheme.textMuted))
+                            : null,
+                        value: tsiwa.id,
+                        activeColor: AppTheme.primary,
+                      ),
+                    )).toList(),
+              ),
+            ),
           ],
         );
       },
@@ -227,18 +235,22 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
                 ),
               ),
             ),
-            ...edirs.map((edir) => Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: RadioListTile<String>(
-                    title: Text(edir.name),
-                    value: edir.id,
-                    groupValue: _selectedEdirId,
-                    activeColor: AppTheme.primary,
-                    onChanged: (value) {
-                      setState(() => _selectedEdirId = value);
-                    },
-                  ),
-                )),
+            RadioGroup<String>(
+              groupValue: _selectedEdirId,
+              onChanged: (value) {
+                setState(() => _selectedEdirId = value);
+              },
+              child: Column(
+                children: edirs.map((edir) => Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: RadioListTile<String>(
+                        title: Text(edir.name),
+                        value: edir.id,
+                        activeColor: AppTheme.primary,
+                      ),
+                    )).toList(),
+              ),
+            ),
           ],
         );
       },

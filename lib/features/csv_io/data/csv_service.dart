@@ -293,9 +293,7 @@ class CsvService {
   }
 
   Future<void> shareCsvFile(File file) async {
-    await SharePlus.instance.share(
-      ShareParams(files: [XFile(file.path)]),
-    );
+    await Share.shareXFiles([XFile(file.path)]);
   }
 
   Future<String?> pickCsvFile() async {

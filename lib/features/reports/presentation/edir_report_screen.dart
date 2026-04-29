@@ -328,7 +328,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                               color: colors[colorIdx],
                               value: entry.value.value,
                               title:
-                                  '${entry.value.value.toStringAsFixed(0)}',
+                                  entry.value.value.toStringAsFixed(0),
                               titleStyle: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
