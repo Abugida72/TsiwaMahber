@@ -75,6 +75,16 @@
 - **Role Permissions**: CSV features available to admin and leader roles only
 - **Share Integration**: Share exported CSV via system share sheet
 
+### Version 10 — Advanced Reports & Analytics
+- **Reports Dashboard**: Overview screen with total Tsiwas, Members, Leaders, Edirs, and treasury summary
+- **Tsiwa Report**: Member count per Tsiwa (bar chart), role distribution (pie chart), active/inactive breakdown
+- **Edir Financial Report**: Treasury comparison (bar chart), payment breakdown by type (pie chart), outstanding balances
+- **Leader Distribution**: Pie chart showing leaders by role
+- **Per-Tsiwa Detail Cards**: Active %, rotation count, role chips for each Tsiwa
+- **Per-Edir Detail Cards**: Member status chips, payment distribution, top debtors list
+- **Charts**: Interactive bar and pie charts via fl_chart
+- **Accessible to All**: Reports visible to all authenticated users
+
 ## Tech Stack
 
 - **Flutter** (Dart)
@@ -138,6 +148,9 @@ lib/
     csv_io/
       data/csv_service.dart
       presentation/{csv_export,csv_import}_screen.dart
+    reports/
+      data/report_service.dart
+      presentation/{report_home,tsiwa_report,edir_report}_screen.dart
 ```
 
 ## Firestore Structure
@@ -203,7 +216,7 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 | Version | Features |
 |---------|----------|
 | ~~v9~~ | ~~CSV import/export~~ (done) |
-| v10 | Advanced reports and analytics |
+| ~~v10~~ | ~~Advanced reports and analytics~~ (done) |
 
 ## License
 

@@ -25,6 +25,7 @@ import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/user_management_screen.dart';
 import 'package:tsiwa_mahber/features/csv_io/presentation/csv_export_screen.dart';
 import 'package:tsiwa_mahber/features/csv_io/presentation/csv_import_screen.dart';
+import 'package:tsiwa_mahber/features/reports/presentation/report_home_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
@@ -464,6 +465,22 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               );
             },
           ),
+        AppInfoCard(
+          icon: Icons.bar_chart,
+          title: 'ሪፖርቶች',
+          subtitle: 'ሪፖርቶች እና ትንታኔ',
+          iconColor: Colors.indigo,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReportHomeScreen(
+                  areaId: AppConstants.defaultAreaId,
+                ),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
