@@ -39,10 +39,19 @@
 - **Treasury Tracking**: Auto-updated treasury balance
 - **Balance Tracking**: Per-member paid/owed amounts
 
+### Version 6 — Firebase Auth
+- **Email/Password Auth**: Sign in, register, password reset
+- **User Roles**: አስተዳዳሪ (admin), አመራር (leader), አባል (member), ታዛቢ (viewer)
+- **Auth Gate**: Login required — shows login screen when signed out
+- **Profile Screen**: View/edit name and phone, logout
+- **User Management**: Admin-only screen to assign roles
+- **Role Permissions**: canEdit (admin/leader), canDelete (admin), canManageUsers (admin)
+- **Default Role**: New users start as ታዛቢ (viewer)
+
 ## Tech Stack
 
 - **Flutter** (Dart)
-- **Firebase Core** + **Cloud Firestore**
+- **Firebase Core** + **Cloud Firestore** + **Firebase Auth**
 - Material 3 design
 - Clean architecture (domain / data / presentation)
 
@@ -87,6 +96,10 @@ lib/
       presentation/{edir_list,edir_form,edir_detail}_screen.dart
       presentation/{edir_member_list,edir_member_form}_screen.dart
       presentation/{record_payment,edir_payment_list}_screen.dart
+    auth/
+      domain/app_user.dart
+      data/auth_repository.dart
+      presentation/{auth_gate,login,register,profile,user_management}_screen.dart
 ```
 
 ## Firestore Structure
@@ -147,7 +160,6 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 
 | Version | Features |
 |---------|----------|
-| v6 | Firebase Auth and role-based permissions |
 | v7 | Announcements with read confirmation |
 | v8 | Push notifications and Telegram integration |
 | v9 | CSV import/export |
