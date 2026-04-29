@@ -5,6 +5,7 @@ import 'package:tsiwa_mahber/core/widgets/confirm_dialog.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/features/members/presentation/member_list_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_form_screen.dart';
 
 class TsiwaDetailScreen extends StatefulWidget {
@@ -70,6 +71,8 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
                 _buildZikirFeedingSection(tsiwa),
                 const SizedBox(height: 16),
                 _buildStatusSection(tsiwa),
+                const SizedBox(height: 16),
+                _buildMembersSection(tsiwa),
                 const SizedBox(height: 16),
                 _buildFuturePlaceholders(),
                 const SizedBox(height: 32),
@@ -191,6 +194,72 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
     );
   }
 
+  Widget _buildMembersSection(TsiwaMahber tsiwa) {
+    return Card(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MemberListScreen(
+                areaId: widget.areaId,
+                tsiwaId: widget.tsiwaId,
+                tsiwaName: tsiwa.name,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.people,
+                  color: AppTheme.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'አባላት',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${tsiwa.memberCount} አባላት · ${tsiwa.museCount} ሙሴ',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: AppTheme.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFuturePlaceholders() {
     return Card(
       child: Padding(
@@ -207,16 +276,6 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildPlaceholderItem(
-              Icons.people,
-              'አባላት',
-              'Members will be added in Version 2',
-            ),
-            _buildPlaceholderItem(
-              Icons.person,
-              'ሙሴ',
-              'Muse assignment will be added in Version 2',
-            ),
             _buildPlaceholderItem(
               Icons.rotate_right,
               'የፅዋ ተራ',
