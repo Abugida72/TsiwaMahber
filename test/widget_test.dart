@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tsiwa_mahber/core/constants/app_constants.dart';
 import 'package:tsiwa_mahber/core/constants/firestore_paths.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
+import 'package:tsiwa_mahber/core/utils/ethiopian_calendar.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
+import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_event.dart';
 
 void main() {
   group('AppConstants', () {
@@ -132,6 +134,133 @@ void main() {
         FirestorePaths.member('gelan', 'tsiwa1', 'member1'),
         'areas/gelan/tsiwaMahbers/tsiwa1/members/member1',
       );
+    });
+
+    test('event paths are correct', () {
+      expect(
+        FirestorePaths.events('gelan', 'tsiwa1'),
+        'areas/gelan/tsiwaMahbers/tsiwa1/events',
+      );
+      expect(
+        FirestorePaths.event('gelan', 'tsiwa1', 'event1'),
+        'areas/gelan/tsiwaMahbers/tsiwa1/events/event1',
+      );
+    });
+  });
+
+  group('EthiopianCalendar', () {
+    test('converts known Gregorian date to Ethiopian', () {
+      // September 11, 2024 (Gregorian) = Meskerem 1, 2017 (Ethiopian)
+      final eth = EthiopianCalendar.fromGregorian(DateTime(2024, 9, 11));
+      expect(eth.year, 2017);
+      expect(eth.month, 1);
+      expect(eth.day, 1);
+    });
+
+    test('converts Ethiopian date back to Gregorian', () {
+      final greg = EthiopianCalendar.toGregorian(
+        const EthiopianDate(year: 2017, month: 1, day: 1),
+      );
+      expect(greg.year, 2024);
+      expect(greg.month, 9);
+      expect(greg.day, 11);
+    });
+
+    test('round-trip conversion is consistent', () {
+      final original = DateTime(2025, 1, 15);
+      final eth = EthiopianCalendar.fromGregorian(original);
+      final backToGreg = EthiopianCalendar.toGregorian(eth);
+      expect(backToGreg.year, original.year);
+      expect(backToGreg.month, original.month);
+      expect(backToGreg.day, original.day);
+    });
+
+    test('EthiopianDate formatted includes month name', () {
+      const date = EthiopianDate(year: 2017, month: 1, day: 15);
+      expect(date.monthName, 'መስከረም');
+      expect(date.shortFormatted, 'መስከረም 15');
+      expect(date.formatted, 'መስከረም 15, 2017');
+    });
+
+    test('daysInMonth returns 30 for months 1-12', () {
+      for (int m = 1; m <= 12; m++) {
+        expect(EthiopianCalendar.daysInMonth(2017, m), 30);
+      }
+    });
+
+    test('daysInMonth returns 5 or 6 for Pagume', () {
+      // Ethiopian year 2019 (2019 % 4 == 3) is a leap year
+      expect(EthiopianCalendar.daysInMonth(2019, 13), 6);
+      // Ethiopian year 2017 (2017 % 4 == 1) is not a leap year
+      expect(EthiopianCalendar.daysInMonth(2017, 13), 5);
+    });
+
+    test('daysUntilText returns correct Amharic text', () {
+      expect(EthiopianCalendar.daysUntilText(0), 'ዛሬ');
+      expect(EthiopianCalendar.daysUntilText(1), 'ነገ');
+      expect(EthiopianCalendar.daysUntilText(5), '5 ቀናት ቀርተዋል');
+      expect(EthiopianCalendar.daysUntilText(-1), '');
+    });
+
+    test('today returns a valid date', () {
+      final today = EthiopianCalendar.today();
+      expect(today.year, greaterThan(2010));
+      expect(today.month, inInclusiveRange(1, 13));
+      expect(today.day, inInclusiveRange(1, 30));
+    });
+  });
+
+  group('TsiwaEvent', () {
+    test('TsiwaEventType displayName returns Amharic', () {
+      expect(TsiwaEventType.monthlyTsiwa.displayName, 'የወርሃዊ ፅዋ');
+      expect(TsiwaEventType.zikir.displayName, 'ዝክር');
+      expect(TsiwaEventType.feedingDay.displayName, 'ማብላት');
+      expect(TsiwaEventType.other.displayName, 'ሌላ');
+    });
+
+    test('TsiwaEventType fromString parses correctly', () {
+      expect(TsiwaEventType.fromString('monthly_tsiwa'),
+          TsiwaEventType.monthlyTsiwa);
+      expect(TsiwaEventType.fromString('zikir'), TsiwaEventType.zikir);
+      expect(TsiwaEventType.fromString('feeding_day'),
+          TsiwaEventType.feedingDay);
+      expect(TsiwaEventType.fromString('unknown'), TsiwaEventType.other);
+    });
+
+    test('TsiwaEventStatus displayName returns Amharic', () {
+      expect(TsiwaEventStatus.planned.displayName, 'የታቀደ');
+      expect(TsiwaEventStatus.completed.displayName, 'የተፈጸመ');
+      expect(TsiwaEventStatus.cancelled.displayName, 'የተሰረዘ');
+    });
+
+    test('TsiwaEventStatus fromString parses correctly', () {
+      expect(TsiwaEventStatus.fromString('completed'),
+          TsiwaEventStatus.completed);
+      expect(TsiwaEventStatus.fromString('cancelled'),
+          TsiwaEventStatus.cancelled);
+      expect(TsiwaEventStatus.fromString('planned'),
+          TsiwaEventStatus.planned);
+      expect(TsiwaEventStatus.fromString(null), TsiwaEventStatus.planned);
+    });
+
+    test('TsiwaEvent copyWith works correctly', () {
+      const original = TsiwaEvent(
+        id: '1',
+        type: TsiwaEventType.monthlyTsiwa,
+        status: TsiwaEventStatus.planned,
+        ethiopianYear: 2017,
+      );
+
+      final updated = original.copyWith(
+        status: TsiwaEventStatus.completed,
+        notes: 'Done',
+      );
+
+      expect(updated.id, '1');
+      expect(updated.type, TsiwaEventType.monthlyTsiwa);
+      expect(updated.status, TsiwaEventStatus.completed);
+      expect(updated.notes, 'Done');
+      expect(updated.ethiopianYear, 2017);
     });
   });
 }

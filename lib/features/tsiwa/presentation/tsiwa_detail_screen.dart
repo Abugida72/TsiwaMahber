@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/constants/app_constants.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
+import 'package:tsiwa_mahber/core/utils/ethiopian_calendar.dart';
 import 'package:tsiwa_mahber/core/widgets/confirm_dialog.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
+import 'package:tsiwa_mahber/features/members/presentation/member_list_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
-import 'package:tsiwa_mahber/features/members/presentation/member_list_screen.dart';
+import 'package:tsiwa_mahber/features/tsiwa/presentation/rotation_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_form_screen.dart';
 
 class TsiwaDetailScreen extends StatefulWidget {
@@ -72,9 +74,11 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
                 const SizedBox(height: 16),
                 _buildStatusSection(tsiwa),
                 const SizedBox(height: 16),
+                _buildScheduleSection(tsiwa),
+                const SizedBox(height: 16),
                 _buildMembersSection(tsiwa),
                 const SizedBox(height: 16),
-                _buildFuturePlaceholders(),
+                _buildRotationSection(tsiwa),
                 const SizedBox(height: 32),
               ],
             ),
@@ -260,60 +264,140 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
     );
   }
 
-  Widget _buildFuturePlaceholders() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'በቀጣይ ስሪት',
+  Widget _buildScheduleSection(TsiwaMahber tsiwa) {
+    final ethToday = EthiopianCalendar.today();
+    final tswaDays = EthiopianCalendar.daysUntilMonthlyDay(tsiwa.monthlyTsiwaDay);
+
+    final hasZikir = tsiwa.zikirMonth != null && tsiwa.zikirDay != null;
+    final hasFeeding = tsiwa.feedingMonth != null && tsiwa.feedingDay != null;
+
+    return _SectionCard(
+      title: 'የቀን መርሐ ግብር',
+      icon: Icons.schedule,
+      iconColor: Colors.teal,
+      children: [
+        _InfoRow(
+          label: 'ዛሬ',
+          value: ethToday.formatted,
+        ),
+        const SizedBox(height: 8),
+        _buildCountdownChip(
+          'ፅዋ ቀን ${tsiwa.monthlyTsiwaDay}',
+          tswaDays,
+          AppTheme.primary,
+        ),
+        if (hasZikir)
+          _buildCountdownChip(
+            '${tsiwa.zikirTitle} (${AppConstants.ethiopianMonthName(tsiwa.zikirMonth!)} ${tsiwa.zikirDay})',
+            EthiopianCalendar.daysUntilDate(tsiwa.zikirMonth!, tsiwa.zikirDay!),
+            AppTheme.secondary,
+          ),
+        if (hasFeeding)
+          _buildCountdownChip(
+            '${tsiwa.feedingTitle} (${AppConstants.ethiopianMonthName(tsiwa.feedingMonth!)} ${tsiwa.feedingDay})',
+            EthiopianCalendar.daysUntilDate(tsiwa.feedingMonth!, tsiwa.feedingDay!),
+            Colors.teal,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCountdownChip(String label, int days, Color color) {
+    final text = EthiopianCalendar.daysUntilText(days);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: days == 0
+                  ? color.withValues(alpha: 0.3)
+                  : color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              text,
               style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textMuted,
+                fontSize: 12,
+                fontWeight: days == 0 ? FontWeight.bold : FontWeight.normal,
+                color: color,
               ),
             ),
-            const SizedBox(height: 12),
-            _buildPlaceholderItem(
-              Icons.rotate_right,
-              'የፅዋ ተራ',
-              'Rotation schedule will be added in Version 3',
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildPlaceholderItem(IconData icon, String title, String desc) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AppTheme.textMuted.withValues(alpha: 0.5)),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildRotationSection(TsiwaMahber tsiwa) {
+    return Card(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RotationScreen(
+                areaId: widget.areaId,
+                tsiwaId: widget.tsiwaId,
+                tsiwaName: tsiwa.name,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.teal.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.rotate_right,
+                  color: Colors.teal,
+                  size: 24,
                 ),
               ),
-              Text(
-                desc,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.textMuted.withValues(alpha: 0.6),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'የፅዋ ተራ እና ታሪክ',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'ተራ ቅደም ተከተል እና የክንውን ታሪክ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: AppTheme.textMuted,
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

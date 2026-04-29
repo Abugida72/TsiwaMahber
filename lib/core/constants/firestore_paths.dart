@@ -16,4 +16,10 @@ class FirestorePaths {
 
   static String member(String areaId, String tsiwaId, String memberId) =>
       'areas/$areaId/tsiwaMahbers/$tsiwaId/members/$memberId';
+
+  static String events(String areaId, String tsiwaId) =>
+      'areas/$areaId/tsiwaMahbers/$tsiwaId/events';
+
+  static String event(String areaId, String tsiwaId, String eventId) =>
+      'areas/$areaId/tsiwaMahbers/$tsiwaId/events/$eventId';
 }

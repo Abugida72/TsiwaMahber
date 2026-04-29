@@ -1,0 +1,186 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+enum TsiwaEventType {
+  monthlyTsiwa,
+  zikir,
+  feedingDay,
+  other;
+
+  String get displayName {
+    switch (this) {
+      case TsiwaEventType.monthlyTsiwa:
+        return 'የወርሃዊ ፅዋ';
+      case TsiwaEventType.zikir:
+        return 'ዝክር';
+      case TsiwaEventType.feedingDay:
+        return 'ማብላት';
+      case TsiwaEventType.other:
+        return 'ሌላ';
+    }
+  }
+
+  String get firestoreValue {
+    switch (this) {
+      case TsiwaEventType.monthlyTsiwa:
+        return 'monthly_tsiwa';
+      case TsiwaEventType.zikir:
+        return 'zikir';
+      case TsiwaEventType.feedingDay:
+        return 'feeding_day';
+      case TsiwaEventType.other:
+        return 'other';
+    }
+  }
+
+  static TsiwaEventType fromString(String? value) {
+    switch (value) {
+      case 'monthly_tsiwa':
+        return TsiwaEventType.monthlyTsiwa;
+      case 'zikir':
+        return TsiwaEventType.zikir;
+      case 'feeding_day':
+        return TsiwaEventType.feedingDay;
+      default:
+        return TsiwaEventType.other;
+    }
+  }
+}
+
+enum TsiwaEventStatus {
+  planned,
+  completed,
+  cancelled;
+
+  String get displayName {
+    switch (this) {
+      case TsiwaEventStatus.planned:
+        return 'የታቀደ';
+      case TsiwaEventStatus.completed:
+        return 'የተፈጸመ';
+      case TsiwaEventStatus.cancelled:
+        return 'የተሰረዘ';
+    }
+  }
+
+  String get firestoreValue {
+    switch (this) {
+      case TsiwaEventStatus.planned:
+        return 'planned';
+      case TsiwaEventStatus.completed:
+        return 'completed';
+      case TsiwaEventStatus.cancelled:
+        return 'cancelled';
+    }
+  }
+
+  static TsiwaEventStatus fromString(String? value) {
+    switch (value) {
+      case 'completed':
+        return TsiwaEventStatus.completed;
+      case 'cancelled':
+        return TsiwaEventStatus.cancelled;
+      default:
+        return TsiwaEventStatus.planned;
+    }
+  }
+}
+
+class TsiwaEvent {
+  final String id;
+  final TsiwaEventType type;
+  final int ethiopianYear;
+  final int ethiopianMonth;
+  final int ethiopianDay;
+  final String responsibleMemberId;
+  final String responsibleMemberNameSnapshot;
+  final TsiwaEventStatus status;
+  final String notes;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const TsiwaEvent({
+    this.id = '',
+    this.type = TsiwaEventType.monthlyTsiwa,
+    this.ethiopianYear = 0,
+    this.ethiopianMonth = 0,
+    this.ethiopianDay = 0,
+    this.responsibleMemberId = '',
+    this.responsibleMemberNameSnapshot = '',
+    this.status = TsiwaEventStatus.planned,
+    this.notes = '',
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory TsiwaEvent.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data()!;
+    return TsiwaEvent(
+      id: doc.id,
+      type: TsiwaEventType.fromString(data['type'] as String?),
+      ethiopianYear: data['ethiopianYear'] as int? ?? 0,
+      ethiopianMonth: data['ethiopianMonth'] as int? ?? 0,
+      ethiopianDay: data['ethiopianDay'] as int? ?? 0,
+      responsibleMemberId: data['responsibleMemberId'] as String? ?? '',
+      responsibleMemberNameSnapshot:
+          data['responsibleMemberNameSnapshot'] as String? ?? '',
+      status: TsiwaEventStatus.fromString(data['status'] as String?),
+      notes: data['notes'] as String? ?? '',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  Map<String, dynamic> toCreateMap() {
+    return {
+      'type': type.firestoreValue,
+      'ethiopianYear': ethiopianYear,
+      'ethiopianMonth': ethiopianMonth,
+      'ethiopianDay': ethiopianDay,
+      'responsibleMemberId': responsibleMemberId,
+      'responsibleMemberNameSnapshot': responsibleMemberNameSnapshot,
+      'status': status.firestoreValue,
+      'notes': notes,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  Map<String, dynamic> toUpdateMap() {
+    return {
+      'type': type.firestoreValue,
+      'ethiopianYear': ethiopianYear,
+      'ethiopianMonth': ethiopianMonth,
+      'ethiopianDay': ethiopianDay,
+      'responsibleMemberId': responsibleMemberId,
+      'responsibleMemberNameSnapshot': responsibleMemberNameSnapshot,
+      'status': status.firestoreValue,
+      'notes': notes,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  TsiwaEvent copyWith({
+    String? id,
+    TsiwaEventType? type,
+    int? ethiopianYear,
+    int? ethiopianMonth,
+    int? ethiopianDay,
+    String? responsibleMemberId,
+    String? responsibleMemberNameSnapshot,
+    TsiwaEventStatus? status,
+    String? notes,
+  }) {
+    return TsiwaEvent(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      ethiopianYear: ethiopianYear ?? this.ethiopianYear,
+      ethiopianMonth: ethiopianMonth ?? this.ethiopianMonth,
+      ethiopianDay: ethiopianDay ?? this.ethiopianDay,
+      responsibleMemberId: responsibleMemberId ?? this.responsibleMemberId,
+      responsibleMemberNameSnapshot:
+          responsibleMemberNameSnapshot ?? this.responsibleMemberNameSnapshot,
+      status: status ?? this.status,
+      notes: notes ?? this.notes,
+    );
+  }
+}
