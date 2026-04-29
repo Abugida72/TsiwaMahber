@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:658277409136:android:a46b81f374e7b6f442efb5",
+        "mobilesdk_app_id": "1:658277409136:android:a9bec92e9ab9e90842efb5",
         "android_client_info": {
-          "package_name": "com.example.tsiwa_mahber"
+          "package_name": "com.tsiwa.tsiwa_mahber"
         }
       },
       "oauth_client": [],
