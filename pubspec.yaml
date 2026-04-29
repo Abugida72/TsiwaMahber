@@ -1,0 +1,22 @@
+name: tsiwa_mahber
+description: "ጽዋ ማህበር አስተዳደር - Ethiopian Orthodox Tsiwa Mahber Management App"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^4.7.0
+  cloud_firestore: ^6.3.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
