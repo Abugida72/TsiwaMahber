@@ -56,10 +56,19 @@
 - **Unread Badge**: Home screen shows unread count on announcements card
 - **Detail View**: Full announcement with author, timestamp, and reader list
 
+### Version 8 — Notifications & Telegram
+- **In-app Notifications**: Notification bell with unread badge in AppBar
+- **Notification List**: View all notifications with swipe-to-delete, mark all as read
+- **Auto-notify**: Creating an announcement sends in-app notifications to all users
+- **Telegram Bot**: Connect a Telegram bot to auto-post announcements to a group
+- **Telegram Settings**: Admin screen to configure bot token, chat ID, test connection
+- **FCM Ready**: Firebase Cloud Messaging service for push notifications
+- **Relative Time**: Shows "አሁን", "5 ደቂቃ", "2 ሰአት" etc. for notification times
+
 ## Tech Stack
 
 - **Flutter** (Dart)
-- **Firebase Core** + **Cloud Firestore** + **Firebase Auth**
+- **Firebase Core** + **Cloud Firestore** + **Firebase Auth** + **Firebase Messaging**
 - Material 3 design
 - Clean architecture (domain / data / presentation)
 
@@ -112,6 +121,10 @@ lib/
       domain/{announcement,read_receipt}.dart
       data/announcement_repository.dart
       presentation/{announcement_list,announcement_detail,announcement_form}_screen.dart
+    notifications/
+      domain/app_notification.dart
+      data/{notification_repository,fcm_service,telegram_service}.dart
+      presentation/{notification_list,telegram_settings}_screen.dart
 ```
 
 ## Firestore Structure
@@ -176,10 +189,8 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 
 | Version | Features |
 |---------|----------|
-| v7 | Announcements with read confirmation |
-| v8 | Push notifications and Telegram integration |
 | v9 | CSV import/export |
-| v10 | Telegram bot integration |
+| v10 | Advanced reports and analytics |
 
 ## License
 

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tsiwa_mahber/core/constants/app_constants.dart';
 import 'package:tsiwa_mahber/features/announcements/data/announcement_repository.dart';
 import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/features/notifications/data/notification_repository.dart';
+import 'package:tsiwa_mahber/features/notifications/data/telegram_service.dart';
+import 'package:tsiwa_mahber/features/notifications/domain/app_notification.dart';
 
 class AnnouncementFormScreen extends StatefulWidget {
   final String areaId;
@@ -24,6 +28,8 @@ class _AnnouncementFormScreenState
     extends State<AnnouncementFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _repository = AnnouncementRepository();
+  final _notificationRepository = NotificationRepository();
+  final _telegramService = TelegramService();
 
   late final TextEditingController _titleController;
   late final TextEditingController _bodyController;
@@ -148,6 +154,32 @@ class _AnnouncementFormScreenState
       } else {
         await _repository.createAnnouncement(
             widget.areaId, announcement);
+
+        // Send in-app notifications to all users
+        final notification = AppNotification(
+          title: 'አዲስ ማስታወቂያ: ${announcement.title}',
+          body: announcement.body.length > 100
+              ? '${announcement.body.substring(0, 100)}...'
+              : announcement.body,
+          type: NotificationType.announcement,
+          senderId: widget.currentUser?.uid,
+          senderName: widget.currentUser?.displayName,
+        );
+
+        _notificationRepository.sendNotificationToAll(
+          areaId: widget.areaId,
+          notification: notification,
+        );
+
+        // Send to Telegram if configured
+        _telegramService.sendAnnouncement(
+          areaId: widget.areaId,
+          title: announcement.title,
+          body: announcement.body,
+          priority: announcement.priority.firestoreValue,
+          authorName: widget.currentUser?.displayName ??
+              AppConstants.defaultAreaShortName,
+        );
       }
 
       if (mounted) Navigator.pop(context);

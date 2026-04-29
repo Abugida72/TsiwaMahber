@@ -16,6 +16,9 @@ import 'package:tsiwa_mahber/features/edir/presentation/edir_list_screen.dart';
 import 'package:tsiwa_mahber/features/announcements/data/announcement_repository.dart';
 import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
 import 'package:tsiwa_mahber/features/announcements/presentation/announcement_list_screen.dart';
+import 'package:tsiwa_mahber/features/notifications/data/notification_repository.dart';
+import 'package:tsiwa_mahber/features/notifications/presentation/notification_list_screen.dart';
+import 'package:tsiwa_mahber/features/notifications/presentation/telegram_settings_screen.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
@@ -37,6 +40,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _leaderRepository = LeaderRepository();
   final _edirRepository = EdirRepository();
   final _announcementRepository = AnnouncementRepository();
+  final _notificationRepository = NotificationRepository();
   final _authRepository = AuthRepository();
   String? _initError;
   bool _isInitializing = true;
@@ -69,6 +73,33 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
       appBar: AppBar(
         title: const Text(AppConstants.defaultAreaName),
         actions: [
+          if (widget.currentUser != null)
+            StreamBuilder<int>(
+              stream: _notificationRepository.watchUnreadCount(
+                  widget.currentUser!.uid),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                return IconButton(
+                  icon: Badge(
+                    isLabelVisible: count > 0,
+                    label: Text(count.toString()),
+                    child: const Icon(Icons.notifications),
+                  ),
+                  tooltip: 'ማሳወቂያዎች',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NotificationListScreen(
+                          userId: widget.currentUser!.uid,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           if (widget.currentUser?.role.canManageUsers == true)
             IconButton(
               icon: const Icon(Icons.people),
@@ -380,6 +411,23 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
             );
           },
         ),
+        if (widget.currentUser?.role.canManageUsers == true)
+          AppInfoCard(
+            icon: Icons.telegram,
+            title: 'ቴሌግራም',
+            subtitle: 'ቴሌግራም ባት ማገናኛ',
+            iconColor: Colors.blue,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TelegramSettingsScreen(
+                    areaId: AppConstants.defaultAreaId,
+                  ),
+                ),
+              );
+            },
+          ),
       ],
     );
   }

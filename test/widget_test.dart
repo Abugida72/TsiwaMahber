@@ -13,6 +13,8 @@ import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
 import 'package:tsiwa_mahber/features/announcements/domain/read_receipt.dart';
+import 'package:tsiwa_mahber/features/notifications/domain/app_notification.dart';
+import 'package:tsiwa_mahber/features/notifications/data/telegram_service.dart';
 
 void main() {
   group('AppConstants', () {
@@ -628,6 +630,143 @@ void main() {
         FirestorePaths.readReceipt('gelan', 'ann1', 'user1'),
         'areas/gelan/announcements/ann1/readReceipts/user1',
       );
+    });
+  });
+
+  group('AppNotification', () {
+    test('NotificationType displayName returns Amharic', () {
+      expect(NotificationType.announcement.displayName, 'ማስታወቂያ');
+      expect(NotificationType.event.displayName, 'ክስተት');
+      expect(NotificationType.payment.displayName, 'ክፍያ');
+      expect(NotificationType.system.displayName, 'ስርዓት');
+    });
+
+    test('NotificationType fromString parses correctly', () {
+      expect(NotificationType.fromString('announcement'),
+          NotificationType.announcement);
+      expect(NotificationType.fromString('event'),
+          NotificationType.event);
+      expect(NotificationType.fromString('payment'),
+          NotificationType.payment);
+      expect(NotificationType.fromString('system'),
+          NotificationType.system);
+      expect(NotificationType.fromString(null),
+          NotificationType.system);
+      expect(NotificationType.fromString('unknown'),
+          NotificationType.system);
+    });
+
+    test('NotificationType firestoreValue maps correctly', () {
+      expect(NotificationType.announcement.firestoreValue,
+          'announcement');
+      expect(NotificationType.event.firestoreValue, 'event');
+      expect(NotificationType.payment.firestoreValue, 'payment');
+      expect(NotificationType.system.firestoreValue, 'system');
+    });
+
+    test('AppNotification copyWith works correctly', () {
+      const original = AppNotification(
+        id: 'notif1',
+        title: 'ሰላም',
+        body: 'ዝርዝር',
+        type: NotificationType.announcement,
+        isRead: false,
+      );
+
+      final updated = original.copyWith(
+        isRead: true,
+        title: 'አዲስ ርዕስ',
+      );
+
+      expect(updated.id, 'notif1');
+      expect(updated.title, 'አዲስ ርዕስ');
+      expect(updated.body, 'ዝርዝር');
+      expect(updated.type, NotificationType.announcement);
+      expect(updated.isRead, true);
+    });
+
+    test('AppNotification toCreateMap includes required fields', () {
+      const notification = AppNotification(
+        title: 'ተስት',
+        body: 'ሰላም',
+        type: NotificationType.event,
+        senderId: 'user1',
+        senderName: 'Admin',
+      );
+
+      final map = notification.toCreateMap();
+
+      expect(map['title'], 'ተስት');
+      expect(map['body'], 'ሰላም');
+      expect(map['type'], 'event');
+      expect(map['senderId'], 'user1');
+      expect(map['senderName'], 'Admin');
+      expect(map['isRead'], false);
+    });
+  });
+
+  group('TelegramConfig', () {
+    test('fromMap creates correct config', () {
+      final config = TelegramConfig.fromMap({
+        'botToken': 'token123',
+        'chatId': '-100123',
+        'isEnabled': true,
+        'sendAnnouncements': true,
+        'sendEvents': false,
+      });
+
+      expect(config.botToken, 'token123');
+      expect(config.chatId, '-100123');
+      expect(config.isEnabled, true);
+      expect(config.sendAnnouncements, true);
+      expect(config.sendEvents, false);
+    });
+
+    test('toMap returns correct map', () {
+      const config = TelegramConfig(
+        botToken: 'abc',
+        chatId: '-999',
+        isEnabled: true,
+        sendAnnouncements: false,
+        sendEvents: true,
+      );
+
+      final map = config.toMap();
+
+      expect(map['botToken'], 'abc');
+      expect(map['chatId'], '-999');
+      expect(map['isEnabled'], true);
+      expect(map['sendAnnouncements'], false);
+      expect(map['sendEvents'], true);
+    });
+
+    test('copyWith works correctly', () {
+      const original = TelegramConfig(
+        botToken: 'token',
+        chatId: 'chat',
+        isEnabled: false,
+      );
+
+      final updated = original.copyWith(
+        isEnabled: true,
+        sendEvents: true,
+      );
+
+      expect(updated.botToken, 'token');
+      expect(updated.chatId, 'chat');
+      expect(updated.isEnabled, true);
+      expect(updated.sendAnnouncements, true);
+      expect(updated.sendEvents, true);
+    });
+
+    test('default values are correct', () {
+      const config = TelegramConfig();
+
+      expect(config.botToken, '');
+      expect(config.chatId, '');
+      expect(config.isEnabled, false);
+      expect(config.sendAnnouncements, true);
+      expect(config.sendEvents, false);
     });
   });
 }
