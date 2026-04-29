@@ -7,6 +7,9 @@ import 'package:tsiwa_mahber/core/utils/ethiopian_calendar.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
 import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_event.dart';
+import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
+import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
+import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
 
 void main() {
   group('AppConstants', () {
@@ -320,6 +323,118 @@ void main() {
         FirestorePaths.leader('gelan', 'leader1'),
         'areas/gelan/leaders/leader1',
       );
+    });
+  });
+
+  group('Edir', () {
+    test('Edir copyWith works correctly', () {
+      const original = Edir(
+        id: '1',
+        name: 'Test Edir',
+        monthlyContribution: 100,
+        treasury: 5000,
+      );
+
+      final updated = original.copyWith(
+        monthlyContribution: 200,
+        penaltyAmount: 50,
+      );
+
+      expect(updated.id, '1');
+      expect(updated.name, 'Test Edir');
+      expect(updated.monthlyContribution, 200);
+      expect(updated.penaltyAmount, 50);
+      expect(updated.treasury, 5000);
+    });
+
+    test('edir paths are correct', () {
+      expect(
+        FirestorePaths.edirs('gelan'),
+        'areas/gelan/edirs',
+      );
+      expect(
+        FirestorePaths.edir('gelan', 'edir1'),
+        'areas/gelan/edirs/edir1',
+      );
+      expect(
+        FirestorePaths.edirMembers('gelan', 'edir1'),
+        'areas/gelan/edirs/edir1/members',
+      );
+      expect(
+        FirestorePaths.edirMember('gelan', 'edir1', 'member1'),
+        'areas/gelan/edirs/edir1/members/member1',
+      );
+      expect(
+        FirestorePaths.edirPayments('gelan', 'edir1'),
+        'areas/gelan/edirs/edir1/payments',
+      );
+    });
+  });
+
+  group('EdirMember', () {
+    test('EdirMemberStatus displayName returns Amharic', () {
+      expect(EdirMemberStatus.active.displayName, 'ንቁ');
+      expect(EdirMemberStatus.inactive.displayName, 'ቦዝኗል');
+      expect(EdirMemberStatus.suspended.displayName, 'የታገደ');
+    });
+
+    test('EdirMemberStatus fromString parses correctly', () {
+      expect(EdirMemberStatus.fromString('active'), EdirMemberStatus.active);
+      expect(
+          EdirMemberStatus.fromString('inactive'), EdirMemberStatus.inactive);
+      expect(EdirMemberStatus.fromString('suspended'),
+          EdirMemberStatus.suspended);
+      expect(EdirMemberStatus.fromString(null), EdirMemberStatus.active);
+      expect(EdirMemberStatus.fromString('unknown'), EdirMemberStatus.active);
+    });
+
+    test('EdirMemberStatus firestoreValue maps correctly', () {
+      expect(EdirMemberStatus.active.firestoreValue, 'active');
+      expect(EdirMemberStatus.inactive.firestoreValue, 'inactive');
+      expect(EdirMemberStatus.suspended.firestoreValue, 'suspended');
+    });
+
+    test('EdirMember copyWith works correctly', () {
+      const original = EdirMember(
+        id: '1',
+        fullName: 'Test Member',
+        totalPaid: 500,
+        paidMonths: 5,
+      );
+
+      final updated = original.copyWith(
+        status: EdirMemberStatus.suspended,
+        balance: 100,
+      );
+
+      expect(updated.id, '1');
+      expect(updated.fullName, 'Test Member');
+      expect(updated.status, EdirMemberStatus.suspended);
+      expect(updated.totalPaid, 500);
+      expect(updated.balance, 100);
+      expect(updated.paidMonths, 5);
+    });
+  });
+
+  group('Payment', () {
+    test('PaymentType displayName returns Amharic', () {
+      expect(PaymentType.monthly.displayName, 'ወርሃዊ');
+      expect(PaymentType.penalty.displayName, 'ቅጣት');
+      expect(PaymentType.other.displayName, 'ሌላ');
+    });
+
+    test('PaymentType fromString parses correctly', () {
+      expect(PaymentType.fromString('monthly'), PaymentType.monthly);
+      expect(PaymentType.fromString('penalty'), PaymentType.penalty);
+      expect(PaymentType.fromString('other'), PaymentType.other);
+      expect(PaymentType.fromString(null), PaymentType.other);
+      expect(PaymentType.fromString('unknown'), PaymentType.other);
+    });
+
+    test('PaymentType firestoreValue maps correctly', () {
+      expect(PaymentType.monthly.firestoreValue, 'monthly');
+      expect(PaymentType.penalty.firestoreValue, 'penalty');
+      expect(PaymentType.other.firestoreValue, 'other');
     });
   });
 }

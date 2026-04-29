@@ -2,8 +2,9 @@
 
 **የገላን ፅዋ ማህበሮች** — A management app for Ethiopian Orthodox ጽዋ ማህበሮች (Tsiwa Mahbers), designed for community leaders managing areas, Tsiwa groups, and related activities.
 
-## Features (Version 1)
+## Features
 
+### Version 1 — Core
 - **Area Profile**: Default area (የገላን ፅዋ ማህበሮች) with auto-creation
 - **Tsiwa Mahber CRUD**: Create, view, edit, and delete Tsiwa Mahbers
 - **Monthly Tsiwa Day**: Track the regular monthly meeting day (1–30)
@@ -12,6 +13,31 @@
 - **Dark Theme**: Modern dark UI with gold/amber primary color
 - **Firestore Backend**: Cloud Firestore with offline persistence
 - **Amharic UI**: Full Amharic labels and navigation
+
+### Version 2 — Members & Muse
+- **Member Management**: Add, edit, soft-delete members per Tsiwa
+- **Roles**: ሙሴ, ረዳት ሙሴ, አባል, ታዛቢ with badges
+- **Duplicate Prevention**: Phone and name collision checks
+- **Rotation Order**: Auto-assigned ተራ ቁጥር
+
+### Version 3 — Rotation & Ethiopian Calendar
+- **Ethiopian Calendar**: Gregorian↔Ethiopian date conversion
+- **Countdown Chips**: Days until next ፅዋ, ዝክር, ማብላት
+- **Rotation Management**: Current/next member, manual override
+- **Event History**: Log and track monthly events
+
+### Version 4 — Leadership Dashboard
+- **Leaders (አመራሮች)**: CRUD with role assignment
+- **Tsiwa Assignment**: Assign leaders to specific Tsiwas
+- **Dashboard Stats**: Tsiwa, Leader, and Edir counts on home screen
+
+### Version 5 — Edir (እድር)
+- **Edir CRUD**: Create, edit, delete Edir groups
+- **Edir Members**: Add/edit/delete members with status tracking (ንቁ/ቦዝኗል/የታገደ)
+- **Payment Recording**: Monthly, penalty, and other payment types
+- **Payment History**: Full transaction log with Ethiopian month tracking
+- **Treasury Tracking**: Auto-updated treasury balance
+- **Balance Tracking**: Per-member paid/owed amounts
 
 ## Tech Stack
 
@@ -44,12 +70,23 @@ lib/
       data/area_repository.dart
       presentation/area_home_screen.dart
     tsiwa/
-      domain/tsiwa_mahber.dart
-      data/tsiwa_repository.dart
-      presentation/
-        tsiwa_list_screen.dart
-        tsiwa_form_screen.dart
-        tsiwa_detail_screen.dart
+      domain/{tsiwa_mahber,tsiwa_event}.dart
+      data/{tsiwa_repository,tsiwa_event_repository}.dart
+      presentation/{tsiwa_list,tsiwa_form,tsiwa_detail,rotation}_screen.dart
+    members/
+      domain/member.dart
+      data/member_repository.dart
+      presentation/{member_list,member_form}_screen.dart
+    leadership/
+      domain/leader.dart
+      data/leader_repository.dart
+      presentation/{leader_list,leader_form}_screen.dart
+    edir/
+      domain/{edir,edir_member,payment}.dart
+      data/edir_repository.dart
+      presentation/{edir_list,edir_form,edir_detail}_screen.dart
+      presentation/{edir_member_list,edir_member_form}_screen.dart
+      presentation/{record_payment,edir_payment_list}_screen.dart
 ```
 
 ## Firestore Structure
@@ -57,13 +94,17 @@ lib/
 ```
 areas/{areaId}
   ├── name, shortName, location, description, isActive
-  └── tsiwaMahbers/{tsiwaId}
-        ├── name, churchName, saintName, location, description
-        ├── monthlyTsiwaDay, monthlyTsiwaDayNote
-        ├── zikirTitle, zikirMonth, zikirDay, zikirNote
-        ├── feedingTitle, feedingMonth, feedingDay, feedingNote
-        ├── currentRotationIndex, memberCount, museCount
-        └── isActive, isArchived
+  ├── tsiwaMahbers/{tsiwaId}
+  │     ├── name, churchName, saintName, location, description
+  │     ├── monthlyTsiwaDay, zikirMonth/Day, feedingMonth/Day
+  │     ├── members/{memberId} — fullName, role, orderIndex, phone
+  │     └── events/{eventId} — type, status, responsibleMemberId
+  ├── leaders/{leaderId}
+  │     └── fullName, role, assignedTsiwaIds, assignedEdirIds
+  └── edirs/{edirId}
+        ├── name, monthlyContribution, penaltyAmount, treasury, paymentDay
+        ├── members/{memberId} — fullName, status, totalPaid, balance
+        └── payments/{paymentId} — memberId, type, amount, forMonth/Year
 ```
 
 ## Getting Started
@@ -106,13 +147,11 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 
 | Version | Features |
 |---------|----------|
-| v2 | Members, Muse assignment |
-| v3 | Rotation schedule, Ethiopian calendar |
-| v4 | Leadership dashboard (አመራሮች / መማክርት) |
-| v5 | Announcements with read confirmation |
-| v6 | Edir (እድር) management and payments |
-| v7 | Firebase Auth and role-based permissions |
+| v6 | Firebase Auth and role-based permissions |
+| v7 | Announcements with read confirmation |
 | v8 | Push notifications and Telegram integration |
+| v9 | CSV import/export |
+| v10 | Telegram bot integration |
 
 ## License
 

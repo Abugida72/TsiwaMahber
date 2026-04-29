@@ -10,6 +10,9 @@ import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/leadership/presentation/leader_list_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
+import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
+import 'package:tsiwa_mahber/features/edir/presentation/edir_list_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
@@ -23,6 +26,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _areaRepository = AreaRepository();
   final _tsiwaRepository = TsiwaRepository();
   final _leaderRepository = LeaderRepository();
+  final _edirRepository = EdirRepository();
   String? _initError;
   bool _isInitializing = true;
 
@@ -300,11 +304,15 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         AppInfoCard(
           icon: Icons.account_balance_wallet,
           title: 'እድር',
-          subtitle: 'በቀጣይ ስሪት ይጨመራል',
-          iconColor: AppTheme.textMuted,
+          subtitle: 'እድርን ያስተዳድሩ',
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('በቀጣይ ስሪት ይጨመራል')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EdirListScreen(
+                  areaId: AppConstants.defaultAreaId,
+                ),
+              ),
             );
           },
         ),
@@ -342,6 +350,21 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   value: count.toString(),
                   icon: Icons.admin_panel_settings,
                   color: AppTheme.secondary,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: StreamBuilder<List<Edir>>(
+              stream: _edirRepository.watchEdirs(AppConstants.defaultAreaId),
+              builder: (context, snapshot) {
+                final count = snapshot.data?.length ?? 0;
+                return _StatCard(
+                  label: 'እድር',
+                  value: count.toString(),
+                  icon: Icons.account_balance_wallet,
+                  color: Colors.purple,
                 );
               },
             ),

@@ -27,4 +27,18 @@ class FirestorePaths {
 
   static String leader(String areaId, String leaderId) =>
       'areas/$areaId/leaders/$leaderId';
+
+  static String edirs(String areaId) => 'areas/$areaId/edirs';
+
+  static String edir(String areaId, String edirId) =>
+      'areas/$areaId/edirs/$edirId';
+
+  static String edirMembers(String areaId, String edirId) =>
+      'areas/$areaId/edirs/$edirId/members';
+
+  static String edirMember(String areaId, String edirId, String memberId) =>
+      'areas/$areaId/edirs/$edirId/members/$memberId';
+
+  static String edirPayments(String areaId, String edirId) =>
+      'areas/$areaId/edirs/$edirId/payments';
 }
