@@ -1,13 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tsiwa_mahber/core/theme/app_theme.dart';
+import 'package:tsiwa_mahber/core/widgets/app_popup_menu.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/login_screen.dart';
-import 'package:tsiwa_mahber/features/area/presentation/area_home_screen.dart';
+import 'package:tsiwa_mahber/features/area/presentation/area_selection_screen.dart';
 
 class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
+  final ThemeProvider themeProvider;
+  final LocaleProvider localeProvider;
+
+  const AuthGate({
+    super.key,
+    required this.themeProvider,
+    required this.localeProvider,
+  });
 
   @override
   State<AuthGate> createState() => _AuthGateState();
@@ -30,7 +39,10 @@ class _AuthGateState extends State<AuthGate> {
         final firebaseUser = snapshot.data;
 
         if (firebaseUser == null) {
-          return const LoginScreen();
+          return LoginScreen(
+            themeProvider: widget.themeProvider,
+            localeProvider: widget.localeProvider,
+          );
         }
 
         return StreamBuilder<AppUser?>(
@@ -47,6 +59,14 @@ class _AuthGateState extends State<AuthGate> {
 
             if (appUser != null && !appUser.isActive) {
               return Scaffold(
+                appBar: AppBar(
+                  actions: [
+                    AppPopupMenu(
+                      themeProvider: widget.themeProvider,
+                      localeProvider: widget.localeProvider,
+                    ),
+                  ],
+                ),
                 body: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
@@ -80,8 +100,10 @@ class _AuthGateState extends State<AuthGate> {
               );
             }
 
-            return AreaHomeScreen(
+            return AreaSelectionScreen(
               currentUser: appUser,
+              themeProvider: widget.themeProvider,
+              localeProvider: widget.localeProvider,
             );
           },
         );

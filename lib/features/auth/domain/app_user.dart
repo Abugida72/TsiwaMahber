@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum UserRole {
+  developer,
   admin,
   leader,
   member,
@@ -8,6 +9,8 @@ enum UserRole {
 
   String get displayName {
     switch (this) {
+      case UserRole.developer:
+        return 'ገንቢ';
       case UserRole.admin:
         return 'አስተዳዳሪ';
       case UserRole.leader:
@@ -21,6 +24,8 @@ enum UserRole {
 
   String get firestoreValue {
     switch (this) {
+      case UserRole.developer:
+        return 'developer';
       case UserRole.admin:
         return 'admin';
       case UserRole.leader:
@@ -34,6 +39,8 @@ enum UserRole {
 
   static UserRole fromString(String? value) {
     switch (value) {
+      case 'developer':
+        return UserRole.developer;
       case 'admin':
         return UserRole.admin;
       case 'leader':
@@ -45,12 +52,33 @@ enum UserRole {
     }
   }
 
+  bool get isDeveloper => this == UserRole.developer;
+
+  bool get isAdminOrAbove =>
+      this == UserRole.developer || this == UserRole.admin;
+
   bool get canEdit =>
-      this == UserRole.admin || this == UserRole.leader;
+      this == UserRole.developer ||
+      this == UserRole.admin ||
+      this == UserRole.leader;
 
-  bool get canDelete => this == UserRole.admin;
+  bool get canDelete =>
+      this == UserRole.developer || this == UserRole.admin;
 
-  bool get canManageUsers => this == UserRole.admin;
+  bool get canManageUsers =>
+      this == UserRole.developer || this == UserRole.admin;
+
+  bool get canCreateArea => this == UserRole.developer;
+
+  bool get canManageDevelopers => this == UserRole.developer;
+
+  bool get canAnnounce =>
+      this == UserRole.developer ||
+      this == UserRole.admin ||
+      this == UserRole.leader;
+
+  bool get isViewOnly =>
+      this == UserRole.member || this == UserRole.viewer;
 }
 
 class AppUser {

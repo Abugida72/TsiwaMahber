@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tsiwa_mahber/core/constants/app_constants.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/app_card.dart';
+import 'package:tsiwa_mahber/core/widgets/app_popup_menu.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/area/data/area_repository.dart';
 import 'package:tsiwa_mahber/features/area/domain/area.dart';
@@ -19,7 +19,6 @@ import 'package:tsiwa_mahber/features/announcements/presentation/announcement_li
 import 'package:tsiwa_mahber/features/notifications/data/notification_repository.dart';
 import 'package:tsiwa_mahber/features/notifications/presentation/notification_list_screen.dart';
 import 'package:tsiwa_mahber/features/notifications/presentation/telegram_settings_screen.dart';
-import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/profile_screen.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/user_management_screen.dart';
@@ -27,11 +26,23 @@ import 'package:tsiwa_mahber/features/csv_io/presentation/csv_export_screen.dart
 import 'package:tsiwa_mahber/features/csv_io/presentation/csv_import_screen.dart';
 import 'package:tsiwa_mahber/features/reports/presentation/report_home_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
+import 'package:tsiwa_mahber/features/developer/presentation/developer_management_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
   final AppUser? currentUser;
+  final String areaId;
+  final String areaName;
+  final ThemeProvider themeProvider;
+  final LocaleProvider localeProvider;
 
-  const AreaHomeScreen({super.key, this.currentUser});
+  const AreaHomeScreen({
+    super.key,
+    this.currentUser,
+    required this.areaId,
+    required this.areaName,
+    required this.themeProvider,
+    required this.localeProvider,
+  });
 
   @override
   State<AreaHomeScreen> createState() => _AreaHomeScreenState();
@@ -44,37 +55,12 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _edirRepository = EdirRepository();
   final _announcementRepository = AnnouncementRepository();
   final _notificationRepository = NotificationRepository();
-  final _authRepository = AuthRepository();
-  String? _initError;
-  bool _isInitializing = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeArea();
-  }
-
-  Future<void> _initializeArea() async {
-    setState(() {
-      _isInitializing = true;
-      _initError = null;
-    });
-
-    final error = await _areaRepository.ensureDefaultArea();
-
-    if (mounted) {
-      setState(() {
-        _initError = error;
-        _isInitializing = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.defaultAreaName),
+        title: Text(widget.areaName),
         actions: [
           if (widget.currentUser != null)
             StreamBuilder<int>(
@@ -130,78 +116,20 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   ),
                 );
               },
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'ውጣ',
-              onPressed: () => _authRepository.signOut(),
             ),
+          AppPopupMenu(
+            themeProvider: widget.themeProvider,
+            localeProvider: widget.localeProvider,
+          ),
         ],
       ),
-      body: _isInitializing
-          ? const LoadingState(message: 'በመጫን ላይ...')
-          : _initError != null
-              ? _buildErrorState()
-              : _buildContent(),
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.cloud_off,
-              size: 72,
-              color: Colors.red.shade300,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'ከFirestore ጋር መገናኘት አልተቻለም',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              _initError!,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppTheme.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Firestore security rules ያረጋግጡ\n'
-              'እና ኢንተርኔት መኖሩን ያረጋግጡ',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppTheme.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _initializeArea,
-              icon: const Icon(Icons.refresh),
-              label: const Text('እንደገና ሞክር'),
-            ),
-          ],
-        ),
-      ),
+      body: _buildContent(),
     );
   }
 
   Widget _buildContent() {
     return StreamBuilder<Area?>(
-      stream: _areaRepository.watchArea(AppConstants.defaultAreaId),
+      stream: _areaRepository.watchArea(widget.areaId),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -214,12 +142,6 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   'መረጃ ማግኘት አልተቻለም',
                   style: TextStyle(color: Colors.red.shade300),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _initializeArea,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('እንደገና ሞክር'),
-                ),
               ],
             ),
           );
@@ -231,25 +153,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
 
         final area = snapshot.data;
         if (area == null) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.hourglass_empty, size: 48,
-                    color: AppTheme.textMuted),
-                const SizedBox(height: 16),
-                const Text(
-                  'መረጃ በመዘጋጀት ላይ...',
-                  style: TextStyle(color: AppTheme.textMuted),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _initializeArea,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('እንደገና ሞክር'),
-                ),
-              ],
-            ),
+          return const Center(
+            child: LoadingState(message: 'መረጃ በመዘጋጀት ላይ...'),
           );
         }
 
@@ -328,6 +233,25 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   ),
                 ),
               ],
+              if (widget.currentUser != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    widget.currentUser!.role.displayName,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -336,6 +260,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
   }
 
   Widget _buildMenuSection() {
+    final role = widget.currentUser?.role;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -359,9 +285,9 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const TsiwaListScreen(
-                  areaId: AppConstants.defaultAreaId,
-                  areaName: AppConstants.defaultAreaName,
+                builder: (context) => TsiwaListScreen(
+                  areaId: widget.areaId,
+                  areaName: widget.areaName,
                 ),
               ),
             );
@@ -375,8 +301,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const LeaderListScreen(
-                  areaId: AppConstants.defaultAreaId,
+                builder: (context) => LeaderListScreen(
+                  areaId: widget.areaId,
                 ),
               ),
             );
@@ -390,8 +316,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const EdirListScreen(
-                  areaId: AppConstants.defaultAreaId,
+                builder: (context) => EdirListScreen(
+                  areaId: widget.areaId,
                 ),
               ),
             );
@@ -407,14 +333,14 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => AnnouncementListScreen(
-                  areaId: AppConstants.defaultAreaId,
+                  areaId: widget.areaId,
                   currentUser: widget.currentUser,
                 ),
               ),
             );
           },
         ),
-        if (widget.currentUser?.role.canManageUsers == true)
+        if (role?.isAdminOrAbove == true)
           AppInfoCard(
             icon: Icons.telegram,
             title: 'ቴሌግራም',
@@ -425,13 +351,13 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => TelegramSettingsScreen(
-                    areaId: AppConstants.defaultAreaId,
+                    areaId: widget.areaId,
                   ),
                 ),
               );
             },
           ),
-        if (widget.currentUser?.role.canEdit == true)
+        if (role?.canEdit == true)
           AppInfoCard(
             icon: Icons.file_upload_outlined,
             title: 'CSV ወደ ውጭ ላክ',
@@ -442,13 +368,13 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CsvExportScreen(
-                    areaId: AppConstants.defaultAreaId,
+                    areaId: widget.areaId,
                   ),
                 ),
               );
             },
           ),
-        if (widget.currentUser?.role.canEdit == true)
+        if (role?.canEdit == true)
           AppInfoCard(
             icon: Icons.file_download_outlined,
             title: 'CSV ከውጭ አስገባ',
@@ -459,7 +385,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CsvImportScreen(
-                    areaId: AppConstants.defaultAreaId,
+                    areaId: widget.areaId,
                   ),
                 ),
               );
@@ -475,12 +401,28 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => ReportHomeScreen(
-                  areaId: AppConstants.defaultAreaId,
+                  areaId: widget.areaId,
                 ),
               ),
             );
           },
         ),
+        if (role?.isDeveloper == true)
+          AppInfoCard(
+            icon: Icons.code,
+            title: 'ገንቢዎች',
+            subtitle: 'ገንቢ አስተዳደር',
+            iconColor: Colors.deepPurple,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const DeveloperManagementScreen(),
+                ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -491,7 +433,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
 
     return StreamBuilder<int>(
       stream: _announcementRepository.watchUnreadCount(
-          AppConstants.defaultAreaId, userId),
+          widget.areaId, userId),
       builder: (context, snapshot) {
         final count = snapshot.data ?? 0;
         if (count == 0) return const SizedBox.shrink();
@@ -519,7 +461,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         children: [
           Expanded(
             child: StreamBuilder<List<TsiwaMahber>>(
-              stream: _tsiwaRepository.watchTsiwas(AppConstants.defaultAreaId),
+              stream: _tsiwaRepository.watchTsiwas(widget.areaId),
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
@@ -534,7 +476,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: StreamBuilder<List<Leader>>(
-              stream: _leaderRepository.watchLeaders(AppConstants.defaultAreaId),
+              stream: _leaderRepository.watchLeaders(widget.areaId),
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
@@ -549,7 +491,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: StreamBuilder<List<Edir>>(
-              stream: _edirRepository.watchEdirs(AppConstants.defaultAreaId),
+              stream: _edirRepository.watchEdirs(widget.areaId),
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
@@ -565,7 +507,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           Expanded(
             child: StreamBuilder<List<Announcement>>(
               stream: _announcementRepository.watchAnnouncements(
-                  AppConstants.defaultAreaId),
+                  widget.areaId),
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
