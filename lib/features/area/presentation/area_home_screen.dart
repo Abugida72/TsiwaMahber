@@ -5,6 +5,11 @@ import 'package:tsiwa_mahber/core/widgets/app_card.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/area/data/area_repository.dart';
 import 'package:tsiwa_mahber/features/area/domain/area.dart';
+import 'package:tsiwa_mahber/features/leadership/data/leader_repository.dart';
+import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
+import 'package:tsiwa_mahber/features/leadership/presentation/leader_list_screen.dart';
+import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
+import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 
 class AreaHomeScreen extends StatefulWidget {
@@ -16,6 +21,8 @@ class AreaHomeScreen extends StatefulWidget {
 
 class _AreaHomeScreenState extends State<AreaHomeScreen> {
   final _areaRepository = AreaRepository();
+  final _tsiwaRepository = TsiwaRepository();
+  final _leaderRepository = LeaderRepository();
   String? _initError;
   bool _isInitializing = true;
 
@@ -167,7 +174,9 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(area),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              _buildDashboardStats(),
+              const SizedBox(height: 16),
               _buildMenuSection(),
             ],
           ),
@@ -274,13 +283,17 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           },
         ),
         AppInfoCard(
-          icon: Icons.people,
+          icon: Icons.admin_panel_settings,
           title: 'አመራሮች',
-          subtitle: 'በቀጣይ ስሪት ይጨመራል',
-          iconColor: AppTheme.textMuted,
+          subtitle: 'አመራሮችን ያስተዳድሩ',
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('በቀጣይ ስሪት ይጨመራል')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LeaderListScreen(
+                  areaId: AppConstants.defaultAreaId,
+                ),
+              ),
             );
           },
         ),
@@ -296,6 +309,90 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildDashboardStats() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: StreamBuilder<List<TsiwaMahber>>(
+              stream: _tsiwaRepository.watchTsiwas(AppConstants.defaultAreaId),
+              builder: (context, snapshot) {
+                final count = snapshot.data?.length ?? 0;
+                return _StatCard(
+                  label: 'ፅዋ ማህበሮች',
+                  value: count.toString(),
+                  icon: Icons.groups,
+                  color: AppTheme.primary,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: StreamBuilder<List<Leader>>(
+              stream: _leaderRepository.watchLeaders(AppConstants.defaultAreaId),
+              builder: (context, snapshot) {
+                final count = snapshot.data?.length ?? 0;
+                return _StatCard(
+                  label: 'አመራሮች',
+                  value: count.toString(),
+                  icon: Icons.admin_panel_settings,
+                  color: AppTheme.secondary,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Icon(icon, size: 28, color: color),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.textMuted,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

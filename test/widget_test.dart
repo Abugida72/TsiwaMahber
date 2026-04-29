@@ -5,6 +5,7 @@ import 'package:tsiwa_mahber/core/constants/firestore_paths.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/utils/ethiopian_calendar.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
+import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_event.dart';
 
 void main() {
@@ -261,6 +262,64 @@ void main() {
       expect(updated.status, TsiwaEventStatus.completed);
       expect(updated.notes, 'Done');
       expect(updated.ethiopianYear, 2017);
+    });
+  });
+
+  group('Leader', () {
+    test('LeaderRole displayName returns Amharic', () {
+      expect(LeaderRole.owner.displayName, 'ባለቤት');
+      expect(LeaderRole.amerar.displayName, 'አመራር');
+      expect(LeaderRole.memakir.displayName, 'መማክርት');
+      expect(LeaderRole.edirAmerar.displayName, 'የእድር አመራር');
+      expect(LeaderRole.viewer.displayName, 'ታዛቢ');
+    });
+
+    test('LeaderRole fromString parses correctly', () {
+      expect(LeaderRole.fromString('owner'), LeaderRole.owner);
+      expect(LeaderRole.fromString('amerar'), LeaderRole.amerar);
+      expect(LeaderRole.fromString('memakir'), LeaderRole.memakir);
+      expect(LeaderRole.fromString('edir_amerar'), LeaderRole.edirAmerar);
+      expect(LeaderRole.fromString('unknown'), LeaderRole.viewer);
+      expect(LeaderRole.fromString(null), LeaderRole.viewer);
+    });
+
+    test('LeaderRole firestoreValue maps correctly', () {
+      expect(LeaderRole.owner.firestoreValue, 'owner');
+      expect(LeaderRole.amerar.firestoreValue, 'amerar');
+      expect(LeaderRole.memakir.firestoreValue, 'memakir');
+      expect(LeaderRole.edirAmerar.firestoreValue, 'edir_amerar');
+      expect(LeaderRole.viewer.firestoreValue, 'viewer');
+    });
+
+    test('Leader copyWith works correctly', () {
+      const original = Leader(
+        id: '1',
+        fullName: 'Test Leader',
+        role: LeaderRole.amerar,
+        assignedTsiwaIds: ['tsiwa1'],
+      );
+
+      final updated = original.copyWith(
+        role: LeaderRole.owner,
+        isActive: false,
+      );
+
+      expect(updated.id, '1');
+      expect(updated.fullName, 'Test Leader');
+      expect(updated.role, LeaderRole.owner);
+      expect(updated.isActive, false);
+      expect(updated.assignedTsiwaIds, ['tsiwa1']);
+    });
+
+    test('leader paths are correct', () {
+      expect(
+        FirestorePaths.leaders('gelan'),
+        'areas/gelan/leaders',
+      );
+      expect(
+        FirestorePaths.leader('gelan', 'leader1'),
+        'areas/gelan/leaders/leader1',
+      );
     });
   });
 }

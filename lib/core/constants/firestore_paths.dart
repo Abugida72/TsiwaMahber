@@ -22,4 +22,9 @@ class FirestorePaths {
 
   static String event(String areaId, String tsiwaId, String eventId) =>
       'areas/$areaId/tsiwaMahbers/$tsiwaId/events/$eventId';
+
+  static String leaders(String areaId) => 'areas/$areaId/leaders';
+
+  static String leader(String areaId, String leaderId) =>
+      'areas/$areaId/leaders/$leaderId';
 }
