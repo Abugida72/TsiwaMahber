@@ -33,9 +33,10 @@ class _AuthGateState extends State<AuthGate> {
 
   late final Stream<User?> _authStream;
 
-  // Cache the dev user stream to avoid re-creating on every rebuild.
-  Stream<AppUser?>? _devUserStream;
-  String? _lastDevUid;
+  // Developer's AppUser loaded once per sign-in (not streamed).
+  AppUser? _devUser;
+  bool _devUserLoading = false;
+  String? _loadedDevUid;
 
   @override
   void initState() {
@@ -43,12 +44,17 @@ class _AuthGateState extends State<AuthGate> {
     _authStream = _authRepository.authStateChanges;
   }
 
-  Stream<AppUser?> _getDevUserStream(String uid) {
-    if (_lastDevUid != uid) {
-      _lastDevUid = uid;
-      _devUserStream = _authRepository.watchAppUser(uid);
+  Future<void> _loadDevUser(String uid) async {
+    if (_loadedDevUid == uid) return;
+    _loadedDevUid = uid;
+    setState(() => _devUserLoading = true);
+    final user = await _authRepository.getAppUser(uid);
+    if (mounted) {
+      setState(() {
+        _devUser = user;
+        _devUserLoading = false;
+      });
     }
-    return _devUserStream!;
   }
 
   void _onMemberLogin(AppUser user) {
@@ -95,29 +101,32 @@ class _AuthGateState extends State<AuthGate> {
         final firebaseUser = snapshot.data;
 
         if (firebaseUser != null) {
-          return StreamBuilder<AppUser?>(
-            stream: _getDevUserStream(firebaseUser.uid),
-            builder: (context, userSnapshot) {
-              if (userSnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return Scaffold(
-                  body: LoadingState(message: S.loadingUser),
-                );
-              }
+          // Load dev user once (no StreamBuilder, no tree rebuilds).
+          if (_loadedDevUid != firebaseUser.uid) {
+            _loadDevUser(firebaseUser.uid);
+          }
 
-              final appUser = userSnapshot.data;
+          if (_devUserLoading) {
+            return Scaffold(
+              body: LoadingState(message: S.loadingUser),
+            );
+          }
 
-              if (appUser != null && !appUser.isActive) {
-                return _buildBlockedScreen();
-              }
+          if (_devUser != null && !_devUser!.isActive) {
+            return _buildBlockedScreen();
+          }
 
-              return AreaSelectionScreen(
-                currentUser: appUser,
-                themeProvider: widget.themeProvider,
-                localeProvider: widget.localeProvider,
-              );
-            },
+          return AreaSelectionScreen(
+            currentUser: _devUser,
+            themeProvider: widget.themeProvider,
+            localeProvider: widget.localeProvider,
           );
+        }
+
+        // Reset dev state when signed out.
+        if (_loadedDevUid != null) {
+          _loadedDevUid = null;
+          _devUser = null;
         }
 
         if (_memberUser != null) {
