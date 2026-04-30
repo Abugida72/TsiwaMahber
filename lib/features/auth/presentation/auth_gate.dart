@@ -28,11 +28,28 @@ class AuthGate extends StatefulWidget {
 class _AuthGateState extends State<AuthGate> {
   final _authRepository = AuthRepository();
 
-  /// Non-null when a member has logged in via phone+code.
   AppUser? _memberUser;
-
-  /// Real-time subscription to the member's Firestore document.
   StreamSubscription<AppUser?>? _memberWatchSub;
+
+  late final Stream<User?> _authStream;
+
+  // Cache the dev user stream to avoid re-creating on every rebuild.
+  Stream<AppUser?>? _devUserStream;
+  String? _lastDevUid;
+
+  @override
+  void initState() {
+    super.initState();
+    _authStream = _authRepository.authStateChanges;
+  }
+
+  Stream<AppUser?> _getDevUserStream(String uid) {
+    if (_lastDevUid != uid) {
+      _lastDevUid = uid;
+      _devUserStream = _authRepository.watchAppUser(uid);
+    }
+    return _devUserStream!;
+  }
 
   void _onMemberLogin(AppUser user) {
     _memberWatchSub?.cancel();
@@ -47,7 +64,7 @@ class _AuthGateState extends State<AuthGate> {
         }
         return;
       }
-      setState(() => _memberUser = updated);
+      if (mounted) setState(() => _memberUser = updated);
     });
     setState(() => _memberUser = user);
   }
@@ -55,7 +72,7 @@ class _AuthGateState extends State<AuthGate> {
   void _logoutMember() {
     _memberWatchSub?.cancel();
     _memberWatchSub = null;
-    setState(() => _memberUser = null);
+    if (mounted) setState(() => _memberUser = null);
   }
 
   @override
@@ -66,9 +83,8 @@ class _AuthGateState extends State<AuthGate> {
 
   @override
   Widget build(BuildContext context) {
-    // ── Developer path: Firebase Auth ──
     return StreamBuilder<User?>(
-      stream: _authRepository.authStateChanges,
+      stream: _authStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -78,10 +94,9 @@ class _AuthGateState extends State<AuthGate> {
 
         final firebaseUser = snapshot.data;
 
-        // Developer is signed in via Google/Firebase Auth
         if (firebaseUser != null) {
           return StreamBuilder<AppUser?>(
-            stream: _authRepository.watchAppUser(firebaseUser.uid),
+            stream: _getDevUserStream(firebaseUser.uid),
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState ==
                   ConnectionState.waiting) {
@@ -96,7 +111,6 @@ class _AuthGateState extends State<AuthGate> {
                 return _buildBlockedScreen();
               }
 
-              // Developers see area selection
               return AreaSelectionScreen(
                 currentUser: appUser,
                 themeProvider: widget.themeProvider,
@@ -106,10 +120,9 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
 
-        // ── Member path: phone+code session ──
         if (_memberUser != null) {
-          // Members go directly to their assigned area
           return AreaHomeScreen(
+            key: ValueKey('member_${_memberUser!.uid}'),
             currentUser: _memberUser,
             areaId: _memberUser!.areaId,
             areaName: _memberUser!.areaId,
@@ -119,8 +132,8 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
 
-        // Not logged in — show phone+code login
         return LoginScreen(
+          key: const ValueKey('login'),
           themeProvider: widget.themeProvider,
           localeProvider: widget.localeProvider,
           onMemberLogin: _onMemberLogin,
