@@ -95,6 +95,7 @@ class AppPopupMenu extends StatelessWidget {
 
   Future<void> _handleDevLogin(BuildContext context) async {
     final devService = DeveloperService();
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
 
     showDialog(
       context: context,
@@ -112,14 +113,17 @@ class AppPopupMenu extends StatelessWidget {
 
     final error = await devService.signInWithGoogle();
 
-    if (context.mounted) {
-      Navigator.pop(context); // dismiss dialog
+    // Dismiss the loading dialog using root navigator
+    try {
+      rootNavigator.pop();
+    } catch (_) {
+      // Dialog already dismissed by auth-state navigation
+    }
 
-      if (error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error)),
-        );
-      }
+    if (error != null && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
     }
   }
 }
