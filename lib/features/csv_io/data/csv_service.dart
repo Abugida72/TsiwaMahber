@@ -146,7 +146,8 @@ class CsvService {
   // ── Import ──
 
   Future<List<Member>> parseMembersCsv(String csvContent) async {
-    final rows = const CsvToListConverter().convert(csvContent);
+    final rows = const CsvToListConverter(shouldParseNumbers: false)
+        .convert(_sanitizeCsv(csvContent));
     if (rows.length < 2) return [];
 
     final members = <Member>[];
@@ -173,7 +174,8 @@ class CsvService {
   }
 
   Future<List<Leader>> parseLeadersCsv(String csvContent) async {
-    final rows = const CsvToListConverter().convert(csvContent);
+    final rows = const CsvToListConverter(shouldParseNumbers: false)
+        .convert(_sanitizeCsv(csvContent));
     if (rows.length < 2) return [];
 
     final leaders = <Leader>[];
@@ -199,7 +201,8 @@ class CsvService {
   }
 
   Future<List<EdirMember>> parseEdirMembersCsv(String csvContent) async {
-    final rows = const CsvToListConverter().convert(csvContent);
+    final rows = const CsvToListConverter(shouldParseNumbers: false)
+        .convert(_sanitizeCsv(csvContent));
     if (rows.length < 2) return [];
 
     final members = <EdirMember>[];
@@ -374,10 +377,23 @@ class CsvService {
         phone: phone,
         passwordCode: code,
         areaId: areaId,
+        role: UserRole.member,
       );
 
       await usersCol.add(user.toCreateMap());
     }
+  }
+
+  /// Strip BOM and normalise line endings so [CsvToListConverter] splits rows.
+  static String _sanitizeCsv(String raw) {
+    var s = raw;
+    // Remove UTF-8 BOM
+    if (s.isNotEmpty && s.codeUnitAt(0) == 0xFEFF) {
+      s = s.substring(1);
+    }
+    // Normalise line endings to \n
+    s = s.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+    return s.trim();
   }
 
   // ── File operations ──
