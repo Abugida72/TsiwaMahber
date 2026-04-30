@@ -48,12 +48,21 @@ class _AuthGateState extends State<AuthGate> {
     if (_loadedDevUid == uid) return;
     _loadedDevUid = uid;
     setState(() => _devUserLoading = true);
-    final user = await _authRepository.getAppUser(uid);
-    if (mounted) {
-      setState(() {
-        _devUser = user;
-        _devUserLoading = false;
-      });
+    try {
+      final user = await _authRepository.getAppUser(uid);
+      if (mounted) {
+        setState(() {
+          _devUser = user;
+          _devUserLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _devUser = null;
+          _devUserLoading = false;
+        });
+      }
     }
   }
 
@@ -103,7 +112,13 @@ class _AuthGateState extends State<AuthGate> {
         if (firebaseUser != null) {
           // Load dev user once (no StreamBuilder, no tree rebuilds).
           if (_loadedDevUid != firebaseUser.uid) {
-            _loadDevUser(firebaseUser.uid);
+            // Defer to avoid calling setState during build.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _loadDevUser(firebaseUser.uid);
+            });
+            return Scaffold(
+              body: LoadingState(message: S.loadingUser),
+            );
           }
 
           if (_devUserLoading) {
