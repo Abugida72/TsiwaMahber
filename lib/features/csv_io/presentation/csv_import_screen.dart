@@ -9,6 +9,7 @@ import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class CsvImportScreen extends StatefulWidget {
   final String areaId;
@@ -39,7 +40,7 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CSV ከውጭ አስገባ')),
+      appBar: AppBar(title: Text(S.csvImportMenu)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -86,12 +87,12 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'CSV ከውጭ አስገባ',
+                    S.csvImportMenu,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -118,10 +119,10 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'የመረጃ ዓይነት ይምረጡ',
+            S.selectDataType,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -163,16 +164,16 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
       stream: _tsiwaRepository.watchTsiwas(widget.areaId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingState(message: 'ፅዋ ማህበሮችን በመጫን ላይ...');
+          return LoadingState(message: S.loadingTsiwas);
         }
 
         final tsiwas = snapshot.data ?? [];
         if (tsiwas.isEmpty) {
-          return const Card(
+          return Card(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'ምንም ፅዋ ማህበር አልተመዘገበም',
+                S.noTsiwaRegistered,
                 style: TextStyle(color: AppTheme.textMuted),
               ),
             ),
@@ -182,10 +183,10 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 4, bottom: 8),
               child: Text(
-                'ፅዋ ማህበር ይምረጡ',
+                S.selectTsiwa,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -225,16 +226,16 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
       stream: _edirRepository.watchEdirs(widget.areaId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingState(message: 'እድሮችን በመጫን ላይ...');
+          return LoadingState(message: S.loadingEdirs);
         }
 
         final edirs = snapshot.data ?? [];
         if (edirs.isEmpty) {
-          return const Card(
+          return Card(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'ምንም እድር አልተመዘገበም',
+                S.noEdirRegistered,
                 style: TextStyle(color: AppTheme.textMuted),
               ),
             ),
@@ -244,10 +245,10 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 4, bottom: 8),
               child: Text(
-                'እድር ይምረጡ',
+                S.selectEdir,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -289,7 +290,7 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.attach_file),
-        label: Text(_csvContent != null ? 'ሌላ ፋይል ምረጥ' : 'CSV ፋይል ምረጥ'),
+        label: Text(_csvContent != null ? S.selectAnotherFile : S.selectFile),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
           side: const BorderSide(color: AppTheme.primary),
@@ -431,7 +432,7 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
                 ),
               )
             : const Icon(Icons.upload),
-        label: Text(_isImporting ? 'በማስገባት ላይ...' : '$count መረጃ አስገባ'),
+        label: Text(_isImporting ? S.importing : '$count መረጃ አስገባ'),
       ),
     );
   }
@@ -478,7 +479,7 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ማረጋገጫ'),
+        title: Text(S.importConfirm),
         content: Text(
           'መረጃዎቹን ወደ ውስጥ ማስገባት ይፈልጋሉ?\n'
           'ነባር መረጃዎች አይቀየሩም — አዲስ ብቻ ይጨመራሉ።',
@@ -490,7 +491,7 @@ class _CsvImportScreenState extends State<CsvImportScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('አስገባ'),
+            child: Text(S.importBtn),
           ),
         ],
       ),

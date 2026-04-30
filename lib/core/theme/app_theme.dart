@@ -196,6 +196,13 @@ class ThemeProvider extends ChangeNotifier {
 }
 
 class LocaleProvider extends ChangeNotifier {
+  static LocaleProvider? _instance;
+
+  static LocaleProvider get instance {
+    _instance ??= LocaleProvider();
+    return _instance!;
+  }
+
   bool _isAmharic = true;
 
   bool get isAmharic => _isAmharic;

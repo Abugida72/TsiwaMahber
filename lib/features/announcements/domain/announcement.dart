@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum AnnouncementPriority {
   normal,
@@ -8,11 +9,11 @@ enum AnnouncementPriority {
   String get displayName {
     switch (this) {
       case AnnouncementPriority.normal:
-        return 'መደበኛ';
+        return S.levelNormal;
       case AnnouncementPriority.important:
-        return 'አስፈላጊ';
+        return S.levelImportant;
       case AnnouncementPriority.urgent:
-        return 'አስቸኳይ';
+        return S.levelUrgent;
     }
   }
 

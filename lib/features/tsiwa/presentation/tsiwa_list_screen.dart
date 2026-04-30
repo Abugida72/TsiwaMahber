@@ -7,6 +7,7 @@ import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_detail_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_form_screen.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class TsiwaListScreen extends StatefulWidget {
   final String areaId;
@@ -29,7 +30,7 @@ class _TsiwaListScreenState extends State<TsiwaListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ፅዋ ማህበሮች'),
+        title: Text(S.tsiwaGroups),
       ),
       body: StreamBuilder<List<TsiwaMahber>>(
         stream: _tsiwaRepository.watchTsiwas(widget.areaId),
@@ -44,7 +45,7 @@ class _TsiwaListScreenState extends State<TsiwaListScreen> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final tsiwas = snapshot.data ?? [];
@@ -52,12 +53,12 @@ class _TsiwaListScreenState extends State<TsiwaListScreen> {
           if (tsiwas.isEmpty) {
             return EmptyState(
               icon: Icons.groups_outlined,
-              title: 'እስካሁን ፅዋ ማህበር አልተመዘገበም።',
-              message: 'አዲስ ፅዋ ማህበር ለመጨመር ከታች ያለውን ቁልፍ ይጫኑ',
+              title: S.noTsiwaYet,
+              message: S.addTsiwaHint,
               action: ElevatedButton.icon(
                 onPressed: _openCreateForm,
                 icon: const Icon(Icons.add),
-                label: const Text('አዲስ ፅዋ'),
+                label: Text(S.newTsiwa),
               ),
             );
           }
@@ -147,7 +148,7 @@ class _TsiwaCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        tsiwa.isArchived ? 'ማህደር' : 'ቆሟል',
+                        tsiwa.isArchived ? S.archive : S.stopped,
                         style: TextStyle(
                           fontSize: 11,
                           color: tsiwa.isArchived

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class EdirMemberFormScreen extends StatefulWidget {
   final String areaId;
@@ -55,7 +56,7 @@ class _EdirMemberFormScreenState extends State<EdirMemberFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'አባል አስተካክል' : 'አዲስ አባል'),
+        title: Text(_isEditing ? S.editMember : S.newMember),
       ),
       body: Form(
         key: _formKey,
@@ -64,13 +65,13 @@ class _EdirMemberFormScreenState extends State<EdirMemberFormScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'ሙሉ ስም *',
-                hintText: 'የአባሉ ሙሉ ስም',
+                hintText: S.memberFullName,
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ስም ያስፈልጋል';
+                  return S.nameRequired;
                 }
                 return null;
               },
@@ -78,16 +79,16 @@ class _EdirMemberFormScreenState extends State<EdirMemberFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _christianNameController,
-              decoration: const InputDecoration(
-                labelText: 'የክርስትና ስም',
-                hintText: 'የአባሉ የክርስትና ስም',
+              decoration: InputDecoration(
+                labelText: S.christianName,
+                hintText: S.memberChristianName,
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'ስልክ',
+              decoration: InputDecoration(
+                labelText: S.phone,
                 hintText: '09xxxxxxxx',
               ),
               keyboardType: TextInputType.phone,
@@ -95,8 +96,8 @@ class _EdirMemberFormScreenState extends State<EdirMemberFormScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<EdirMemberStatus>(
               initialValue: _status,
-              decoration: const InputDecoration(
-                labelText: 'ሁኔታ',
+              decoration: InputDecoration(
+                labelText: S.status,
               ),
               items: EdirMemberStatus.values.map((status) {
                 return DropdownMenuItem(
@@ -119,7 +120,7 @@ class _EdirMemberFormScreenState extends State<EdirMemberFormScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(_isEditing ? 'አስቀምጥ' : 'ጨምር'),
+                  : Text(_isEditing ? S.save : S.add),
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/confirm_dialog.dart';
 import 'package:tsiwa_mahber/features/developer/data/developer_service.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class DeveloperManagementScreen extends StatefulWidget {
   const DeveloperManagementScreen({super.key});
@@ -26,7 +27,7 @@ class _DeveloperManagementScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ገንቢዎች'),
+        title: Text(S.developers),
       ),
       body: StreamBuilder<List<String>>(
         stream: _developerService.watchDeveloperEmails(),
@@ -42,8 +43,8 @@ class _DeveloperManagementScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'አዲስ ገንቢ ጨምር',
+                      Text(
+                        S.addDeveloper,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -68,7 +69,7 @@ class _DeveloperManagementScreenState
                           const SizedBox(width: 12),
                           ElevatedButton(
                             onPressed: _addDeveloper,
-                            child: const Text('ጨምር'),
+                            child: Text(S.add),
                           ),
                         ],
                       ),
@@ -77,10 +78,10 @@ class _DeveloperManagementScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 8),
                 child: Text(
-                  'ገንቢዎች ዝርዝር',
+                  S.developerList,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -105,12 +106,12 @@ class _DeveloperManagementScreenState
                     ),
                   )),
               if (emails.isEmpty)
-                const Card(
+                Card(
                   child: Padding(
                     padding: EdgeInsets.all(24),
                     child: Center(
                       child: Text(
-                        'ምንም ገንቢ አልተመዘገበም',
+                        S.noDevelopers,
                         style: TextStyle(color: AppTheme.textMuted),
                       ),
                     ),
@@ -127,7 +128,7 @@ class _DeveloperManagementScreenState
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ትክክለኛ ኢሜይል ያስገቡ')),
+        SnackBar(content: Text(S.validEmail)),
       );
       return;
     }
@@ -143,7 +144,7 @@ class _DeveloperManagementScreenState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ማስቀመጥ አልተቻለም')),
+          SnackBar(content: Text(S.saveFailed)),
         );
       }
     }
@@ -152,9 +153,9 @@ class _DeveloperManagementScreenState
   Future<void> _removeDeveloper(String email) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'ገንቢ ሰርዝ',
+      title: S.deleteDeveloper,
       message: '"$email" ከገንቢ ዝርዝር ለመሰረዝ እርግጠኛ ነዎት?',
-      confirmText: 'ሰርዝ',
+      confirmText: S.delete,
     );
 
     if (confirmed == true) {
@@ -163,7 +164,7 @@ class _DeveloperManagementScreenState
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('መሰረዝ አልተቻለም')),
+            SnackBar(content: Text(S.deleteFailed)),
           );
         }
       }

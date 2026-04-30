@@ -6,6 +6,7 @@ import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class CsvExportScreen extends StatefulWidget {
   final String areaId;
@@ -29,7 +30,7 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CSV ወደ ውጭ ላክ')),
+      appBar: AppBar(title: Text(S.csvExportMenu)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -70,12 +71,12 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'CSV ወደ ውጭ ላክ',
+                    S.csvExportMenu,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -83,7 +84,7 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'መረጃውን CSV ፋይል አድርገው ያውርዱ ወይም ያጋሩ',
+                    S.csvExportDesc,
                     style: TextStyle(
                       fontSize: 13,
                       color: AppTheme.textMuted,
@@ -102,10 +103,10 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'የመረጃ ዓይነት ይምረጡ',
+            S.selectDataType,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -143,16 +144,16 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
       stream: _tsiwaRepository.watchTsiwas(widget.areaId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingState(message: 'ፅዋ ማህበሮችን በመጫን ላይ...');
+          return LoadingState(message: S.loadingTsiwas);
         }
 
         final tsiwas = snapshot.data ?? [];
         if (tsiwas.isEmpty) {
-          return const Card(
+          return Card(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'ምንም ፅዋ ማህበር አልተመዘገበም',
+                S.noTsiwaRegistered,
                 style: TextStyle(color: AppTheme.textMuted),
               ),
             ),
@@ -162,10 +163,10 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 4, bottom: 8),
               child: Text(
-                'ፅዋ ማህበር ይምረጡ',
+                S.selectTsiwa,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -205,16 +206,16 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
       stream: _edirRepository.watchEdirs(widget.areaId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingState(message: 'እድሮችን በመጫን ላይ...');
+          return LoadingState(message: S.loadingEdirs);
         }
 
         final edirs = snapshot.data ?? [];
         if (edirs.isEmpty) {
-          return const Card(
+          return Card(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'ምንም እድር አልተመዘገበም',
+                S.noEdirRegistered,
                 style: TextStyle(color: AppTheme.textMuted),
               ),
             ),
@@ -224,10 +225,10 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 4, bottom: 8),
               child: Text(
-                'እድር ይምረጡ',
+                S.selectEdir,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -278,7 +279,7 @@ class _CsvExportScreenState extends State<CsvExportScreen> {
                 ),
               )
             : const Icon(Icons.download),
-        label: Text(_isExporting ? 'በመላክ ላይ...' : 'CSV ላክ'),
+        label: Text(_isExporting ? S.exporting : S.csvExportMenu),
       ),
     );
   }

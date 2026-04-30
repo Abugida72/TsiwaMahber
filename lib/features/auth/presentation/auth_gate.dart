@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/app_popup_menu.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
@@ -31,8 +32,8 @@ class _AuthGateState extends State<AuthGate> {
       stream: _authRepository.authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: LoadingState(message: 'በመጫን ላይ...'),
+          return Scaffold(
+            body: LoadingState(message: S.loading),
           );
         }
 
@@ -50,8 +51,8 @@ class _AuthGateState extends State<AuthGate> {
           builder: (context, userSnapshot) {
             if (userSnapshot.connectionState ==
                 ConnectionState.waiting) {
-              return const Scaffold(
-                body: LoadingState(message: 'ተጠቃሚ በመጫን ላይ...'),
+              return Scaffold(
+                body: LoadingState(message: S.loadingUser),
               );
             }
 
@@ -76,22 +77,22 @@ class _AuthGateState extends State<AuthGate> {
                         Icon(Icons.block, size: 64,
                             color: Colors.red.shade300),
                         const SizedBox(height: 16),
-                        const Text(
-                          'አካውንትዎ ታግዷል',
-                          style: TextStyle(
+                        Text(
+                          S.accountBlocked,
+                          style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'አስተዳዳሪን ያነጋግሩ',
-                          style: TextStyle(fontSize: 14),
+                        Text(
+                          S.contactAdmin,
+                          style: const TextStyle(fontSize: 14),
                         ),
                         const SizedBox(height: 24),
                         ElevatedButton(
                           onPressed: () => _authRepository.signOut(),
-                          child: const Text('ውጣ'),
+                          child: Text(S.exitAccount),
                         ),
                       ],
                     ),

@@ -6,6 +6,7 @@ import 'package:tsiwa_mahber/features/announcements/data/announcement_repository
 import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
 import 'package:tsiwa_mahber/features/announcements/domain/read_receipt.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AnnouncementDetailScreen extends StatefulWidget {
   final String areaId;
@@ -37,10 +38,10 @@ class _AnnouncementDetailScreenState
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('ማስታወቂያ')),
+            appBar: AppBar(title: Text(S.announcement)),
             body: Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             ),
@@ -49,22 +50,22 @@ class _AnnouncementDetailScreenState
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(title: const Text('ማስታወቂያ')),
-            body: const LoadingState(message: 'በመጫን ላይ...'),
+            appBar: AppBar(title: Text(S.announcement)),
+            body: LoadingState(message: S.loading),
           );
         }
 
         final announcement = snapshot.data;
         if (announcement == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('ማስታወቂያ')),
-            body: const Center(child: Text('ማስታወቂያ አልተገኘም')),
+            appBar: AppBar(title: Text(S.announcement)),
+            body: Center(child: Text(S.announcementNotFound)),
           );
         }
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('ማስታወቂያ'),
+            title: Text(S.announcement),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -204,7 +205,7 @@ class _AnnouncementDetailScreenState
             child: FilledButton.icon(
               onPressed: null,
               icon: const Icon(Icons.done_all),
-              label: const Text('አንብቤአለሁ'),
+              label: Text(S.iHaveRead),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.green.withValues(alpha: 0.2),
                 foregroundColor: Colors.green,
@@ -224,7 +225,7 @@ class _AnnouncementDetailScreenState
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.check),
-            label: const Text('አንብቤአለሁ ምልክት አድርግ'),
+            label: Text(S.markAsRead),
           ),
         );
       },
@@ -235,8 +236,8 @@ class _AnnouncementDetailScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'ያነበቡ ሰዎች',
+        Text(
+          S.readBy,
           style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.w600),
         ),
@@ -257,10 +258,10 @@ class _AnnouncementDetailScreenState
             final receipts = snapshot.data ?? [];
 
             if (receipts.isEmpty) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  'እስካሁን ማንም አላነበበም',
+                  S.noOneReadYet,
                   style: TextStyle(color: AppTheme.textMuted),
                 ),
               );

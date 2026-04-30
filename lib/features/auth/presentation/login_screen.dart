@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/app_popup_menu.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
@@ -64,17 +65,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'ጽዋ ማህበር',
-                        style: TextStyle(
+                      Text(
+                        S.appName,
+                        style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'ጽዋ ማህበር አስተዳደር',
-                        style: TextStyle(
+                      Text(
+                        S.appSubtitle,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.textMuted,
                         ),
@@ -103,18 +104,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                       TextFormField(
                         controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'ኢሜይል',
-                          prefixIcon: Icon(Icons.email_outlined),
+                        decoration: InputDecoration(
+                          labelText: S.email,
+                          prefixIcon: const Icon(Icons.email_outlined),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null ||
                               value.trim().isEmpty) {
-                            return 'ኢሜይል ያስፈልጋል';
+                            return S.emailRequired;
                           }
                           if (!value.contains('@')) {
-                            return 'ትክክለኛ ኢሜይል ያስገቡ';
+                            return S.validEmail;
                           }
                           return null;
                         },
@@ -123,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextFormField(
                         controller: _passwordController,
                         decoration: InputDecoration(
-                          labelText: 'ይለፍ ቃል',
+                          labelText: S.password,
                           prefixIcon:
                               const Icon(Icons.lock_outlined),
                           suffixIcon: IconButton(
@@ -138,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: _obscurePassword,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'ይለፍ ቃል ያስፈልጋል';
+                            return S.passwordRequired;
                           }
                           return null;
                         },
@@ -148,9 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: _resetPassword,
-                          child: const Text(
-                            'ይለፍ ቃል ረሱ?',
-                            style: TextStyle(fontSize: 13),
+                          child: Text(
+                            S.forgotPassword,
+                            style: const TextStyle(fontSize: 13),
                           ),
                         ),
                       ),
@@ -168,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       CircularProgressIndicator(
                                           strokeWidth: 2),
                                 )
-                              : const Text('ግባ'),
+                              : Text(S.signIn),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -176,9 +177,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment:
                             MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'አካውንት የለዎትም?',
-                            style: TextStyle(
+                          Text(
+                            S.noAccount,
+                            style: const TextStyle(
                                 fontSize: 13,
                                 color: AppTheme.textMuted),
                           ),
@@ -192,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               );
                             },
-                            child: const Text('ይመዝገቡ'),
+                            child: Text(S.register),
                           ),
                         ],
                       ),
@@ -239,8 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _resetPassword() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
-      setState(
-          () => _error = 'ኢሜይል ያስገቡ ከዚያ "ይለፍ ቃል ረሱ?" ይጫኑ');
+      setState(() => _error = S.enterEmailForReset);
       return;
     }
 
@@ -248,9 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted) {
       if (error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('ይለፍ ቃል ማስቀየሪያ ወደ ኢሜይልዎ ተልኳል')),
+          SnackBar(content: Text(S.resetEmailSent)),
         );
       } else {
         setState(() => _error = error);

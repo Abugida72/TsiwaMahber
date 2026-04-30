@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum NotificationType {
   announcement,
@@ -9,13 +10,13 @@ enum NotificationType {
   String get displayName {
     switch (this) {
       case NotificationType.announcement:
-        return 'ማስታወቂያ';
+        return S.notifAnnouncement;
       case NotificationType.event:
-        return 'ክስተት';
+        return S.notifEvent;
       case NotificationType.payment:
-        return 'ክፍያ';
+        return S.notifPayment;
       case NotificationType.system:
-        return 'ስርዓት';
+        return S.notifSystem;
     }
   }
 

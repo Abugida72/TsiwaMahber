@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -37,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ይመዝገቡ'),
+        title: Text(S.register),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -73,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'ስም ያስፈልጋል';
+                      return S.nameRequired;
                     }
                     return null;
                   },
@@ -88,10 +89,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'ኢሜይል ያስፈልጋል';
+                      return S.emailRequired;
                     }
                     if (!value.contains('@')) {
-                      return 'ትክክለኛ ኢሜይል ያስገቡ';
+                      return S.validEmail;
                     }
                     return null;
                   },
@@ -99,8 +100,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'ስልክ',
+                  decoration: InputDecoration(
+                    labelText: S.phone,
                     prefixIcon: Icon(Icons.phone_outlined),
                     hintText: '09xxxxxxxx',
                   ),
@@ -123,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscurePassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'ይለፍ ቃል ያስፈልጋል';
+                      return S.passwordRequired;
                     }
                     if (value.length < 6) {
                       return 'ቢያንስ 6 ቁምፊ';
@@ -165,7 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2),
                           )
-                        : const Text('ይመዝገቡ'),
+                        : Text(S.register),
                   ),
                 ),
               ],

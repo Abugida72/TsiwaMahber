@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class ProfileScreen extends StatefulWidget {
   final AppUser user;
@@ -43,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('መገለጫ'),
+        title: Text(S.profile),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -114,13 +115,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'ሙሉ ስም',
+                      decoration: InputDecoration(
+                        labelText: S.fullName,
                         prefixIcon: Icon(Icons.person_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'ስም ያስፈልጋል';
+                          return S.nameRequired;
                         }
                         return null;
                       },
@@ -128,8 +129,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'ስልክ',
+                      decoration: InputDecoration(
+                        labelText: S.phone,
                         prefixIcon: Icon(Icons.phone_outlined),
                       ),
                       keyboardType: TextInputType.phone,
@@ -146,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: CircularProgressIndicator(
                                     strokeWidth: 2),
                               )
-                            : const Text('አስቀምጥ'),
+                            : Text(S.save),
                       ),
                     ),
                   ],
@@ -158,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('ውጣ',
+              title: Text(S.exitAccount,
                   style: TextStyle(color: Colors.red)),
               onTap: () async {
                 final navigator = Navigator.of(context);

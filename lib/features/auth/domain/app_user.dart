@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum UserRole {
   developer,
@@ -10,15 +11,15 @@ enum UserRole {
   String get displayName {
     switch (this) {
       case UserRole.developer:
-        return 'ገንቢ';
+        return S.roleDeveloper;
       case UserRole.admin:
-        return 'አስተዳዳሪ';
+        return S.roleAdmin;
       case UserRole.leader:
-        return 'አመራር';
+        return S.roleLeader;
       case UserRole.member:
-        return 'አባል';
+        return S.roleMember;
       case UserRole.viewer:
-        return 'ታዛቢ';
+        return S.roleViewer;
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/reports/data/report_service.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class EdirReportScreen extends StatefulWidget {
   final String areaId;
@@ -44,9 +45,9 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('የእድር ሪፖርት')),
+      appBar: AppBar(title: Text(S.edirReport)),
       body: _isLoading
-          ? const LoadingState(message: 'በመጫን ላይ...')
+          ? LoadingState(message: S.loading)
           : _error != null
               ? Center(
                   child: Column(
@@ -58,7 +59,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                       ElevatedButton.icon(
                         onPressed: _loadData,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('እንደገና ሞክር'),
+                        label: Text(S.retry),
                       ),
                     ],
                   ),
@@ -69,9 +70,9 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
 
   Widget _buildContent() {
     if (_stats.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'ምንም እድር አልተመዘገበም',
+          S.noEdirRegistered,
           style: TextStyle(color: AppTheme.textMuted),
         ),
       );
@@ -107,8 +108,8 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'አጠቃላይ የገንዘብ ማጠቃለያ',
+            Text(
+              S.financialSummary,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -119,7 +120,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
               children: [
                 Expanded(
                   child: _FinanceCard(
-                    label: 'ግምጃ ቤት',
+                    label: S.treasury,
                     value: '${totalTreasury.toStringAsFixed(0)} ብር',
                     icon: Icons.savings,
                     color: Colors.green,
@@ -128,7 +129,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _FinanceCard(
-                    label: 'ጠቅላላ ክፍያ',
+                    label: S.totalPayment,
                     value: '${totalCollected.toStringAsFixed(0)} ብር',
                     icon: Icons.payments,
                     color: Colors.blue,
@@ -137,7 +138,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _FinanceCard(
-                    label: 'ቀሪ ሂሳብ',
+                    label: S.balance,
                     value: '${totalOutstanding.toStringAsFixed(0)} ብር',
                     icon: Icons.warning_amber,
                     color: Colors.orange,
@@ -147,8 +148,8 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
             ),
             if (_stats.length > 1) ...[
               const SizedBox(height: 16),
-              const Text(
-                'ግምጃ ቤት በእድር',
+              Text(
+                S.treasuryByEdir,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -283,7 +284,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
             Row(
               children: [
                 _InfoTile(
-                  label: 'አባላት',
+                  label: S.members,
                   value: stat.members.length.toString(),
                 ),
                 const SizedBox(width: 16),
@@ -293,15 +294,15 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                 ),
                 const SizedBox(width: 16),
                 _InfoTile(
-                  label: 'ቅጣት',
+                  label: S.penalty,
                   value: '${stat.edir.penaltyAmount.toStringAsFixed(0)} ብር',
                 ),
               ],
             ),
             if (stat.paymentsByType.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text(
-                'የክፍያ ስርጭት',
+              Text(
+                S.paymentDistribution,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -379,8 +380,8 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
             ],
             if (stat.membersByStatus.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text(
-                'አባላት በሁኔታ',
+              Text(
+                S.membersByStatus,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -393,7 +394,7 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                 runSpacing: 4,
                 children: stat.membersByStatus.entries.map((e) {
                   Color chipColor;
-                  if (e.key == 'ንቁ') {
+                  if (e.key == S.active) {
                     chipColor = Colors.green;
                   } else if (e.key == 'ቦዝኗል') {
                     chipColor = Colors.orange;
@@ -417,8 +418,8 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
             ],
             if (stat.members.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text(
-                'ከፍተኛ ቀሪ ሂሳብ',
+              Text(
+                S.topBalances,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -452,8 +453,8 @@ class _EdirReportScreenState extends State<EdirReportScreen> {
                         ),
                       )),
               if (stat.members.where((m) => m.balance > 0).isEmpty)
-                const Text(
-                  'ቀሪ ሂሳብ ያለው አባል የለም',
+                Text(
+                  S.noMembersWithBalance,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppTheme.textMuted,
