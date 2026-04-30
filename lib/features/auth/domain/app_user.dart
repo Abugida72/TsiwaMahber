@@ -87,9 +87,11 @@ class AppUser {
   final String email;
   final String displayName;
   final String phone;
+  final String passwordCode;
   final UserRole role;
   final String areaId;
   final bool isActive;
+  final bool kickedOut;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -98,9 +100,11 @@ class AppUser {
     this.email = '',
     this.displayName = '',
     this.phone = '',
+    this.passwordCode = '',
     this.role = UserRole.viewer,
-    this.areaId = 'gelan',
+    this.areaId = '',
     this.isActive = true,
+    this.kickedOut = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -112,9 +116,27 @@ class AppUser {
       email: data['email'] as String? ?? '',
       displayName: data['displayName'] as String? ?? '',
       phone: data['phone'] as String? ?? '',
+      passwordCode: data['passwordCode'] as String? ?? '',
       role: UserRole.fromString(data['role'] as String?),
-      areaId: data['areaId'] as String? ?? 'gelan',
+      areaId: data['areaId'] as String? ?? '',
       isActive: data['isActive'] as bool? ?? true,
+      kickedOut: data['kickedOut'] as bool? ?? false,
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  factory AppUser.fromMap(Map<String, dynamic> data, String docId) {
+    return AppUser(
+      uid: docId,
+      email: data['email'] as String? ?? '',
+      displayName: data['displayName'] as String? ?? '',
+      phone: data['phone'] as String? ?? '',
+      passwordCode: data['passwordCode'] as String? ?? '',
+      role: UserRole.fromString(data['role'] as String?),
+      areaId: data['areaId'] as String? ?? '',
+      isActive: data['isActive'] as bool? ?? true,
+      kickedOut: data['kickedOut'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -125,9 +147,11 @@ class AppUser {
       'email': email,
       'displayName': displayName,
       'phone': phone,
+      'passwordCode': passwordCode,
       'role': role.firestoreValue,
       'areaId': areaId,
       'isActive': true,
+      'kickedOut': false,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -146,18 +170,22 @@ class AppUser {
     String? email,
     String? displayName,
     String? phone,
+    String? passwordCode,
     UserRole? role,
     String? areaId,
     bool? isActive,
+    bool? kickedOut,
   }) {
     return AppUser(
       uid: uid ?? this.uid,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
       phone: phone ?? this.phone,
+      passwordCode: passwordCode ?? this.passwordCode,
       role: role ?? this.role,
       areaId: areaId ?? this.areaId,
       isActive: isActive ?? this.isActive,
+      kickedOut: kickedOut ?? this.kickedOut,
     );
   }
 }

@@ -3,16 +3,18 @@ import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/app_popup_menu.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
-import 'package:tsiwa_mahber/features/auth/presentation/register_screen.dart';
+import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 
 class LoginScreen extends StatefulWidget {
   final ThemeProvider themeProvider;
   final LocaleProvider localeProvider;
+  final void Function(AppUser user) onMemberLogin;
 
   const LoginScreen({
     super.key,
     required this.themeProvider,
     required this.localeProvider,
+    required this.onMemberLogin,
   });
 
   @override
@@ -23,17 +25,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _authRepository = AuthRepository();
 
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _codeController = TextEditingController();
 
   bool _isLoading = false;
-  bool _obscurePassword = true;
+  bool _obscureCode = true;
   String? _error;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _phoneController.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
@@ -74,13 +76,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        S.appSubtitle,
+                        S.memberLogin,
                         style: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.textMuted,
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 8),
+                      Text(
+                        S.enterPhoneAndCode,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textMuted,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
                       if (_error != null) ...[
                         Container(
                           width: double.infinity,
@@ -103,59 +114,46 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 16),
                       ],
                       TextFormField(
-                        controller: _emailController,
+                        controller: _phoneController,
                         decoration: InputDecoration(
-                          labelText: S.email,
-                          prefixIcon: const Icon(Icons.email_outlined),
+                          labelText: S.phoneNumber,
+                          prefixIcon: const Icon(Icons.phone_outlined),
+                          hintText: '09xxxxxxxx',
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value == null ||
                               value.trim().isEmpty) {
-                            return S.emailRequired;
-                          }
-                          if (!value.contains('@')) {
-                            return S.validEmail;
+                            return S.phoneRequired;
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _passwordController,
+                        controller: _codeController,
                         decoration: InputDecoration(
-                          labelText: S.password,
+                          labelText: S.passwordCode,
                           prefixIcon:
                               const Icon(Icons.lock_outlined),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword
+                            icon: Icon(_obscureCode
                                 ? Icons.visibility_off
                                 : Icons.visibility),
                             onPressed: () => setState(() =>
-                                _obscurePassword =
-                                    !_obscurePassword),
+                                _obscureCode =
+                                    !_obscureCode),
                           ),
                         ),
-                        obscureText: _obscurePassword,
+                        obscureText: _obscureCode,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return S.passwordRequired;
+                            return S.codeRequired;
                           }
                           return null;
                         },
                       ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: _resetPassword,
-                          child: Text(
-                            S.forgotPassword,
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
@@ -171,31 +169,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 )
                               : Text(S.signIn),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            S.noAccount,
-                            style: const TextStyle(
-                                fontSize: 13,
-                                color: AppTheme.textMuted),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const RegisterScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(S.register),
-                          ),
-                        ],
                       ),
                     ],
                   ),
@@ -224,34 +197,20 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
-    final error = await _authRepository.signIn(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        _error = error;
-      });
-    }
-  }
-
-  Future<void> _resetPassword() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty || !email.contains('@')) {
-      setState(() => _error = S.enterEmailForReset);
-      return;
-    }
-
-    final error = await _authRepository.resetPassword(email);
-    if (mounted) {
-      if (error == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.resetEmailSent)),
-        );
-      } else {
-        setState(() => _error = error);
+    try {
+      final user = await _authRepository.signInWithPhone(
+        _phoneController.text.trim(),
+        _codeController.text,
+      );
+      if (mounted) {
+        widget.onMemberLogin(user);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = e.toString();
+        });
       }
     }
   }
