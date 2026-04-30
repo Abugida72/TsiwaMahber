@@ -175,6 +175,10 @@ class AuthRepository {
             snapshot.docs.map((doc) => AppUser.fromDoc(doc)).toList());
   }
 
+  Future<void> deleteUser(String uid) async {
+    await _firestore.collection('users').doc(uid).delete();
+  }
+
   // ── Firebase Auth (devs only) ──
 
   Future<void> signOut() async {

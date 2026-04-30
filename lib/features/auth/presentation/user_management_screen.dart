@@ -29,9 +29,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         child: const Icon(Icons.person_add),
       ),
       body: StreamBuilder<List<AppUser>>(
-        stream: widget.areaId != null
-            ? _authRepository.watchUsersByArea(widget.areaId!)
-            : _authRepository.watchAllUsers(),
+        stream: _authRepository.watchAllUsers(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -126,6 +124,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       style: const TextStyle(
                           fontSize: 12, color: AppTheme.textMuted),
                     ),
+                  if (user.email.isNotEmpty)
+                    Text(
+                      user.email,
+                      style: const TextStyle(
+                          fontSize: 11, color: AppTheme.textMuted),
+                    ),
                   if (user.areaId.isNotEmpty)
                     Text(
                       '${S.areaLabel}: ${user.areaId}',
@@ -184,6 +188,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   ),
                 ),
                 PopupMenuItem(
+                  value: 'edit_phone',
+                  child: ListTile(
+                    leading: const Icon(Icons.phone, size: 18),
+                    title: Text(S.editPhone),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ),
+                PopupMenuItem(
                   value: user.kickedOut ? 'reinstate' : 'kick',
                   child: ListTile(
                     leading: Icon(
@@ -197,6 +210,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         color: user.kickedOut ? Colors.green : Colors.red,
                       ),
                     ),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: ListTile(
+                    leading: const Icon(Icons.delete_forever, size: 18,
+                        color: Colors.red),
+                    title: Text(S.deleteUser,
+                        style: const TextStyle(color: Colors.red)),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                   ),
@@ -220,6 +245,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       _showSetPasswordDialog(user);
     } else if (action == 'kick') {
       _showKickConfirmDialog(user);
+    } else if (action == 'edit_phone') {
+      _showEditPhoneDialog(user);
     } else if (action == 'reinstate') {
       await _authRepository.reinstateUser(user.uid);
       if (mounted) {
@@ -227,6 +254,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           SnackBar(content: Text('${user.displayName} — ${S.reinstated}')),
         );
       }
+    } else if (action == 'delete') {
+      _showDeleteConfirmDialog(user);
     }
   }
 
@@ -402,5 +431,78 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     nameController.dispose();
     phoneController.dispose();
     codeController.dispose();
+  }
+
+  Future<void> _showEditPhoneDialog(AppUser user) async {
+    final controller = TextEditingController(text: user.phone);
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.editPhone),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: S.phoneNumber,
+            hintText: '09xxxxxxxx',
+          ),
+          keyboardType: TextInputType.phone,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(S.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: Text(S.save),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+
+    if (result != null && result.isNotEmpty) {
+      await _authRepository.updateMemberCredentials(
+        uid: user.uid,
+        phone: result,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.phoneUpdated)),
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteConfirmDialog(AppUser user) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.deleteUser),
+        content: Text('${S.deleteUserConfirm}\n\n${user.displayName}'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(S.cancel),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(S.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _authRepository.deleteUser(user.uid);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.userDeleted)),
+        );
+      }
+    }
   }
 }

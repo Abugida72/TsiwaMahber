@@ -422,4 +422,10 @@ class S {
   static String get memberAccountCreated => _am ? 'የአባል አካውንት ተፈጥሯል' : 'Member account created';
   static String get phoneAlreadyRegistered => _am ? 'ይህ ስልክ ቁጥር አስቀድሞ ተመዝግቧል' : 'This phone number is already registered';
   static String get areaLabel => _am ? 'አካባቢ' : 'Area';
+  static String get deleteUser => _am ? 'ተጠቃሚ ሰርዝ' : 'Delete User';
+  static String get deleteUserConfirm => _am ? 'ይህን ተጠቃሚ ለመሰረዝ እርግጠኛ ነዎት?' : 'Are you sure you want to delete this user?';
+  static String get userDeleted => _am ? 'ተጠቃሚ ተሰርዟል' : 'User deleted';
+  static String get editPhone => _am ? 'ስልክ ቁጥር ቀይር' : 'Edit Phone Number';
+  static String get phoneUpdated => _am ? 'ስልክ ቁጥር ተቀይሯል' : 'Phone number updated';
+  static String get allUsers => _am ? 'ሁሉም ተጠቃሚዎች' : 'All Users';
 }
