@@ -8,6 +8,7 @@ import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/leadership/presentation/leader_form_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class LeaderListScreen extends StatefulWidget {
   final String areaId;
@@ -29,7 +30,7 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('አመራሮች'),
+        title: Text(S.leaders),
       ),
       body: StreamBuilder<List<TsiwaMahber>>(
         stream: _tsiwaRepository.watchTsiwas(widget.areaId),
@@ -43,14 +44,14 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
               if (snapshot.hasError) {
                 return Center(
                   child: Text(
-                    'መረጃ ማግኘት አልተቻለም',
+                    S.dataLoadFailed,
                     style: TextStyle(color: Colors.red.shade300),
                   ),
                 );
               }
 
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LoadingState(message: 'በመጫን ላይ...');
+                return LoadingState(message: S.loading);
               }
 
               final leaders = snapshot.data ?? [];
@@ -58,12 +59,12 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
               if (leaders.isEmpty) {
                 return EmptyState(
                   icon: Icons.admin_panel_settings,
-                  title: 'እስካሁን አመራር አልተመዘገበም።',
-                  message: 'አዲስ አመራር ለመጨመር ከታች ያለውን ቁልፍ ይጫኑ',
+                  title: S.noLeadersYet,
+                  message: S.addLeaderHint,
                   action: ElevatedButton.icon(
                     onPressed: () => _openCreateForm(tsiwas),
                     icon: const Icon(Icons.person_add),
-                    label: const Text('አዲስ አመራር'),
+                    label: Text(S.newLeader),
                   ),
                 );
               }
@@ -89,19 +90,19 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
                 children: [
                   _buildSummaryCard(leaders),
                   if (ownerLeaders.isNotEmpty)
-                    _buildSection('ባለቤት', ownerLeaders, tsiwaMap,
+                    _buildSection(S.ownerSection, ownerLeaders, tsiwaMap,
                         Icons.star, AppTheme.primary),
                   if (amerarLeaders.isNotEmpty)
-                    _buildSection('አመራሮች', amerarLeaders, tsiwaMap,
+                    _buildSection(S.leaders, amerarLeaders, tsiwaMap,
                         Icons.admin_panel_settings, AppTheme.secondary),
                   if (memakirtLeaders.isNotEmpty)
                     _buildSection('መማክርት', memakirtLeaders, tsiwaMap,
                         Icons.groups, Colors.teal),
                   if (edirLeaders.isNotEmpty)
-                    _buildSection('የእድር አመራሮች', edirLeaders, tsiwaMap,
+                    _buildSection(S.edirLeaderSection, edirLeaders, tsiwaMap,
                         Icons.account_balance_wallet, Colors.purple),
                   if (viewerLeaders.isNotEmpty)
-                    _buildSection('ታዛቢዎች', viewerLeaders, tsiwaMap,
+                    _buildSection(S.viewerSection, viewerLeaders, tsiwaMap,
                         Icons.visibility, AppTheme.textMuted),
                 ],
               );
@@ -137,8 +138,8 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildStat('ጠቅላላ', activeCount.toString(), AppTheme.primary),
-            _buildStat('አመራሮች', amerarCount.toString(), AppTheme.secondary),
+            _buildStat(S.total, activeCount.toString(), AppTheme.primary),
+            _buildStat(S.leaders, amerarCount.toString(), AppTheme.secondary),
             _buildStat('መማክርት', memakirtCount.toString(), Colors.teal),
           ],
         ),
@@ -231,9 +232,9 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
   Future<void> _deleteLeader(Leader leader) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'አመራር ሰርዝ',
+      title: S.deleteLeader,
       message: '"${leader.fullName}" አመራሩን ለመሰረዝ እርግጠኛ ነዎት?',
-      confirmText: 'ሰርዝ',
+      confirmText: S.delete,
     );
 
     if (confirmed == true && mounted) {
@@ -242,7 +243,7 @@ class _LeaderListScreenState extends State<LeaderListScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('አመራሩን መሰረዝ አልተቻለም።')),
+            SnackBar(content: Text(S.deleteLeaderFailed)),
           );
         }
       }
@@ -364,8 +365,8 @@ class _LeaderCard extends StatelessWidget {
                             color: Colors.red.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            'ቆሟል',
+                          child: Text(
+                            S.stopped,
                             style: TextStyle(fontSize: 10, color: Colors.red),
                           ),
                         ),

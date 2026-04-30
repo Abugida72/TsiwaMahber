@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum PaymentType {
   monthly,
@@ -8,11 +9,11 @@ enum PaymentType {
   String get displayName {
     switch (this) {
       case PaymentType.monthly:
-        return 'ወርሃዊ';
+        return S.payMonthly;
       case PaymentType.penalty:
-        return 'ቅጣት';
+        return S.payPenalty;
       case PaymentType.other:
-        return 'ሌላ';
+        return S.payOther;
     }
   }
 

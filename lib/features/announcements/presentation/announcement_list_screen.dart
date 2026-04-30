@@ -8,6 +8,7 @@ import 'package:tsiwa_mahber/features/announcements/domain/announcement.dart';
 import 'package:tsiwa_mahber/features/announcements/presentation/announcement_detail_screen.dart';
 import 'package:tsiwa_mahber/features/announcements/presentation/announcement_form_screen.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AnnouncementListScreen extends StatefulWidget {
   final String areaId;
@@ -43,14 +44,14 @@ class _AnnouncementListScreenState
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             );
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final announcements = snapshot.data ?? [];
@@ -58,15 +59,15 @@ class _AnnouncementListScreenState
           if (announcements.isEmpty) {
             return EmptyState(
               icon: Icons.campaign,
-              title: 'እስካሁን ማስታወቂያ የለም።',
+              title: S.noAnnouncementsYet,
               message: canCreate
-                  ? 'አዲስ ማስታወቂያ ለመጨመር ከታች ያለውን ቁልፍ ይጫኑ'
+                  ? S.addAnnouncementHint
                   : '',
               action: canCreate
                   ? ElevatedButton.icon(
                       onPressed: _openCreateForm,
                       icon: const Icon(Icons.add),
-                      label: const Text('አዲስ ማስታወቂያ'),
+                      label: Text(S.newAnnouncement),
                     )
                   : null,
             );
@@ -236,14 +237,14 @@ class _AnnouncementListScreenState
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
-                      child: Text('አስተካክል'),
+                      child: Text(S.edit),
                     ),
                     if (widget.currentUser?.role.canDelete == true)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
-                        child: Text('ሰርዝ',
+                        child: Text(S.delete,
                             style: TextStyle(color: Colors.red)),
                       ),
                   ],
@@ -283,10 +284,10 @@ class _AnnouncementListScreenState
   Future<void> _confirmDelete(Announcement announcement) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'ማስታወቂያ ሰርዝ',
+      title: S.deleteAnnouncement,
       message:
           '"${announcement.title}" ለመሰረዝ እርግጠኛ ነዎት?',
-      confirmText: 'ሰርዝ',
+      confirmText: S.delete,
     );
 
     if (confirmed == true) {
@@ -295,7 +296,7 @@ class _AnnouncementListScreenState
             widget.areaId, announcement.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ማስታወቂያ ተሰርዟል')),
+            SnackBar(content: Text(S.announcementDeleted)),
           );
         }
       } catch (e) {

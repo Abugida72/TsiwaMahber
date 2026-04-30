@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum TsiwaEventType {
   monthlyTsiwa,
@@ -9,13 +10,13 @@ enum TsiwaEventType {
   String get displayName {
     switch (this) {
       case TsiwaEventType.monthlyTsiwa:
-        return 'የወርሃዊ ፅዋ';
+        return S.monthlyTsiwa;
       case TsiwaEventType.zikir:
-        return 'ዝክር';
+        return S.zikir;
       case TsiwaEventType.feedingDay:
-        return 'ማብላት';
+        return S.feeding;
       case TsiwaEventType.other:
-        return 'ሌላ';
+        return S.other;
     }
   }
 
@@ -54,11 +55,11 @@ enum TsiwaEventStatus {
   String get displayName {
     switch (this) {
       case TsiwaEventStatus.planned:
-        return 'የታቀደ';
+        return S.planned;
       case TsiwaEventStatus.completed:
-        return 'የተፈጸመ';
+        return S.eventCompleted;
       case TsiwaEventStatus.cancelled:
-        return 'የተሰረዘ';
+        return S.eventCancelled;
     }
   }
 

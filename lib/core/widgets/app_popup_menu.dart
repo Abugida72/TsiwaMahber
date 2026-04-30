@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/developer/data/developer_service.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AppPopupMenu extends StatelessWidget {
   final ThemeProvider themeProvider;
@@ -43,41 +44,41 @@ class AppPopupMenu extends StatelessWidget {
               size: 20,
             ),
             title: Text(
-              themeProvider.isDarkMode ? 'ብሩህ ገጽታ' : 'ጨለማ ገጽታ',
+              themeProvider.isDarkMode ? S.lightTheme : S.darkTheme,
             ),
             contentPadding: EdgeInsets.zero,
             dense: true,
           ),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'dev_login',
           child: ListTile(
             leading: Icon(Icons.code, size: 20),
-            title: Text('ገንቢ ግባ'),
+            title: Text(S.devSignIn),
             contentPadding: EdgeInsets.zero,
             dense: true,
           ),
         ),
         if (FirebaseAuth.instance.currentUser != null)
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'sign_out',
             child: ListTile(
               leading: Icon(Icons.logout, size: 20,
                   color: Colors.orange),
-              title: Text('ውጣ ከአካውንት',
+              title: Text(S.signOut,
                   style: TextStyle(color: Colors.orange)),
               contentPadding: EdgeInsets.zero,
               dense: true,
             ),
           ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'exit',
           child: ListTile(
             leading: Icon(Icons.exit_to_app, size: 20,
                 color: Colors.red),
-            title: Text('መተግበሪያ ዝጋ',
+            title: Text(S.exitApp,
                 style: TextStyle(color: Colors.red)),
             contentPadding: EdgeInsets.zero,
             dense: true,

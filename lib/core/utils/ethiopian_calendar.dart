@@ -1,4 +1,6 @@
 import 'package:tsiwa_mahber/core/constants/app_constants.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
+import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 
 class EthiopianDate {
   final int year;
@@ -145,8 +147,11 @@ class EthiopianCalendar {
 
   static String daysUntilText(int days) {
     if (days < 0) return '';
-    if (days == 0) return 'ዛሬ';
-    if (days == 1) return 'ነገ';
-    return '$days ቀናት ቀርተዋል';
+    if (days == 0) return S.today;
+    if (days == 1) return S.tomorrow;
+    return _am ? '$days ቀናት ቀርተዋል' : '$days days left';
   }
+
+  static bool get _am =>
+      LocaleProvider.instance.isAmharic;
 }

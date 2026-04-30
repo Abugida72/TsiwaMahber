@@ -6,6 +6,7 @@ import 'package:tsiwa_mahber/core/utils/ethiopian_calendar.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
 import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class RecordPaymentScreen extends StatefulWidget {
   final String areaId;
@@ -60,7 +61,7 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ክፍያ መዝግብ'),
+        title: Text(S.recordPayment),
       ),
       body: Form(
         key: _formKey,
@@ -107,8 +108,8 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<PaymentType>(
               initialValue: _type,
-              decoration: const InputDecoration(
-                labelText: 'የክፍያ ዓይነት',
+              decoration: InputDecoration(
+                labelText: S.paymentType,
               ),
               items: PaymentType.values.map((type) {
                 return DropdownMenuItem(
@@ -131,18 +132,18 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _amountController,
-              decoration: const InputDecoration(
-                labelText: 'መጠን (ብር) *',
+              decoration: InputDecoration(
+                labelText: S.amountBirr,
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'መጠን ያስፈልጋል';
+                  return S.amountRequired;
                 }
                 final amount = double.tryParse(value);
                 if (amount == null || amount <= 0) {
-                  return 'ትክክለኛ መጠን ያስገቡ';
+                  return S.validAmountRequired;
                 }
                 return null;
               },
@@ -154,8 +155,8 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
                   Expanded(
                     child: DropdownButtonFormField<int>(
                       initialValue: _forMonth,
-                      decoration: const InputDecoration(
-                        labelText: 'ለየትኛው ወር',
+                      decoration: InputDecoration(
+                        labelText: S.forMonth,
                       ),
                       items: List.generate(13, (i) {
                         final month = i + 1;
@@ -176,8 +177,8 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
                   Expanded(
                     child: DropdownButtonFormField<int>(
                       initialValue: _forYear,
-                      decoration: const InputDecoration(
-                        labelText: 'ዓ.ም.',
+                      decoration: InputDecoration(
+                        labelText: S.year,
                       ),
                       items: List.generate(5, (i) {
                         final year = _forYear - 2 + i;
@@ -199,9 +200,9 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _noteController,
-              decoration: const InputDecoration(
-                labelText: 'ማስታወሻ',
-                hintText: 'ተጨማሪ ማስታወሻ',
+              decoration: InputDecoration(
+                labelText: S.note,
+                hintText: S.additionalNote,
               ),
               maxLines: 2,
             ),
@@ -214,7 +215,7 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('ክፍያ መዝግብ'),
+                  : Text(S.recordPayment),
             ),
           ],
         ),
@@ -243,7 +244,7 @@ class _RecordPaymentScreenState extends State<RecordPaymentScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ክፍያ ተመዝግቧል')),
+          SnackBar(content: Text(S.paymentRecorded)),
         );
         Navigator.pop(context);
       }

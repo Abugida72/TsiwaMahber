@@ -3,6 +3,7 @@ import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/leadership/data/leader_repository.dart';
 import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class LeaderFormScreen extends StatefulWidget {
   final String areaId;
@@ -67,7 +68,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'አመራር አርትዕ' : 'አዲስ አመራር'),
+        title: Text(_isEditing ? S.editLeader : S.newLeader),
         actions: [
           if (_isSaving)
             const Padding(
@@ -93,14 +94,14 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _buildSectionHeader('የግል መረጃ'),
+            _buildSectionHeader(S.personalInfo),
             const SizedBox(height: 8),
             TextFormField(
               controller: _fullNameController,
               decoration: const InputDecoration(labelText: 'ሙሉ ስም *'),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ሙሉ ስም ያስገቡ';
+                  return S.fullNameRequired;
                 }
                 return null;
               },
@@ -108,22 +109,22 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _christianNameController,
-              decoration: const InputDecoration(labelText: 'የክርስትና ስም'),
+              decoration: InputDecoration(labelText: S.christianName),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'ስልክ ቁጥር'),
+              decoration: InputDecoration(labelText: S.phoneNumber),
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _phone2Controller,
-              decoration: const InputDecoration(labelText: 'ተጨማሪ ስልክ'),
+              decoration: InputDecoration(labelText: S.additionalPhone),
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 24),
-            _buildSectionHeader('ሚና'),
+            _buildSectionHeader(S.role),
             const SizedBox(height: 8),
             Card(
               child: Padding(
@@ -159,7 +160,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
             ),
             if (_role == LeaderRole.edirAmerar) ...[
               const SizedBox(height: 24),
-              _buildSectionHeader('የእድር ሚና'),
+              _buildSectionHeader(S.edirRole),
               const SizedBox(height: 8),
               Card(
                 child: Padding(
@@ -192,7 +193,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
             ],
             if (widget.availableTsiwas.isNotEmpty) ...[
               const SizedBox(height: 24),
-              _buildSectionHeader('የተመደበባቸው ፅዋ ማህበሮች'),
+              _buildSectionHeader(S.assignedTsiwas),
               const SizedBox(height: 8),
               Card(
                 child: Column(
@@ -230,12 +231,12 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
               ),
             ],
             const SizedBox(height: 24),
-            _buildSectionHeader('ሁኔታ'),
+            _buildSectionHeader(S.status),
             const SizedBox(height: 8),
             Card(
               child: SwitchListTile(
-                title: const Text('ንቁ'),
-                subtitle: const Text('አመራሩ ንቁ ነው'),
+                title: Text(S.active),
+                subtitle: Text(S.leaderIsActive),
                 value: _isActive,
                 onChanged: (value) => setState(() => _isActive = value),
               ),
@@ -250,14 +251,14 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: Colors.grey.shade700),
                     ),
-                    child: const Text('ተወው'),
+                    child: Text(S.cancel),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _save,
-                    child: Text(_isEditing ? 'አስቀምጥ' : 'መዝግብ'),
+                    child: Text(_isEditing ? S.save : S.record),
                   ),
                 ),
               ],
@@ -310,7 +311,7 @@ class _LeaderFormScreenState extends State<LeaderFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('መረጃውን ማስቀመጥ አልተቻለም።')),
+          SnackBar(content: Text(S.dataSaveFailed)),
         );
       }
     } finally {

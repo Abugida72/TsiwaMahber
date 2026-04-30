@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum EdirLeaderRole {
   likeMenber,
@@ -10,15 +11,15 @@ enum EdirLeaderRole {
   String get displayName {
     switch (this) {
       case EdirLeaderRole.likeMenber:
-        return 'ሊቀ መንበር';
+        return S.edirChairman;
       case EdirLeaderRole.mLikeMenber:
-        return 'ም/ሊቀ መንበር';
+        return S.edirViceChairman;
       case EdirLeaderRole.tsehafi:
-        return 'ጸሐፊ';
+        return S.edirSecretary;
       case EdirLeaderRole.hisabShum:
-        return 'ሒሳብ ሹም';
+        return S.edirAccountant;
       case EdirLeaderRole.gimjaBet:
-        return 'ግምጃ ቤት';
+        return S.edirTreasurer;
     }
   }
 
@@ -65,15 +66,15 @@ enum LeaderRole {
   String get displayName {
     switch (this) {
       case LeaderRole.owner:
-        return 'ባለቤት';
+        return S.leaderOwner;
       case LeaderRole.amerar:
-        return 'አመራር';
+        return S.leaderAmerar;
       case LeaderRole.memakir:
-        return 'መማክርት';
+        return S.leaderMemakir;
       case LeaderRole.edirAmerar:
-        return 'የእድር አመራር';
+        return S.leaderEdirAmerar;
       case LeaderRole.viewer:
-        return 'ታዛቢ';
+        return S.leaderViewerRole;
     }
   }
 

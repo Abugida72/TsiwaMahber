@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class EdirFormScreen extends StatefulWidget {
   final String areaId;
@@ -59,7 +60,7 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'እድር አስተካክል' : 'አዲስ እድር'),
+        title: Text(_isEditing ? S.editEdir : S.newEdir),
       ),
       body: Form(
         key: _formKey,
@@ -68,13 +69,13 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'ስም *',
-                hintText: 'የእድሩ ስም',
+                hintText: S.edirName,
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ስም ያስፈልጋል';
+                  return S.nameRequired;
                 }
                 return null;
               },
@@ -82,28 +83,28 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'መግለጫ',
-                hintText: 'ስለ እድሩ አጭር መግለጫ',
+              decoration: InputDecoration(
+                labelText: S.description,
+                hintText: S.aboutEdir,
               ),
               maxLines: 3,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _contributionController,
-              decoration: const InputDecoration(
-                labelText: 'ወርሃዊ መዋጮ (ብር) *',
+              decoration: InputDecoration(
+                labelText: S.monthlyContribution,
                 hintText: '100',
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ወርሃዊ መዋጮ ያስፈልጋል';
+                  return S.monthlyContribRequired;
                 }
                 final amount = double.tryParse(value);
                 if (amount == null || amount <= 0) {
-                  return 'ትክክለኛ መጠን ያስገቡ';
+                  return S.validAmountRequired;
                 }
                 return null;
               },
@@ -111,8 +112,8 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _penaltyController,
-              decoration: const InputDecoration(
-                labelText: 'የቅጣት መጠን (ብር)',
+              decoration: InputDecoration(
+                labelText: S.penaltyAmount,
                 hintText: '50',
               ),
               keyboardType: TextInputType.number,
@@ -121,8 +122,8 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _paymentDayController,
-              decoration: const InputDecoration(
-                labelText: 'የክፍያ ቀን (1-30)',
+              decoration: InputDecoration(
+                labelText: S.paymentDay,
                 hintText: '1',
               ),
               keyboardType: TextInputType.number,
@@ -131,7 +132,7 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
                 if (value != null && value.isNotEmpty) {
                   final day = int.tryParse(value);
                   if (day == null || day < 1 || day > 30) {
-                    return 'ቀን ከ1 እስከ 30 መሆን አለበት';
+                    return S.dayMustBe1to30;
                   }
                 }
                 return null;
@@ -146,7 +147,7 @@ class _EdirFormScreenState extends State<EdirFormScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(_isEditing ? 'አስቀምጥ' : 'ፍጠር'),
+                  : Text(_isEditing ? S.save : S.create),
             ),
           ],
         ),

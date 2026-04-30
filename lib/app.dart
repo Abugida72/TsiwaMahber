@@ -12,23 +12,24 @@ class TsiwaApp extends StatefulWidget {
 
 class _TsiwaAppState extends State<TsiwaApp> {
   final _themeProvider = ThemeProvider();
-  final _localeProvider = LocaleProvider();
+  final _localeProvider = LocaleProvider.instance;
 
   @override
   void initState() {
     super.initState();
-    _themeProvider.addListener(_onThemeChanged);
+    _themeProvider.addListener(_rebuild);
+    _localeProvider.addListener(_rebuild);
   }
 
-  void _onThemeChanged() {
+  void _rebuild() {
     setState(() {});
   }
 
   @override
   void dispose() {
-    _themeProvider.removeListener(_onThemeChanged);
+    _themeProvider.removeListener(_rebuild);
+    _localeProvider.removeListener(_rebuild);
     _themeProvider.dispose();
-    _localeProvider.dispose();
     super.dispose();
   }
 

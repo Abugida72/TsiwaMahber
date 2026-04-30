@@ -7,6 +7,7 @@ import 'package:tsiwa_mahber/features/area/domain/area.dart';
 import 'package:tsiwa_mahber/features/area/presentation/area_home_screen.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/developer/data/developer_service.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AreaSelectionScreen extends StatefulWidget {
   final AppUser? currentUser;
@@ -50,7 +51,7 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ጽዋ ማህበር'),
+        title: Text(S.appName),
         actions: [
           AppPopupMenu(
             themeProvider: widget.themeProvider,
@@ -62,24 +63,24 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
         stream: _areaRepository.watchAllAreas(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final areas = snapshot.data ?? [];
 
           if (areas.isEmpty) {
-            return const Center(
-              child: LoadingState(message: 'መረጃ በመዘጋጀት ላይ...'),
+            return Center(
+              child: LoadingState(message: S.preparingData),
             );
           }
 
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 16),
                 child: Text(
-                  'አካባቢ ይምረጡ',
+                  S.selectArea,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -127,7 +128,7 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('አዲስ አካባቢ'),
+        title: Text(S.newArea),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -146,13 +147,13 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
               TextField(
                 controller: locationController,
                 decoration:
-                    const InputDecoration(labelText: 'አድራሻ'),
+                    InputDecoration(labelText: S.address),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: descriptionController,
                 decoration:
-                    const InputDecoration(labelText: 'መግለጫ'),
+                    InputDecoration(labelText: S.description),
                 maxLines: 2,
               ),
             ],
@@ -161,11 +162,11 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ተወው'),
+            child: Text(S.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('ፍጠር'),
+            child: Text(S.create),
           ),
         ],
       ),
@@ -178,7 +179,7 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
       if (name.isEmpty || shortName.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ስም እና አጭር ስም ያስፈልጋል')),
+            SnackBar(content: Text(S.nameAndShortRequired)),
           );
         }
         return;
@@ -196,7 +197,7 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ማስቀመጥ አልተቻለም')),
+            SnackBar(content: Text(S.saveFailed)),
           );
         }
       }

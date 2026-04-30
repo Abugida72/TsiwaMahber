@@ -5,6 +5,7 @@ import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/reports/data/report_service.dart';
 import 'package:tsiwa_mahber/features/reports/presentation/tsiwa_report_screen.dart';
 import 'package:tsiwa_mahber/features/reports/presentation/edir_report_screen.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class ReportHomeScreen extends StatefulWidget {
   final String areaId;
@@ -47,17 +48,17 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ሪፖርቶች'),
+        title: Text(S.reports),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'አድስ',
+            tooltip: S.refresh,
             onPressed: _loadStats,
           ),
         ],
       ),
       body: _isLoading
-          ? const LoadingState(message: 'ሪፖርቶችን በመጫን ላይ...')
+          ? LoadingState(message: S.loadingReports)
           : _error != null
               ? _buildError()
               : _buildContent(),
@@ -72,14 +73,14 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
           Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
           const SizedBox(height: 16),
           Text(
-            'መረጃ ማግኘት አልተቻለም',
+            S.dataLoadFailed,
             style: TextStyle(color: Colors.red.shade300),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _loadStats,
             icon: const Icon(Icons.refresh),
-            label: const Text('እንደገና ሞክር'),
+            label: Text(S.retry),
           ),
         ],
       ),
@@ -109,10 +110,10 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
-              'አጠቃላይ ማጠቃለያ',
+              S.overallSummary,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -125,7 +126,7 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
               Expanded(
                 child: _OverviewCard(
                   icon: Icons.groups,
-                  label: 'ፅዋ ማህበሮች',
+                  label: S.tsiwaGroups,
                   value: stats.totalTsiwas.toString(),
                   detail: '${stats.activeTsiwas} ንቁ',
                   color: AppTheme.primary,
@@ -135,9 +136,9 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
               Expanded(
                 child: _OverviewCard(
                   icon: Icons.person,
-                  label: 'አባላት',
+                  label: S.members,
                   value: stats.totalMembers.toString(),
-                  detail: 'በሁሉም ፅዋ',
+                  detail: S.inAllTsiwas,
                   color: Colors.blue,
                 ),
               ),
@@ -149,7 +150,7 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
               Expanded(
                 child: _OverviewCard(
                   icon: Icons.admin_panel_settings,
-                  label: 'አመራሮች',
+                  label: S.leaders,
                   value: stats.totalLeaders.toString(),
                   detail: '',
                   color: AppTheme.secondary,
@@ -159,7 +160,7 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
               Expanded(
                 child: _OverviewCard(
                   icon: Icons.account_balance_wallet,
-                  label: 'እድር',
+                  label: S.edir,
                   value: stats.totalEdirs.toString(),
                   detail: '${stats.totalTreasury.toStringAsFixed(0)} ብር ግምጃ',
                   color: Colors.purple,
@@ -176,10 +177,10 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            'ዝርዝር ሪፖርቶች',
+            S.detailedReports,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -190,8 +191,8 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
         const SizedBox(height: 8),
         AppInfoCard(
           icon: Icons.groups,
-          title: 'የፅዋ ሪፖርት',
-          subtitle: 'የአባላት ብዛት፣ ሚና ስርጭት',
+          title: S.tsiwaReport,
+          subtitle: S.tsiwaReportSub,
           iconColor: AppTheme.primary,
           onTap: () {
             Navigator.push(
@@ -205,8 +206,8 @@ class _ReportHomeScreenState extends State<ReportHomeScreen> {
         ),
         AppInfoCard(
           icon: Icons.account_balance_wallet,
-          title: 'የእድር ሪፖርት',
-          subtitle: 'የክፍያ ማጠቃለያ፣ ቀሪ ሂሳብ',
+          title: S.edirReport,
+          subtitle: S.edirReportSub,
           iconColor: Colors.purple,
           onTap: () {
             Navigator.push(

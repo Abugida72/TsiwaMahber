@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class ConfirmDialog extends StatelessWidget {
   final String title;
   final String message;
-  final String confirmText;
-  final String cancelText;
+  final String? confirmText;
+  final String? cancelText;
   final VoidCallback onConfirm;
 
   const ConfirmDialog({
     super.key,
     required this.title,
     required this.message,
-    this.confirmText = 'አረጋግጥ',
-    this.cancelText = 'ተወው',
+    this.confirmText,
+    this.cancelText,
     required this.onConfirm,
   });
 
@@ -20,8 +21,8 @@ class ConfirmDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmText = 'አረጋግጥ',
-    String cancelText = 'ተወው',
+    String? confirmText,
+    String? cancelText,
   }) {
     return showDialog<bool>(
       context: context,
@@ -43,7 +44,7 @@ class ConfirmDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancelText),
+          child: Text(cancelText ?? S.cancel),
         ),
         ElevatedButton(
           onPressed: onConfirm,
@@ -51,7 +52,7 @@ class ConfirmDialog extends StatelessWidget {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
           ),
-          child: Text(confirmText),
+          child: Text(confirmText ?? S.confirm),
         ),
       ],
     );

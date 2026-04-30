@@ -3,6 +3,7 @@ import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -19,7 +20,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ተጠቃሚዎች'),
+        title: Text(S.users),
       ),
       body: StreamBuilder<List<AppUser>>(
         stream: _authRepository.watchAllUsers(),
@@ -27,21 +28,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             );
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final users = snapshot.data ?? [];
 
           if (users.isEmpty) {
-            return const Center(
-              child: Text('ተጠቃሚ አልተገኘም'),
+            return Center(
+              child: Text(S.noUsersFound),
             );
           }
 

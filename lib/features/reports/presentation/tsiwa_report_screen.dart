@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/reports/data/report_service.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class TsiwaReportScreen extends StatefulWidget {
   final String areaId;
@@ -52,9 +53,9 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('የፅዋ ሪፖርት')),
+      appBar: AppBar(title: Text(S.tsiwaReport)),
       body: _isLoading
-          ? const LoadingState(message: 'በመጫን ላይ...')
+          ? LoadingState(message: S.loading)
           : _error != null
               ? Center(
                   child: Column(
@@ -66,7 +67,7 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
                       ElevatedButton.icon(
                         onPressed: _loadData,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('እንደገና ሞክር'),
+                        label: Text(S.retry),
                       ),
                     ],
                   ),
@@ -77,9 +78,9 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
 
   Widget _buildContent() {
     if (_stats.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'ምንም ፅዋ ማህበር አልተመዘገበም',
+          S.noTsiwaRegistered,
           style: TextStyle(color: AppTheme.textMuted),
         ),
       );
@@ -109,8 +110,8 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'አባላት በየፅዋው',
+            Text(
+              S.membersByTsiwa,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -249,8 +250,8 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'የሚና ስርጭት',
+            Text(
+              S.roleDistribution,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -347,8 +348,8 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'አመራሮች በሚና',
+            Text(
+              S.leadersByRole,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -433,10 +434,10 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'በፅዋ ማህበር',
+            S.byTsiwaGroup,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -461,19 +462,19 @@ class _TsiwaReportScreenState extends State<TsiwaReportScreen> {
                     Row(
                       children: [
                         _DetailChip(
-                          label: 'ጠቅላላ',
+                          label: S.total,
                           value: stat.totalMembers.toString(),
                           color: AppTheme.primary,
                         ),
                         const SizedBox(width: 8),
                         _DetailChip(
-                          label: 'ንቁ',
+                          label: S.active,
                           value: stat.activeMembers.toString(),
                           color: Colors.green,
                         ),
                         const SizedBox(width: 8),
                         _DetailChip(
-                          label: 'በተራ',
+                          label: S.inRotation,
                           value: stat.inRotation.toString(),
                           color: Colors.blue,
                         ),

@@ -6,6 +6,7 @@ import 'package:tsiwa_mahber/core/widgets/empty_state.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class EdirPaymentListScreen extends StatefulWidget {
   final String areaId;
@@ -40,23 +41,23 @@ class _EdirPaymentListScreenState extends State<EdirPaymentListScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             );
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final payments = snapshot.data ?? [];
 
           if (payments.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.payment,
-              title: 'እስካሁን ክፍያ አልተመዘገበም።',
-              message: 'ከአባላት ዝርዝር ክፍያ ማስመዝገብ ይችላሉ',
+              title: S.noPaymentsYet,
+              message: S.paymentFromMemberList,
             );
           }
 

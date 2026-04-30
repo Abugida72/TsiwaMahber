@@ -27,6 +27,7 @@ import 'package:tsiwa_mahber/features/csv_io/presentation/csv_import_screen.dart
 import 'package:tsiwa_mahber/features/reports/presentation/report_home_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 import 'package:tsiwa_mahber/features/developer/presentation/developer_management_screen.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AreaHomeScreen extends StatefulWidget {
   final AppUser? currentUser;
@@ -74,7 +75,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                     label: Text(count.toString()),
                     child: const Icon(Icons.notifications),
                   ),
-                  tooltip: 'ማሳወቂያዎች',
+                  tooltip: S.notifications,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -92,7 +93,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           if (widget.currentUser?.role.canManageUsers == true)
             IconButton(
               icon: const Icon(Icons.people),
-              tooltip: 'ተጠቃሚዎች',
+              tooltip: S.users,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -106,7 +107,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           if (widget.currentUser != null)
             IconButton(
               icon: const Icon(Icons.person),
-              tooltip: 'መገለጫ',
+              tooltip: S.profile,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -139,7 +140,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                 Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
                 const SizedBox(height: 16),
                 Text(
-                  'መረጃ ማግኘት አልተቻለም',
+                  S.dataLoadFailed,
                   style: TextStyle(color: Colors.red.shade300),
                 ),
               ],
@@ -148,13 +149,13 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingState(message: 'በመጫን ላይ...');
+          return LoadingState(message: S.loading);
         }
 
         final area = snapshot.data;
         if (area == null) {
-          return const Center(
-            child: LoadingState(message: 'መረጃ በመዘጋጀት ላይ...'),
+          return Center(
+            child: LoadingState(message: S.preparingData),
           );
         }
 
@@ -265,10 +266,10 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            'አገልግሎቶች',
+            S.services,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -279,8 +280,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         const SizedBox(height: 8),
         AppInfoCard(
           icon: Icons.groups,
-          title: 'ፅዋ ማህበሮች',
-          subtitle: 'ፅዋ ማህበሮችን ያስተዳድሩ',
+          title: S.tsiwaGroups,
+          subtitle: S.manageTsiwaGroups,
           onTap: () {
             Navigator.push(
               context,
@@ -295,8 +296,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         ),
         AppInfoCard(
           icon: Icons.admin_panel_settings,
-          title: 'አመራሮች',
-          subtitle: 'አመራሮችን ያስተዳድሩ',
+          title: S.leaders,
+          subtitle: S.manageLeaders,
           onTap: () {
             Navigator.push(
               context,
@@ -310,8 +311,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         ),
         AppInfoCard(
           icon: Icons.account_balance_wallet,
-          title: 'እድር',
-          subtitle: 'እድርን ያስተዳድሩ',
+          title: S.edir,
+          subtitle: S.manageEdir,
           onTap: () {
             Navigator.push(
               context,
@@ -326,7 +327,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         AppInfoCard(
           icon: Icons.campaign,
           title: 'ማስታወቂያዎች',
-          subtitle: 'ማስታወቂያዎችን ያየ',
+          subtitle: S.viewAnnouncements,
           trailing: _buildUnreadBadge(),
           onTap: () {
             Navigator.push(
@@ -343,8 +344,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         if (role?.isAdminOrAbove == true)
           AppInfoCard(
             icon: Icons.telegram,
-            title: 'ቴሌግራም',
-            subtitle: 'ቴሌግራም ባት ማገናኛ',
+            title: S.telegram,
+            subtitle: S.telegramBot,
             iconColor: Colors.blue,
             onTap: () {
               Navigator.push(
@@ -360,8 +361,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         if (role?.canEdit == true)
           AppInfoCard(
             icon: Icons.file_upload_outlined,
-            title: 'CSV ወደ ውጭ ላክ',
-            subtitle: 'መረጃ ወደ CSV ፋይል ላክ',
+            title: S.csvExportMenu,
+            subtitle: S.csvExportSub,
             iconColor: Colors.teal,
             onTap: () {
               Navigator.push(
@@ -377,7 +378,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         if (role?.canEdit == true)
           AppInfoCard(
             icon: Icons.file_download_outlined,
-            title: 'CSV ከውጭ አስገባ',
+            title: S.csvImportMenu,
             subtitle: 'CSV ፋይል መረጃ አስገባ',
             iconColor: Colors.green,
             onTap: () {
@@ -393,8 +394,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           ),
         AppInfoCard(
           icon: Icons.bar_chart,
-          title: 'ሪፖርቶች',
-          subtitle: 'ሪፖርቶች እና ትንታኔ',
+          title: S.reports,
+          subtitle: S.reportsAndAnalytics,
           iconColor: Colors.indigo,
           onTap: () {
             Navigator.push(
@@ -410,8 +411,8 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
         if (role?.isDeveloper == true)
           AppInfoCard(
             icon: Icons.code,
-            title: 'ገንቢዎች',
-            subtitle: 'ገንቢ አስተዳደር',
+            title: S.developers,
+            subtitle: S.developerManagement,
             iconColor: Colors.deepPurple,
             onTap: () {
               Navigator.push(
@@ -465,7 +466,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
-                  label: 'ፅዋ ማህበሮች',
+                  label: S.tsiwaGroups,
                   value: count.toString(),
                   icon: Icons.groups,
                   color: AppTheme.primary,
@@ -480,7 +481,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
-                  label: 'አመራሮች',
+                  label: S.leaders,
                   value: count.toString(),
                   icon: Icons.admin_panel_settings,
                   color: AppTheme.secondary,
@@ -495,7 +496,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
-                  label: 'እድር',
+                  label: S.edir,
                   value: count.toString(),
                   icon: Icons.account_balance_wallet,
                   color: Colors.purple,
@@ -511,7 +512,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
               builder: (context, snapshot) {
                 final count = snapshot.data?.length ?? 0;
                 return _StatCard(
-                  label: 'ማስታወቂያ',
+                  label: S.announcement,
                   value: count.toString(),
                   icon: Icons.campaign,
                   color: Colors.teal,
