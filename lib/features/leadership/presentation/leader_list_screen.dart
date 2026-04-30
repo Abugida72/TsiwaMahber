@@ -445,6 +445,10 @@ class _LeaderCard extends StatelessWidget {
         break;
     }
 
+    final label = leader.role == LeaderRole.edirAmerar && leader.edirRole != null
+        ? leader.edirRole!.displayName
+        : leader.role.displayName;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
@@ -452,7 +456,7 @@ class _LeaderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        leader.role.displayName,
+        label,
         style: TextStyle(fontSize: 11, color: color),
       ),
     );

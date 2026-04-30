@@ -65,11 +65,47 @@
 - **FCM Ready**: Firebase Cloud Messaging service for push notifications
 - **Relative Time**: Shows "አሁን", "5 ደቂቃ", "2 ሰአት" etc. for notification times
 
+### Version 9 — CSV Import/Export
+- **CSV Export**: Export Tsiwa members, Leaders, or Edir members to CSV files
+- **CSV Import**: Import data from CSV files with preview and validation
+- **Amharic Headers**: CSV columns use Amharic labels (ሙሉ ስም, ስልክ, ሚና, etc.)
+- **BOM Support**: UTF-8 BOM prefix for proper Amharic display in Excel
+- **Data Preview**: Preview parsed data in a table before importing
+- **Batch Write**: Efficient Firestore batch writes for imported records
+- **Role Permissions**: CSV features available to admin and leader roles only
+- **Share Integration**: Share exported CSV via system share sheet
+
+### Version 10 — Advanced Reports & Analytics
+- **Reports Dashboard**: Overview screen with total Tsiwas, Members, Leaders, Edirs, and treasury summary
+- **Tsiwa Report**: Member count per Tsiwa (bar chart), role distribution (pie chart), active/inactive breakdown
+- **Edir Financial Report**: Treasury comparison (bar chart), payment breakdown by type (pie chart), outstanding balances
+- **Leader Distribution**: Pie chart showing leaders by role
+- **Per-Tsiwa Detail Cards**: Active %, rotation count, role chips for each Tsiwa
+- **Per-Edir Detail Cards**: Member status chips, payment distribution, top debtors list
+- **Charts**: Interactive bar and pie charts via fl_chart
+- **Accessible to All**: Reports visible to all authenticated users
+
+### Version 11 — Multi-Area, Developer Auth, Theme & Language
+- **Area Selection**: Choose which area to enter (above home screen)
+- **Multi-Area Support**: Developers can create new areas; each area has full feature set
+- **Developer Role (ገንቢ)**: Top-level role with full access via Google Sign-In
+- **Developer Management**: Add/remove developer emails (Firestore-backed)
+- **3-Dot Menu**: On all pages — language toggle (AM/EN), dark/light theme, developer sign-in, exit
+- **Dark & Light Theme**: Toggle between dark (default) and light themes
+- **Language Toggle**: Switch between Amharic and English
+- **RBAC Hierarchy**: Developer > Admin > Leader > Member > Viewer
+  - **ገንቢ (Developer)**: Full access, create areas, manage developers
+  - **አስተዳዳሪ (Admin)**: Full access except developer features
+  - **አመራር (Leader)**: Announce events, manage Tsiwa data
+  - **አባል (Member)** / **ታዛቢ (Viewer)**: View only
+- **Edir Leader Badge**: የእድር አመራር ሹመት (ሊቀ መንበር, ም/ሊቀ መንበር, ጸሐፊ, ሒሳብ ሹም, ግምጃ ቤት) — admin/developer editable only
+
 ## Tech Stack
 
 - **Flutter** (Dart)
 - **Firebase Core** + **Cloud Firestore** + **Firebase Auth** + **Firebase Messaging**
-- Material 3 design
+- **Google Sign-In** (developer auth)
+- Material 3 design with dark/light theme support
 - Clean architecture (domain / data / presentation)
 
 ## Project Structure
@@ -87,6 +123,7 @@ lib/
       app_theme.dart
     widgets/
       app_card.dart
+      app_popup_menu.dart
       confirm_dialog.dart
       empty_state.dart
       loading_state.dart
@@ -94,7 +131,7 @@ lib/
     area/
       domain/area.dart
       data/area_repository.dart
-      presentation/area_home_screen.dart
+      presentation/{area_selection,area_home}_screen.dart
     tsiwa/
       domain/{tsiwa_mahber,tsiwa_event}.dart
       data/{tsiwa_repository,tsiwa_event_repository}.dart
@@ -125,6 +162,15 @@ lib/
       domain/app_notification.dart
       data/{notification_repository,fcm_service,telegram_service}.dart
       presentation/{notification_list,telegram_settings}_screen.dart
+    csv_io/
+      data/csv_service.dart
+      presentation/{csv_export,csv_import}_screen.dart
+    reports/
+      data/report_service.dart
+      presentation/{report_home,tsiwa_report,edir_report}_screen.dart
+    developer/
+      data/developer_service.dart
+      presentation/developer_management_screen.dart
 ```
 
 ## Firestore Structure
@@ -147,6 +193,7 @@ areas/{areaId}
         ├── title, body, priority, authorId, authorName, readCount, isActive
         └── readReceipts/{userId} — userName, readAt
 users/{uid} — email, displayName, phone, role, areaId, isActive
+developers/{email} — addedAt, addedBy
 ```
 
 ## Getting Started
@@ -185,12 +232,14 @@ GitHub Actions workflow (`.github/workflows/flutter.yml`) runs on every push/PR:
 - Debug APK build
 - APK artifact upload
 
-## Future Versions
+## Version History
 
-| Version | Features |
-|---------|----------|
-| v9 | CSV import/export |
-| v10 | Advanced reports and analytics |
+| Version | Features | Status |
+|---------|----------|--------|
+| V1–V8 | Core, Members, Calendar, Leadership, Edir, Auth, Announcements, Notifications | Done |
+| V9 | CSV Import/Export | Done |
+| V10 | Advanced Reports & Analytics | Done |
+| V11 | Multi-Area, Developer Auth, Theme & Language, RBAC | Done |
 
 ## License
 

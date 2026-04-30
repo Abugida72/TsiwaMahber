@@ -1,5 +1,60 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum EdirLeaderRole {
+  likeMenber,
+  mLikeMenber,
+  tsehafi,
+  hisabShum,
+  gimjaBet;
+
+  String get displayName {
+    switch (this) {
+      case EdirLeaderRole.likeMenber:
+        return 'ሊቀ መንበር';
+      case EdirLeaderRole.mLikeMenber:
+        return 'ም/ሊቀ መንበር';
+      case EdirLeaderRole.tsehafi:
+        return 'ጸሐፊ';
+      case EdirLeaderRole.hisabShum:
+        return 'ሒሳብ ሹም';
+      case EdirLeaderRole.gimjaBet:
+        return 'ግምጃ ቤት';
+    }
+  }
+
+  String get firestoreValue {
+    switch (this) {
+      case EdirLeaderRole.likeMenber:
+        return 'like_menber';
+      case EdirLeaderRole.mLikeMenber:
+        return 'm_like_menber';
+      case EdirLeaderRole.tsehafi:
+        return 'tsehafi';
+      case EdirLeaderRole.hisabShum:
+        return 'hisab_shum';
+      case EdirLeaderRole.gimjaBet:
+        return 'gimja_bet';
+    }
+  }
+
+  static EdirLeaderRole? fromString(String? value) {
+    switch (value) {
+      case 'like_menber':
+        return EdirLeaderRole.likeMenber;
+      case 'm_like_menber':
+        return EdirLeaderRole.mLikeMenber;
+      case 'tsehafi':
+        return EdirLeaderRole.tsehafi;
+      case 'hisab_shum':
+        return EdirLeaderRole.hisabShum;
+      case 'gimja_bet':
+        return EdirLeaderRole.gimjaBet;
+      default:
+        return null;
+    }
+  }
+}
+
 enum LeaderRole {
   owner,
   amerar,
@@ -62,6 +117,7 @@ class Leader {
   final LeaderRole role;
   final List<String> assignedTsiwaIds;
   final List<String> assignedEdirIds;
+  final EdirLeaderRole? edirRole;
   final bool isActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -75,6 +131,7 @@ class Leader {
     this.role = LeaderRole.viewer,
     this.assignedTsiwaIds = const [],
     this.assignedEdirIds = const [],
+    this.edirRole,
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
@@ -93,6 +150,7 @@ class Leader {
           data['assignedTsiwaIds'] as List<dynamic>? ?? []),
       assignedEdirIds: List<String>.from(
           data['assignedEdirIds'] as List<dynamic>? ?? []),
+      edirRole: EdirLeaderRole.fromString(data['edirRole'] as String?),
       isActive: data['isActive'] as bool? ?? true,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
@@ -108,6 +166,7 @@ class Leader {
       'role': role.firestoreValue,
       'assignedTsiwaIds': assignedTsiwaIds,
       'assignedEdirIds': assignedEdirIds,
+      'edirRole': edirRole?.firestoreValue,
       'isActive': isActive,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -123,6 +182,7 @@ class Leader {
       'role': role.firestoreValue,
       'assignedTsiwaIds': assignedTsiwaIds,
       'assignedEdirIds': assignedEdirIds,
+      'edirRole': edirRole?.firestoreValue,
       'isActive': isActive,
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -137,6 +197,7 @@ class Leader {
     LeaderRole? role,
     List<String>? assignedTsiwaIds,
     List<String>? assignedEdirIds,
+    EdirLeaderRole? edirRole,
     bool? isActive,
   }) {
     return Leader(
@@ -148,6 +209,7 @@ class Leader {
       role: role ?? this.role,
       assignedTsiwaIds: assignedTsiwaIds ?? this.assignedTsiwaIds,
       assignedEdirIds: assignedEdirIds ?? this.assignedEdirIds,
+      edirRole: edirRole ?? this.edirRole,
       isActive: isActive ?? this.isActive,
     );
   }

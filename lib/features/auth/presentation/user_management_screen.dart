@@ -58,6 +58,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   Widget _buildUserCard(AppUser user) {
     final roleColor = switch (user.role) {
+      UserRole.developer => Colors.deepPurple,
       UserRole.admin => AppTheme.primary,
       UserRole.leader => AppTheme.secondary,
       UserRole.member => Colors.teal,
@@ -119,7 +120,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   ],
                 ),
               ),
-              itemBuilder: (context) => UserRole.values.map((role) {
+              itemBuilder: (context) => UserRole.values
+                  .where((role) => role != UserRole.developer)
+                  .map((role) {
                 return PopupMenuItem(
                   value: role,
                   child: Row(
