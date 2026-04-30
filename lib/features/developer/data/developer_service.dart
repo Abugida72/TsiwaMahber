@@ -84,6 +84,11 @@ class DeveloperService {
     }
   }
 
+  static const _defaultDevEmails = [
+    'habte.selase.721@gmail.com',
+    'bernabasgirma00@gmail.com',
+  ];
+
   Future<String?> signInWithGoogle() async {
     try {
       final googleUser = await _googleSignIn.signIn();
@@ -91,11 +96,8 @@ class DeveloperService {
 
       final email = googleUser.email;
 
-      final isDev = await isDeveloperEmail(email);
-      if (!isDev) {
-        await _googleSignIn.signOut();
-        return 'ይህ ኢሜይል ($email) የገንቢ ፈቃድ የለውም';
-      }
+      // Check hardcoded list first (no Firestore read needed)
+      final isDefaultDev = _defaultDevEmails.contains(email);
 
       final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
@@ -103,11 +105,23 @@ class DeveloperService {
         idToken: googleAuth.idToken,
       );
 
+      // Sign in with Firebase first so Firestore reads are allowed
       final userCredential =
           await _auth.signInWithCredential(credential);
       final user = userCredential.user;
 
+      // Now check Firestore for dynamically added developers
+      final isDev = isDefaultDev || await isDeveloperEmail(email);
+      if (!isDev) {
+        await _auth.signOut();
+        await _googleSignIn.signOut();
+        return 'ይህ ኢሜይል ($email) የገንቢ ፈቃድ የለውም';
+      }
+
       if (user != null) {
+        // Ensure default developer docs exist
+        await ensureDefaultDevelopers();
+
         final userDoc =
             await _firestore.collection('users').doc(user.uid).get();
 

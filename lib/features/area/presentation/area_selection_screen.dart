@@ -35,8 +35,13 @@ class _AreaSelectionScreenState extends State<AreaSelectionScreen> {
   }
 
   Future<void> _initDefaults() async {
-    await _areaRepository.ensureDefaultArea();
-    await _developerService.ensureDefaultDevelopers();
+    try {
+      await _areaRepository.ensureDefaultArea();
+      await _developerService.ensureDefaultDevelopers();
+    } catch (_) {
+      // Ignore permission errors on first load; defaults will be
+      // created once a developer signs in.
+    }
   }
 
   @override
