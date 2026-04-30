@@ -9,6 +9,7 @@ import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/rotation_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_form_screen.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class TsiwaDetailScreen extends StatefulWidget {
   final String areaId;
@@ -34,16 +35,16 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(title: const Text('ፅዋ ዝርዝር')),
-            body: const LoadingState(message: 'በመጫን ላይ...'),
+            appBar: AppBar(title: Text(S.tsiwaDetail)),
+            body: LoadingState(message: S.loading),
           );
         }
 
         final tsiwa = snapshot.data;
         if (tsiwa == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('ፅዋ ዝርዝር')),
-            body: const Center(child: Text('ፅዋ ማህበሩ አልተገኘም')),
+            appBar: AppBar(title: Text(S.tsiwaDetail)),
+            body: Center(child: Text(S.tsiwaNotFound)),
           );
         }
 
@@ -90,34 +91,34 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
 
   Widget _buildBasicInfoSection(TsiwaMahber tsiwa) {
     return _SectionCard(
-      title: 'መሰረታዊ መረጃ',
+      title: S.basicInfo,
       icon: Icons.info_outline,
       children: [
-        _InfoRow(label: 'ስም', value: tsiwa.name),
+        _InfoRow(label: S.name, value: tsiwa.name),
         if (tsiwa.churchName.isNotEmpty)
           _InfoRow(label: 'ቤተ ክርስቲያን', value: tsiwa.churchName),
         if (tsiwa.saintName.isNotEmpty)
           _InfoRow(label: 'ቅዱስ/ቅድስት', value: tsiwa.saintName),
         if (tsiwa.location.isNotEmpty)
-          _InfoRow(label: 'ቦታ', value: tsiwa.location),
+          _InfoRow(label: S.location, value: tsiwa.location),
         if (tsiwa.description.isNotEmpty)
-          _InfoRow(label: 'መግለጫ', value: tsiwa.description),
+          _InfoRow(label: S.description, value: tsiwa.description),
       ],
     );
   }
 
   Widget _buildMonthlyTsiwaSection(TsiwaMahber tsiwa) {
     return _SectionCard(
-      title: 'የወርሃዊ ፅዋ ቀን',
+      title: S.monthlyTsiwaDay,
       icon: Icons.calendar_today,
       iconColor: AppTheme.primary,
       children: [
         _InfoRow(
-          label: 'ቀን',
+          label: S.day,
           value: 'በየወሩ ${tsiwa.monthlyTsiwaDay}',
         ),
         if (tsiwa.monthlyTsiwaDayNote.isNotEmpty)
-          _InfoRow(label: 'ማስታወሻ', value: tsiwa.monthlyTsiwaDayNote),
+          _InfoRow(label: S.note, value: tsiwa.monthlyTsiwaDayNote),
       ],
     );
   }
@@ -129,13 +130,13 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
 
     if (!hasZikir && !hasFeeding) {
       return _SectionCard(
-        title: 'ዝክር / ማብላት',
+        title: S.zikirFeedingSection,
         icon: Icons.restaurant,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              'እስካሁን የዝክር ወይም የማብላት ቀን አልተመዘገበም',
+              S.noZikirOrFeeding,
               style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
             ),
           ),
@@ -152,12 +153,12 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
             iconColor: AppTheme.secondary,
             children: [
               _InfoRow(
-                label: 'ቀን',
+                label: S.day,
                 value:
                     '${AppConstants.ethiopianMonthName(tsiwa.zikirMonth!)} ${tsiwa.zikirDay}',
               ),
               if (tsiwa.zikirNote.isNotEmpty)
-                _InfoRow(label: 'ማስታወሻ', value: tsiwa.zikirNote),
+                _InfoRow(label: S.note, value: tsiwa.zikirNote),
             ],
           ),
         if (hasZikir && hasFeeding) const SizedBox(height: 16),
@@ -168,12 +169,12 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
             iconColor: Colors.teal,
             children: [
               _InfoRow(
-                label: 'ቀን',
+                label: S.day,
                 value:
                     '${AppConstants.ethiopianMonthName(tsiwa.feedingMonth!)} ${tsiwa.feedingDay}',
               ),
               if (tsiwa.feedingNote.isNotEmpty)
-                _InfoRow(label: 'ማስታወሻ', value: tsiwa.feedingNote),
+                _InfoRow(label: S.note, value: tsiwa.feedingNote),
             ],
           ),
       ],
@@ -182,16 +183,16 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
 
   Widget _buildStatusSection(TsiwaMahber tsiwa) {
     return _SectionCard(
-      title: 'ሁኔታ',
+      title: S.status,
       icon: Icons.toggle_on,
       children: [
         _InfoRow(
-          label: 'ንቁ',
+          label: S.active,
           value: tsiwa.isActive ? 'አዎ' : 'አይ',
           valueColor: tsiwa.isActive ? AppTheme.success : Colors.red,
         ),
         _InfoRow(
-          label: 'ማህደር',
+          label: S.archive,
           value: tsiwa.isArchived ? 'አዎ' : 'አይ',
         ),
       ],
@@ -235,8 +236,8 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'አባላት',
+                    Text(
+                      S.members,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -272,7 +273,7 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
     final hasFeeding = tsiwa.feedingMonth != null && tsiwa.feedingDay != null;
 
     return _SectionCard(
-      title: 'የቀን መርሐ ግብር',
+      title: S.calendar,
       icon: Icons.schedule,
       iconColor: Colors.teal,
       children: [
@@ -369,12 +370,12 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'የፅዋ ተራ እና ታሪክ',
+                      S.rotationAndHistory,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -382,7 +383,7 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'ተራ ቅደም ተከተል እና የክንውን ታሪክ',
+                      S.rotationOrder,
                       style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textMuted,
@@ -417,10 +418,10 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
   Future<void> _delete(TsiwaMahber tsiwa) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'ፅዋ ሰርዝ',
+      title: S.deleteTsiwa,
       message: '"${tsiwa.name}" ፅዋ ማህበሩን ለመሰረዝ እርግጠኛ ነዎት?',
-      confirmText: 'ሰርዝ',
-      cancelText: 'ተወው',
+      confirmText: S.delete,
+      cancelText: S.cancel,
     );
 
     if (confirmed == true && mounted) {
@@ -432,7 +433,7 @@ class _TsiwaDetailScreenState extends State<TsiwaDetailScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('መረጃውን መሰረዝ አልተቻለም።')),
+            SnackBar(content: Text(S.dataDeleteFailed)),
           );
         }
       }

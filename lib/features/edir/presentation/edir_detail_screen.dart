@@ -7,6 +7,7 @@ import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/edir/presentation/edir_form_screen.dart';
 import 'package:tsiwa_mahber/features/edir/presentation/edir_member_list_screen.dart';
 import 'package:tsiwa_mahber/features/edir/presentation/edir_payment_list_screen.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class EdirDetailScreen extends StatefulWidget {
   final String areaId;
@@ -32,10 +33,10 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('እድር')),
+            appBar: AppBar(title: Text(S.edir)),
             body: Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             ),
@@ -44,16 +45,16 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            appBar: AppBar(title: const Text('እድር')),
-            body: const LoadingState(message: 'በመጫን ላይ...'),
+            appBar: AppBar(title: Text(S.edir)),
+            body: LoadingState(message: S.loading),
           );
         }
 
         final edir = snapshot.data;
         if (edir == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('እድር')),
-            body: const Center(child: Text('እድር አልተገኘም')),
+            appBar: AppBar(title: Text(S.edir)),
+            body: Center(child: Text(S.edirNotFound)),
           );
         }
 
@@ -82,7 +83,7 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
                 const SizedBox(height: 12),
                 _buildMenuCard(
                   icon: Icons.people,
-                  title: 'አባላት',
+                  title: S.members,
                   subtitle: '${edir.memberCount} አባላት',
                   onTap: () {
                     Navigator.push(
@@ -101,8 +102,8 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
                 const SizedBox(height: 8),
                 _buildMenuCard(
                   icon: Icons.payment,
-                  title: 'ክፍያዎች',
-                  subtitle: 'ክፍያ ሪፖርት ይመልከቱ',
+                  title: S.payments,
+                  subtitle: S.paymentReport,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -173,10 +174,10 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
               ],
             ),
             const Divider(height: 24),
-            _buildDetailRow('ወርሃዊ መዋጮ',
+            _buildDetailRow(S.monthlyDue,
                 '${edir.monthlyContribution.toStringAsFixed(0)} ብር'),
             if (edir.penaltyAmount > 0)
-              _buildDetailRow('ቅጣት',
+              _buildDetailRow(S.penalty,
                   '${edir.penaltyAmount.toStringAsFixed(0)} ብር'),
             _buildDetailRow('የክፍያ ቀን', 'በወር ${edir.paymentDay}'),
           ],
@@ -220,7 +221,7 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primary),
                   ),
-                  const Text('አባላት',
+                  Text(S.members,
                       style: TextStyle(
                           fontSize: 12, color: AppTheme.textMuted)),
                 ],
@@ -245,7 +246,7 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
                         fontWeight: FontWeight.bold,
                         color: AppTheme.secondary),
                   ),
-                  const Text('ግምጃ ቤት (ብር)',
+                  Text(S.treasuryBirrLabel,
                       style: TextStyle(
                           fontSize: 12, color: AppTheme.textMuted)),
                 ],
@@ -317,9 +318,9 @@ class _EdirDetailScreenState extends State<EdirDetailScreen> {
   Future<void> _confirmDelete(Edir edir) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'እድር ሰርዝ',
+      title: S.deleteEdir,
       message: '"${edir.name}" እድርን ለመሰረዝ እርግጠኛ ነዎት?',
-      confirmText: 'ሰርዝ',
+      confirmText: S.delete,
     );
 
     if (confirmed == true && mounted) {

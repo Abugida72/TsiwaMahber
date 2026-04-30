@@ -6,6 +6,7 @@ import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/members/data/member_repository.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
 import 'package:tsiwa_mahber/features/members/presentation/member_form_screen.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class MemberListScreen extends StatefulWidget {
   final String areaId;
@@ -30,7 +31,7 @@ class _MemberListScreenState extends State<MemberListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('አባላት'),
+        title: Text(S.members),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(24),
           child: Padding(
@@ -52,14 +53,14 @@ class _MemberListScreenState extends State<MemberListScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             );
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final members = snapshot.data ?? [];
@@ -67,12 +68,12 @@ class _MemberListScreenState extends State<MemberListScreen> {
           if (members.isEmpty) {
             return EmptyState(
               icon: Icons.people_outline,
-              title: 'እስካሁን አባል አልተመዘገበም።',
-              message: 'አዲስ አባል ለመጨመር ከታች ያለውን ቁልፍ ይጫኑ',
+              title: S.noMembersYet,
+              message: S.addMemberHint,
               action: ElevatedButton.icon(
                 onPressed: _openCreateForm,
                 icon: const Icon(Icons.person_add),
-                label: const Text('አዲስ አባል'),
+                label: Text(S.newMember),
               ),
             );
           }
@@ -97,9 +98,9 @@ class _MemberListScreenState extends State<MemberListScreen> {
                 _buildSection(
                     'ረዳት ሙሴ', assistantMuse, Icons.star_half),
               if (regularMembers.isNotEmpty)
-                _buildSection('አባላት', regularMembers, Icons.person),
+                _buildSection(S.members, regularMembers, Icons.person),
               if (observers.isNotEmpty)
-                _buildSection('ታዛቢዎች', observers, Icons.visibility),
+                _buildSection(S.viewerSection, observers, Icons.visibility),
             ],
           );
         },
@@ -127,8 +128,8 @@ class _MemberListScreenState extends State<MemberListScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildStat('ጠቅላላ', activeCount.toString(), AppTheme.primary),
-            _buildStat('በተራ', inRotation.toString(), Colors.teal),
+            _buildStat(S.total, activeCount.toString(), AppTheme.primary),
+            _buildStat(S.inRotation, inRotation.toString(), Colors.teal),
             _buildStat('ሙሴ', museCount.toString(), AppTheme.secondary),
           ],
         ),
@@ -218,9 +219,9 @@ class _MemberListScreenState extends State<MemberListScreen> {
   Future<void> _deleteMember(Member member) async {
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'አባል ሰርዝ',
+      title: S.deleteMember,
       message: '"${member.fullName}" አባልን ለመሰረዝ እርግጠኛ ነዎት?',
-      confirmText: 'ሰርዝ',
+      confirmText: S.delete,
     );
 
     if (confirmed == true && mounted) {
@@ -337,8 +338,8 @@ class _MemberCard extends StatelessWidget {
                               color: Colors.red.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
-                              'ቆሟል',
+                            child: Text(
+                              S.stopped,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.red,

@@ -6,6 +6,7 @@ import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/notifications/data/notification_repository.dart';
 import 'package:tsiwa_mahber/features/notifications/data/telegram_service.dart';
 import 'package:tsiwa_mahber/features/notifications/domain/app_notification.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AnnouncementFormScreen extends StatefulWidget {
   final String areaId;
@@ -61,8 +62,8 @@ class _AnnouncementFormScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing
-            ? 'ማስታወቂያ አስተካክል'
-            : 'አዲስ ማስታወቂያ'),
+            ? S.editAnnouncement
+            : S.newAnnouncement),
       ),
       body: Form(
         key: _formKey,
@@ -76,7 +77,7 @@ class _AnnouncementFormScreenState
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ርዕስ ያስፈልጋል';
+                  return S.titleRequired;
                 }
                 return null;
               },
@@ -84,14 +85,14 @@ class _AnnouncementFormScreenState
             const SizedBox(height: 16),
             TextFormField(
               controller: _bodyController,
-              decoration: const InputDecoration(
-                labelText: 'ዝርዝር *',
+              decoration: InputDecoration(
+                labelText: S.detail,
                 alignLabelWithHint: true,
               ),
               maxLines: 8,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ዝርዝር ያስፈልጋል';
+                  return S.detailRequired;
                 }
                 return null;
               },
@@ -99,8 +100,8 @@ class _AnnouncementFormScreenState
             const SizedBox(height: 16),
             DropdownButtonFormField<AnnouncementPriority>(
               initialValue: _priority,
-              decoration: const InputDecoration(
-                labelText: 'ደረጃ',
+              decoration: InputDecoration(
+                labelText: S.level,
               ),
               items: AnnouncementPriority.values.map((priority) {
                 return DropdownMenuItem(
@@ -124,7 +125,7 @@ class _AnnouncementFormScreenState
                       child:
                           CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(_isEditing ? 'አስቀምጥ' : 'ፍጠር'),
+                  : Text(_isEditing ? S.save : S.create),
             ),
           ],
         ),

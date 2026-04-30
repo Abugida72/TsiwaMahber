@@ -10,6 +10,7 @@ import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_event_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_event.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class RotationScreen extends StatefulWidget {
   final String areaId;
@@ -50,12 +51,12 @@ class _RotationScreenState extends State<RotationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('የፅዋ ተራ'),
+        title: Text(S.rotation),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'ተራ ቅደም ተከተል'),
-            Tab(text: 'የክንውን ታሪክ'),
+          tabs: [
+            Tab(text: S.rotationOrderTab),
+            Tab(text: S.eventHistory),
           ],
         ),
       ),
@@ -78,7 +79,7 @@ class _RotationScreenState extends State<RotationScreen>
               widget.areaId, widget.tsiwaId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const LoadingState(message: 'በመጫን ላይ...');
+              return LoadingState(message: S.loading);
             }
 
             final members = snapshot.data ?? [];
@@ -87,10 +88,10 @@ class _RotationScreenState extends State<RotationScreen>
                   ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
             if (rotationMembers.isEmpty) {
-              return const EmptyState(
+              return EmptyState(
                 icon: Icons.rotate_right,
-                title: 'በተራ ውስጥ ያለ አባል የለም',
-                message: 'አባላት ተመዝግበው በተራ ውስጥ መሆን አለባቸው',
+                title: S.noMembersInRotation,
+                message: S.membersMustBeInRotation,
               );
             }
 
@@ -169,7 +170,7 @@ class _RotationScreenState extends State<RotationScreen>
                                 )
                               : isNext
                                   ? Chip(
-                                      label: const Text('ቀጣይ'),
+                                      label: Text(S.next),
                                       backgroundColor: Colors.teal
                                           .withValues(alpha: 0.3),
                                       labelStyle: const TextStyle(
@@ -208,8 +209,8 @@ class _RotationScreenState extends State<RotationScreen>
                 children: [
                   const Icon(Icons.person, color: AppTheme.primary, size: 28),
                   const SizedBox(height: 4),
-                  const Text(
-                    'አሁን ተራ',
+                  Text(
+                    S.currentTurn,
                     style: TextStyle(
                       fontSize: 11,
                       color: AppTheme.textMuted,
@@ -234,8 +235,8 @@ class _RotationScreenState extends State<RotationScreen>
                   const Icon(Icons.person_outline,
                       color: Colors.teal, size: 28),
                   const SizedBox(height: 4),
-                  const Text(
-                    'ቀጣይ ተራ',
+                  Text(
+                    S.nextTurn,
                     style: TextStyle(
                       fontSize: 11,
                       color: AppTheme.textMuted,
@@ -273,7 +274,7 @@ class _RotationScreenState extends State<RotationScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ተራውን ማዘመን አልተቻለም')),
+          SnackBar(content: Text(S.rotationUpdateFailed)),
         );
       }
     }
@@ -285,7 +286,7 @@ class _RotationScreenState extends State<RotationScreen>
           widget.areaId, widget.tsiwaId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingState(message: 'በመጫን ላይ...');
+          return LoadingState(message: S.loading);
         }
 
         final events = snapshot.data ?? [];
@@ -293,12 +294,12 @@ class _RotationScreenState extends State<RotationScreen>
         if (events.isEmpty) {
           return EmptyState(
             icon: Icons.history,
-            title: 'እስካሁን ክንውን አልተመዘገበም',
-            message: 'ክንውን ለመመዝገብ ከታች ያለውን ቁልፍ ይጫኑ',
+            title: S.noEventsYet,
+            message: S.addEventHint,
             action: ElevatedButton.icon(
               onPressed: _createEvent,
               icon: const Icon(Icons.add),
-              label: const Text('ክንውን መዝግብ'),
+              label: Text(S.recordEvent),
             ),
           );
         }
@@ -365,7 +366,7 @@ class _RotationScreenState extends State<RotationScreen>
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ክንውን መመዝገብ አልተቻለም')),
+            SnackBar(content: Text(S.eventRecordFailed)),
           );
         }
       }
@@ -380,7 +381,7 @@ class _RotationScreenState extends State<RotationScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ሁኔታውን ማዘመን አልተቻለም')),
+          SnackBar(content: Text(S.statusUpdateFailed)),
         );
       }
     }
@@ -487,14 +488,14 @@ class _EventCard extends StatelessWidget {
                 const Spacer(),
                 if (event.status == TsiwaEventStatus.planned) ...[
                   _StatusButton(
-                    label: 'ተፈጸመ',
+                    label: S.completed,
                     color: AppTheme.success,
                     onTap: () =>
                         onStatusChange(TsiwaEventStatus.completed),
                   ),
                   const SizedBox(width: 8),
                   _StatusButton(
-                    label: 'ተሰረዘ',
+                    label: S.cancelled,
                     color: Colors.red,
                     onTap: () =>
                         onStatusChange(TsiwaEventStatus.cancelled),
@@ -576,14 +577,14 @@ class _CreateEventDialogState extends State<_CreateEventDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('ክንውን መዝግብ'),
+      title: Text(S.recordEvent),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'ዓይነት',
+            Text(
+              S.type,
               style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
             ),
             const SizedBox(height: 8),
@@ -616,8 +617,8 @@ class _CreateEventDialogState extends State<_CreateEventDialog> {
             ),
             if (widget.members.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text(
-                'ኃላፊ አባል',
+              Text(
+                S.responsibleMember,
                 style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
               ),
               const SizedBox(height: 8),
@@ -645,8 +646,8 @@ class _CreateEventDialogState extends State<_CreateEventDialog> {
             const SizedBox(height: 16),
             TextField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'ማስታወሻ',
+              decoration: InputDecoration(
+                labelText: S.note,
               ),
               maxLines: 2,
             ),
@@ -656,7 +657,7 @@ class _CreateEventDialogState extends State<_CreateEventDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('ተወው'),
+          child: Text(S.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -673,7 +674,7 @@ class _CreateEventDialogState extends State<_CreateEventDialog> {
             );
             Navigator.pop(context, event);
           },
-          child: const Text('መዝግብ'),
+          child: Text(S.record),
         ),
       ],
     );

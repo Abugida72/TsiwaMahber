@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 
 class AuthRepository {
@@ -16,6 +18,40 @@ class AuthRepository {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  // ── Member (phone+code) auth ──
+
+  /// Look up a member by phone number and verify the access code.
+  /// Returns the AppUser on success, or throws a descriptive string on failure.
+  Future<AppUser> signInWithPhone(String phone, String code) async {
+    final query = await _firestore
+        .collection('users')
+        .where('phone', isEqualTo: phone)
+        .limit(1)
+        .get();
+
+    if (query.docs.isEmpty) {
+      throw S.phoneNotRegistered;
+    }
+
+    final doc = query.docs.first;
+    final user = AppUser.fromDoc(doc);
+
+    if (user.passwordCode != code) {
+      throw S.wrongCode;
+    }
+
+    if (user.kickedOut) {
+      throw S.accountKicked;
+    }
+
+    if (!user.isActive) {
+      throw S.accountBlocked;
+    }
+
+    return user;
+  }
+
+  /// Watch a single AppUser document for real-time changes (kick-out, role changes).
   Stream<AppUser?> watchAppUser(String uid) {
     return _firestore
         .collection('users')
@@ -33,67 +69,66 @@ class AuthRepository {
     return AppUser.fromDoc(doc);
   }
 
-  Future<String?> signIn(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      return null;
-    } on FirebaseAuthException catch (e) {
-      return _mapAuthError(e.code);
-    } catch (e) {
-      return 'ያልተጠበቀ ስህተት: $e';
-    }
-  }
+  // ── Member CRUD (used by devs/admins) ──
 
-  Future<String?> register({
-    required String email,
-    required String password,
+  Future<String?> createMemberAccount({
     required String displayName,
-    String phone = '',
+    required String phone,
+    required String passwordCode,
+    required String areaId,
+    UserRole role = UserRole.member,
   }) async {
-    try {
-      final credential = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+    // Check for duplicate phone
+    final existing = await _firestore
+        .collection('users')
+        .where('phone', isEqualTo: phone)
+        .limit(1)
+        .get();
 
-      final user = credential.user;
-      if (user != null) {
-        await user.updateDisplayName(displayName);
-
-        final appUser = AppUser(
-          uid: user.uid,
-          email: email,
-          displayName: displayName,
-          phone: phone,
-          role: UserRole.viewer,
-        );
-
-        await _firestore
-            .collection('users')
-            .doc(user.uid)
-            .set(appUser.toCreateMap());
-      }
-      return null;
-    } on FirebaseAuthException catch (e) {
-      return _mapAuthError(e.code);
-    } catch (e) {
-      return 'ያልተጠበቀ ስህተት: $e';
+    if (existing.docs.isNotEmpty) {
+      return S.phoneAlreadyRegistered;
     }
+
+    final user = AppUser(
+      displayName: displayName,
+      phone: phone,
+      passwordCode: passwordCode,
+      role: role,
+      areaId: areaId,
+    );
+
+    await _firestore.collection('users').add(user.toCreateMap());
+    return null;
   }
 
-  Future<void> signOut() async {
-    await _auth.signOut();
+  Future<void> updateMemberCredentials({
+    required String uid,
+    String? phone,
+    String? passwordCode,
+  }) async {
+    final updates = <String, dynamic>{
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+    if (phone != null) updates['phone'] = phone;
+    if (passwordCode != null) updates['passwordCode'] = passwordCode;
+    await _firestore.collection('users').doc(uid).update(updates);
   }
 
-  Future<String?> resetPassword(String email) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-      return null;
-    } on FirebaseAuthException catch (e) {
-      return _mapAuthError(e.code);
-    } catch (e) {
-      return 'ያልተጠበቀ ስህተት: $e';
-    }
+  Future<void> kickOutUser(String uid) async {
+    await _firestore.collection('users').doc(uid).update({
+      'kickedOut': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
+
+  Future<void> reinstateUser(String uid) async {
+    await _firestore.collection('users').doc(uid).update({
+      'kickedOut': false,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // ── Profile / role management ──
 
   Future<void> updateProfile({
     required String uid,
@@ -105,13 +140,18 @@ class AuthRepository {
       'phone': phone,
       'updatedAt': FieldValue.serverTimestamp(),
     });
-
-    await _auth.currentUser?.updateDisplayName(displayName);
   }
 
   Future<void> updateUserRole(String uid, UserRole role) async {
     await _firestore.collection('users').doc(uid).update({
       'role': role.firestoreValue,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> updateUserArea(String uid, String areaId) async {
+    await _firestore.collection('users').doc(uid).update({
+      'areaId': areaId,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
@@ -125,26 +165,23 @@ class AuthRepository {
             snapshot.docs.map((doc) => AppUser.fromDoc(doc)).toList());
   }
 
-  String _mapAuthError(String code) {
-    switch (code) {
-      case 'user-not-found':
-        return 'ተጠቃሚ አልተገኘም';
-      case 'wrong-password':
-        return 'የተሳሳተ ይለፍ ቃል';
-      case 'email-already-in-use':
-        return 'ይህ ኢሜይል አስቀድሞ ተመዝግቧል';
-      case 'weak-password':
-        return 'ይለፍ ቃል ደካማ ነው (ቢያንስ 6 ቁምፊ)';
-      case 'invalid-email':
-        return 'ትክክለኛ ኢሜይል ያስገቡ';
-      case 'invalid-credential':
-        return 'ኢሜይል ወይም ይለፍ ቃል ትክክል አይደለም';
-      case 'too-many-requests':
-        return 'በጣም ብዙ ሙከራ — ትንሽ ቆይተው ይሞክሩ';
-      case 'network-request-failed':
-        return 'የኢንተርኔት ግንኙነት ያረጋግጡ';
-      default:
-        return 'ስህተት: $code';
-    }
+  Stream<List<AppUser>> watchUsersByArea(String areaId) {
+    return _firestore
+        .collection('users')
+        .where('areaId', isEqualTo: areaId)
+        .orderBy('displayName')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => AppUser.fromDoc(doc)).toList());
+  }
+
+  Future<void> deleteUser(String uid) async {
+    await _firestore.collection('users').doc(uid).delete();
+  }
+
+  // ── Firebase Auth (devs only) ──
+
+  Future<void> signOut() async {
+    await _auth.signOut();
   }
 }

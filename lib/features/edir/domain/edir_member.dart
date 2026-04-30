@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 enum EdirMemberStatus {
   active,
@@ -8,11 +9,11 @@ enum EdirMemberStatus {
   String get displayName {
     switch (this) {
       case EdirMemberStatus.active:
-        return 'ንቁ';
+        return S.statusActive;
       case EdirMemberStatus.inactive:
-        return 'ቦዝኗል';
+        return S.statusInactive;
       case EdirMemberStatus.suspended:
-        return 'የታገደ';
+        return S.statusSuspended;
     }
   }
 

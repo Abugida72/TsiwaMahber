@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/notifications/data/telegram_service.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class TelegramSettingsScreen extends StatefulWidget {
   final String areaId;
@@ -60,7 +61,7 @@ class _TelegramSettingsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ቴሌግራም ማገናኛ'),
+        title: Text(S.telegramConnection),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -78,8 +79,8 @@ class _TelegramSettingsScreenState
                             const Icon(Icons.telegram,
                                 color: Colors.blue, size: 28),
                             const SizedBox(width: 12),
-                            const Text(
-                              'ቴሌግራም ቦት',
+                            Text(
+                              S.telegramBotTitle,
                               style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600),
@@ -94,8 +95,8 @@ class _TelegramSettingsScreenState
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'ማስታወቂያዎችን ወደ ቴሌግራም ግሩፕ ያስተላልፉ',
+                        Text(
+                          S.telegramDesc,
                           style: TextStyle(
                               fontSize: 13,
                               color: AppTheme.textMuted),
@@ -130,15 +131,15 @@ class _TelegramSettingsScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'ቦት ማስተካከያ',
+                        Text(
+                          S.botSettings,
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'ቦት ለመፍጠር @BotFather ን በቴሌግራም ያግኙ',
+                        Text(
+                          S.botCreateHint,
                           style: TextStyle(
                               fontSize: 12,
                               color: AppTheme.textMuted),
@@ -176,7 +177,7 @@ class _TelegramSettingsScreenState
                                             strokeWidth: 2),
                                   )
                                 : const Icon(Icons.send),
-                            label: const Text('ግንኙነት ፈትሽ'),
+                            label: Text(S.testConnection),
                           ),
                         ),
                       ],
@@ -190,16 +191,16 @@ class _TelegramSettingsScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'ማሳወቂያ ዓይነቶች',
+                        Text(
+                          S.notifTypes,
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600),
                         ),
                         SwitchListTile(
                           title: const Text('ማስታወቂያዎች'),
-                          subtitle: const Text(
-                              'አዲስ ማስታወቂያ ሲፈጠር ወደ ቴሌግራም ላክ'),
+                          subtitle: Text(
+                              S.sendAnnouncements),
                           value: _sendAnnouncements,
                           onChanged: (value) {
                             setState(
@@ -207,9 +208,9 @@ class _TelegramSettingsScreenState
                           },
                         ),
                         SwitchListTile(
-                          title: const Text('ክስተቶች'),
-                          subtitle: const Text(
-                              'የክስተት ማስታወሻ ወደ ቴሌግራም ላክ'),
+                          title: Text(S.events),
+                          subtitle: Text(
+                              S.sendEvents),
                           value: _sendEvents,
                           onChanged: (value) {
                             setState(() => _sendEvents = value);
@@ -229,7 +230,7 @@ class _TelegramSettingsScreenState
                           child: CircularProgressIndicator(
                               strokeWidth: 2),
                         )
-                      : const Text('አስቀምጥ'),
+                      : Text(S.save),
                 ),
               ],
             ),
@@ -293,7 +294,7 @@ class _TelegramSettingsScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ተቀምጧል')),
+          SnackBar(content: Text(S.saved)),
         );
         Navigator.pop(context);
       }

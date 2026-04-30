@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/tsiwa/data/tsiwa_repository.dart';
 import 'package:tsiwa_mahber/features/tsiwa/domain/tsiwa_mahber.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class TsiwaFormScreen extends StatefulWidget {
   final String areaId;
@@ -66,7 +67,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
     );
 
     _zikirTitleController = TextEditingController(
-      text: t?.zikirTitle ?? 'የዝክር ቀን',
+      text: t?.zikirTitle ?? S.zikirDay,
     );
     _zikirMonthController = TextEditingController(
       text: t?.zikirMonth?.toString() ?? '',
@@ -77,7 +78,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
     _zikirNoteController = TextEditingController(text: t?.zikirNote ?? '');
 
     _feedingTitleController = TextEditingController(
-      text: t?.feedingTitle ?? 'ነድያንን የማብላት ቀን',
+      text: t?.feedingTitle ?? S.feedingDay,
     );
     _feedingMonthController = TextEditingController(
       text: t?.feedingMonth?.toString() ?? '',
@@ -115,7 +116,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'ፅዋ አርትዕ' : 'አዲስ ፅዋ'),
+        title: Text(_isEditing ? S.editTsiwa : S.newTsiwa),
         actions: [
           if (_isSaving)
             const Padding(
@@ -141,14 +142,14 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _buildSectionHeader('መሰረታዊ መረጃ'),
+            _buildSectionHeader(S.basicInfo),
             const SizedBox(height: 8),
             _buildTextField(
               controller: _nameController,
-              label: 'ፅዋ ስም *',
+              label: S.tsiwaName,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ፅዋ ስም ያስገቡ';
+                  return S.enterTsiwaName;
                 }
                 return null;
               },
@@ -156,37 +157,37 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
             const SizedBox(height: 12),
             _buildTextField(
               controller: _churchNameController,
-              label: 'የቤተ ክርስቲያን ስም',
+              label: S.churchName,
             ),
             const SizedBox(height: 12),
             _buildTextField(
               controller: _saintNameController,
-              label: 'የቅዱስ/ቅድስት ስም',
+              label: S.saintName,
             ),
             const SizedBox(height: 12),
             _buildTextField(
               controller: _locationController,
-              label: 'ቦታ',
+              label: S.location,
             ),
             const SizedBox(height: 12),
             _buildTextField(
               controller: _descriptionController,
-              label: 'መግለጫ',
+              label: S.description,
               maxLines: 3,
             ),
             const SizedBox(height: 24),
-            _buildSectionHeader('የወርሃዊ ፅዋ ቀን'),
+            _buildSectionHeader(S.monthlyTsiwaDay),
             const SizedBox(height: 8),
             _buildNumberField(
               controller: _monthlyTsiwaDayController,
-              label: 'ቀን (1-30) *',
+              label: S.dayRange,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'የወርሃዊ ፅዋ ቀን ያስገቡ';
+                  return S.enterDay;
                 }
                 final day = int.tryParse(value);
                 if (day == null || day < 1 || day > 30) {
-                  return 'ቀን ከ1 እስከ 30 መሆን አለበት';
+                  return S.dayMustBe1to30;
                 }
                 return null;
               },
@@ -194,14 +195,14 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
             const SizedBox(height: 12),
             _buildTextField(
               controller: _monthlyTsiwaDayNoteController,
-              label: 'ማስታወሻ',
+              label: S.note,
             ),
             const SizedBox(height: 24),
-            _buildSectionHeader('የዝክር ቀን'),
+            _buildSectionHeader(S.zikirDay),
             const SizedBox(height: 8),
             _buildTextField(
               controller: _zikirTitleController,
-              label: 'ርዕስ',
+              label: S.title,
             ),
             const SizedBox(height: 12),
             Row(
@@ -209,7 +210,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
                 Expanded(
                   child: _buildNumberField(
                     controller: _zikirMonthController,
-                    label: 'ወር (1-13)',
+                    label: S.monthRange,
                     validator: _validateOptionalMonth,
                   ),
                 ),
@@ -217,7 +218,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
                 Expanded(
                   child: _buildNumberField(
                     controller: _zikirDayController,
-                    label: 'ቀን (1-30)',
+                    label: S.dayRange2,
                     validator: (value) =>
                         _validateOptionalDay(value, _zikirMonthController.text),
                   ),
@@ -227,14 +228,14 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
             const SizedBox(height: 12),
             _buildTextField(
               controller: _zikirNoteController,
-              label: 'ማስታወሻ',
+              label: S.note,
             ),
             const SizedBox(height: 24),
-            _buildSectionHeader('ነድያንን የማብላት ቀን'),
+            _buildSectionHeader(S.feedingDay),
             const SizedBox(height: 8),
             _buildTextField(
               controller: _feedingTitleController,
-              label: 'ርዕስ',
+              label: S.title,
             ),
             const SizedBox(height: 12),
             Row(
@@ -242,7 +243,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
                 Expanded(
                   child: _buildNumberField(
                     controller: _feedingMonthController,
-                    label: 'ወር (1-13)',
+                    label: S.monthRange,
                     validator: _validateOptionalMonth,
                   ),
                 ),
@@ -250,7 +251,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
                 Expanded(
                   child: _buildNumberField(
                     controller: _feedingDayController,
-                    label: 'ቀን (1-30)',
+                    label: S.dayRange2,
                     validator: (value) => _validateOptionalDay(
                         value, _feedingMonthController.text),
                   ),
@@ -260,25 +261,25 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
             const SizedBox(height: 12),
             _buildTextField(
               controller: _feedingNoteController,
-              label: 'ማስታወሻ',
+              label: S.note,
             ),
             const SizedBox(height: 24),
-            _buildSectionHeader('ሁኔታ'),
+            _buildSectionHeader(S.status),
             const SizedBox(height: 8),
             Card(
               child: Column(
                 children: [
                   SwitchListTile(
-                    title: const Text('ንቁ'),
-                    subtitle: const Text('ፅዋው በንቁ ሁኔታ ላይ ነው'),
+                    title: Text(S.active),
+                    subtitle: Text(S.tsiwaIsActive),
                     value: _isActive,
                     onChanged: (value) => setState(() => _isActive = value),
                   ),
                   if (_isEditing) ...[
                     const Divider(height: 1),
                     SwitchListTile(
-                      title: const Text('ማህደር'),
-                      subtitle: const Text('ፅዋውን ወደ ማህደር ያስገቡ'),
+                      title: Text(S.archive),
+                      subtitle: Text(S.archiveTsiwa),
                       value: _isArchived,
                       onChanged: (value) =>
                           setState(() => _isArchived = value),
@@ -297,14 +298,14 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: Colors.grey.shade700),
                     ),
-                    child: const Text('ተወው'),
+                    child: Text(S.cancel),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _save,
-                    child: Text(_isEditing ? 'አስቀምጥ' : 'ፍጠር'),
+                    child: Text(_isEditing ? S.save : S.create),
                   ),
                 ),
               ],
@@ -359,7 +360,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
     if (value == null || value.trim().isEmpty) return null;
     final month = int.tryParse(value);
     if (month == null || month < 1 || month > 13) {
-      return 'ወር ከ1 እስከ 13 መሆን አለበት';
+      return S.monthMustBe1to13;
     }
     return null;
   }
@@ -369,15 +370,15 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
     final hasDay = value != null && value.trim().isNotEmpty;
 
     if (hasMonth && !hasDay) {
-      return 'ቀን ያስገቡ';
+      return S.enterDayVal;
     }
     if (hasDay && !hasMonth) {
-      return 'ወር ያስገቡ';
+      return S.enterMonthVal;
     }
     if (hasDay) {
       final day = int.tryParse(value);
       if (day == null || day < 1 || day > 30) {
-        return 'ቀን ከ1 እስከ 30 መሆን አለበት';
+        return S.dayMustBe1to30;
       }
     }
     return null;
@@ -427,7 +428,7 @@ class _TsiwaFormScreenState extends State<TsiwaFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('መረጃውን ማስቀመጥ አልተቻለም።')),
+          SnackBar(content: Text(S.dataSaveFailed)),
         );
       }
     } finally {

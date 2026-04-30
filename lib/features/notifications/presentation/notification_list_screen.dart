@@ -5,6 +5,7 @@ import 'package:tsiwa_mahber/core/widgets/empty_state.dart';
 import 'package:tsiwa_mahber/core/widgets/loading_state.dart';
 import 'package:tsiwa_mahber/features/notifications/data/notification_repository.dart';
 import 'package:tsiwa_mahber/features/notifications/domain/app_notification.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class NotificationListScreen extends StatefulWidget {
   final String userId;
@@ -27,7 +28,7 @@ class _NotificationListScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ማሳወቂያዎች'),
+        title: Text(S.notifications),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -38,13 +39,13 @@ class _NotificationListScreenState
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'read_all',
-                child: Text('ሁሉንም እንደተነበበ ምልክት አድርግ'),
+                child: Text(S.markAllRead),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'clear_all',
-                child: Text('ሁሉንም አጽዳ',
+                child: Text(S.clearAll,
                     style: TextStyle(color: Colors.red)),
               ),
             ],
@@ -57,22 +58,22 @@ class _NotificationListScreenState
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'መረጃ ማግኘት አልተቻለም',
+                S.dataLoadFailed,
                 style: TextStyle(color: Colors.red.shade300),
               ),
             );
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'በመጫን ላይ...');
+            return LoadingState(message: S.loading);
           }
 
           final notifications = snapshot.data ?? [];
 
           if (notifications.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.notifications_none,
-              title: 'ምንም ማሳወቂያ የለም',
+              title: S.noNotifications,
               message: '',
             );
           }
@@ -222,9 +223,9 @@ class _NotificationListScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ሁሉንም ማሳወቂያዎች አጽዳ'),
+        title: Text(S.clearAllConfirm),
         content:
-            const Text('ሁሉንም ማሳወቂያዎች ለመሰረዝ እርግጠኛ ነዎት?'),
+            Text(S.clearAllConfirmMsg),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -232,7 +233,7 @@ class _NotificationListScreenState
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('አጽዳ'),
+            child: Text(S.clear),
           ),
         ],
       ),

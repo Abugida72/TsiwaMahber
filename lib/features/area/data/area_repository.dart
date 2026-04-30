@@ -19,6 +19,15 @@ class AreaRepository {
     });
   }
 
+  Stream<List<Area>> watchAllAreas() {
+    return _firestore
+        .collection(FirestorePaths.areas())
+        .orderBy('name')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => Area.fromDoc(doc)).toList());
+  }
+
   Future<String?> ensureDefaultArea() async {
     try {
       final docRef = _firestore.doc(
@@ -43,9 +52,20 @@ class AreaRepository {
     }
   }
 
+  Future<String> createArea(Area area) async {
+    final docRef = await _firestore
+        .collection(FirestorePaths.areas())
+        .add(area.toCreateMap());
+    return docRef.id;
+  }
+
   Future<void> updateArea(Area area) async {
     await _firestore
         .doc(FirestorePaths.area(area.id))
         .update(area.toUpdateMap());
+  }
+
+  Future<void> deleteArea(String areaId) async {
+    await _firestore.doc(FirestorePaths.area(areaId)).delete();
   }
 }

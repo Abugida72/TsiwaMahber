@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/members/data/member_repository.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
+import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class MemberFormScreen extends StatefulWidget {
   final String areaId;
@@ -97,7 +98,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'አባል አርትዕ' : 'አዲስ አባል'),
+        title: Text(_isEditing ? 'አባል አርትዕ' : S.newMember),
         actions: [
           if (_isSaving)
             const Padding(
@@ -123,14 +124,14 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _buildSectionHeader('የግል መረጃ'),
+            _buildSectionHeader(S.personalInfo),
             const SizedBox(height: 8),
             _buildTextField(
               controller: _fullNameController,
               label: 'ሙሉ ስም *',
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'ሙሉ ስም ያስገቡ';
+                  return S.fullNameRequired;
                 }
                 return null;
               },
@@ -138,18 +139,18 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
             const SizedBox(height: 12),
             _buildTextField(
               controller: _christianNameController,
-              label: 'የክርስትና ስም',
+              label: S.christianName,
             ),
             const SizedBox(height: 12),
             _buildTextField(
               controller: _phoneController,
-              label: 'ስልክ ቁጥር',
+              label: S.phoneNumber,
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 12),
             _buildTextField(
               controller: _phone2Controller,
-              label: 'ተጨማሪ ስልክ',
+              label: S.additionalPhone,
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 12),
@@ -160,7 +161,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
             const SizedBox(height: 12),
             _buildTextField(
               controller: _addressController,
-              label: 'አድራሻ',
+              label: S.address,
               maxLines: 2,
             ),
             const SizedBox(height: 24),
@@ -172,8 +173,8 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'ሚና',
+                    Text(
+                      S.role,
                       style: TextStyle(
                         fontSize: 13,
                         color: AppTheme.textMuted,
@@ -220,7 +221,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
               },
             ),
             const SizedBox(height: 24),
-            _buildSectionHeader('ሁኔታ'),
+            _buildSectionHeader(S.status),
             const SizedBox(height: 8),
             Card(
               child: Column(
@@ -234,7 +235,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
                   ),
                   const Divider(height: 1),
                   SwitchListTile(
-                    title: const Text('ንቁ'),
+                    title: Text(S.active),
                     subtitle: const Text('አባሉ ንቁ ነው'),
                     value: _isActive,
                     onChanged: (value) =>
@@ -269,14 +270,14 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: Colors.grey.shade700),
                     ),
-                    child: const Text('ተወው'),
+                    child: Text(S.cancel),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _save,
-                    child: Text(_isEditing ? 'አስቀምጥ' : 'መዝግብ'),
+                    child: Text(_isEditing ? S.save : S.record),
                   ),
                 ),
               ],
@@ -388,7 +389,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('መረጃውን ማስቀመጥ አልተቻለም።')),
+          SnackBar(content: Text(S.dataSaveFailed)),
         );
       }
     } finally {

@@ -12,7 +12,12 @@
           "package_name": "com.tsiwa.tsiwa_mahber"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "658277409136-shqtr8jrtaqudlobck7oh79riicpassj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBfLd5efwiA-wbuhK20_6Dq5fry7wBw6dQ"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "658277409136-shqtr8jrtaqudlobck7oh79riicpassj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
