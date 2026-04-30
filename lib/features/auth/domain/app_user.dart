@@ -110,7 +110,7 @@ class AppUser {
   });
 
   factory AppUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
+    final data = doc.data() ?? <String, dynamic>{};
     return AppUser(
       uid: doc.id,
       email: data['email'] as String? ?? '',
