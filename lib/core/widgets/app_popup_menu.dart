@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tsiwa_mahber/core/theme/app_theme.dart';
 import 'package:tsiwa_mahber/features/developer/data/developer_service.dart';
 
@@ -57,13 +59,25 @@ class AppPopupMenu extends StatelessWidget {
             dense: true,
           ),
         ),
+        if (FirebaseAuth.instance.currentUser != null)
+          const PopupMenuItem<String>(
+            value: 'sign_out',
+            child: ListTile(
+              leading: Icon(Icons.logout, size: 20,
+                  color: Colors.orange),
+              title: Text('ውጣ ከአካውንት',
+                  style: TextStyle(color: Colors.orange)),
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+            ),
+          ),
         const PopupMenuDivider(),
         const PopupMenuItem<String>(
           value: 'exit',
           child: ListTile(
             leading: Icon(Icons.exit_to_app, size: 20,
                 color: Colors.red),
-            title: Text('ውጣ',
+            title: Text('መተግበሪያ ዝጋ',
                 style: TextStyle(color: Colors.red)),
             contentPadding: EdgeInsets.zero,
             dense: true,
@@ -73,7 +87,7 @@ class AppPopupMenu extends StatelessWidget {
     );
   }
 
-  void _handleSelection(BuildContext context, String value) {
+  Future<void> _handleSelection(BuildContext context, String value) async {
     switch (value) {
       case 'language':
         localeProvider.toggleLanguage();
@@ -87,6 +101,10 @@ class AppPopupMenu extends StatelessWidget {
         break;
       case 'dev_login':
         _handleDevLogin(context);
+        break;
+      case 'sign_out':
+        await GoogleSignIn().signOut();
+        await FirebaseAuth.instance.signOut();
         break;
       case 'exit':
         exit(0);
