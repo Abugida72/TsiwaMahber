@@ -22,7 +22,11 @@ class _TsiwaAppState extends State<TsiwaApp> {
   }
 
   void _rebuild() {
-    setState(() {});
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override

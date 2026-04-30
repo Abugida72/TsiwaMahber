@@ -248,11 +248,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     } else if (action == 'edit_phone') {
       _showEditPhoneDialog(user);
     } else if (action == 'reinstate') {
-      await _authRepository.reinstateUser(user.uid);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${user.displayName} — ${S.reinstated}')),
-        );
+      try {
+        await _authRepository.reinstateUser(user.uid);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${user.displayName} — ${S.reinstated}')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.errorMsg(e.toString()))),
+          );
+        }
       }
     } else if (action == 'delete') {
       _showDeleteConfirmDialog(user);
@@ -309,14 +317,22 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     controller.dispose();
 
     if (result != null && result.isNotEmpty) {
-      await _authRepository.updateMemberCredentials(
-        uid: user.uid,
-        passwordCode: result,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.passwordUpdated)),
+      try {
+        await _authRepository.updateMemberCredentials(
+          uid: user.uid,
+          passwordCode: result,
         );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.passwordUpdated)),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.errorMsg(e.toString()))),
+          );
+        }
       }
     }
   }
@@ -342,11 +358,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
 
     if (confirm == true) {
-      await _authRepository.kickOutUser(user.uid);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${user.displayName} — ${S.kicked}')),
-        );
+      try {
+        await _authRepository.kickOutUser(user.uid);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${user.displayName} — ${S.kicked}')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.errorMsg(e.toString()))),
+          );
+        }
       }
     }
   }
@@ -464,14 +488,22 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     controller.dispose();
 
     if (result != null && result.isNotEmpty) {
-      await _authRepository.updateMemberCredentials(
-        uid: user.uid,
-        phone: result,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.phoneUpdated)),
+      try {
+        await _authRepository.updateMemberCredentials(
+          uid: user.uid,
+          phone: result,
         );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.phoneUpdated)),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.errorMsg(e.toString()))),
+          );
+        }
       }
     }
   }
@@ -497,11 +529,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
 
     if (confirm == true) {
-      await _authRepository.deleteUser(user.uid);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.userDeleted)),
-        );
+      try {
+        await _authRepository.deleteUser(user.uid);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.userDeleted)),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.errorMsg(e.toString()))),
+          );
+        }
       }
     }
   }

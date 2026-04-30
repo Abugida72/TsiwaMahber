@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tsiwa_mahber/core/constants/firestore_paths.dart';
+import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
 import 'package:tsiwa_mahber/features/leadership/domain/leader.dart';
 import 'package:tsiwa_mahber/features/members/domain/member.dart';
@@ -151,7 +152,7 @@ class CsvService {
     final members = <Member>[];
     for (int i = 1; i < rows.length; i++) {
       final row = rows[i];
-      if (row.length < 6) continue;
+      if (row.length < 3) continue;
 
       final roleName = row.length > 6 ? row[6].toString().trim() : '';
       final orderStr = row.length > 7 ? row[7].toString().trim() : '0';
@@ -160,9 +161,9 @@ class CsvService {
         fullName: row[0].toString().trim(),
         christianName: row[1].toString().trim(),
         phone: row[2].toString().trim(),
-        phone2: row[3].toString().trim(),
-        idNumber: row[4].toString().trim(),
-        address: row[5].toString().trim(),
+        phone2: row.length > 3 ? row[3].toString().trim() : '',
+        idNumber: row.length > 4 ? row[4].toString().trim() : '',
+        address: row.length > 5 ? row[5].toString().trim() : '',
         role: _parseMemberRole(roleName),
         orderIndex: int.tryParse(orderStr) ?? 0,
       ));
@@ -233,19 +234,31 @@ class CsvService {
     final existingSnapshot =
         await collection.where('deletedAt', isNull: true).get();
     int nextOrder = 1;
+    final existingPhones = <String>{};
     for (final doc in existingSnapshot.docs) {
       final idx = doc.data()['orderIndex'] as int? ?? 0;
       if (idx >= nextOrder) nextOrder = idx + 1;
+      final phone = doc.data()['phone'] as String? ?? '';
+      if (phone.isNotEmpty) existingPhones.add(phone);
     }
 
     final batch = _firestore.batch();
+    final importedMembers = <Member>[];
     for (final member in members) {
       if (member.fullName.isEmpty) continue;
+      if (member.phone.isNotEmpty && existingPhones.contains(member.phone)) {
+        continue;
+      }
+      if (member.phone.isNotEmpty) existingPhones.add(member.phone);
       final m = member.copyWith(orderIndex: nextOrder++);
       batch.set(collection.doc(), m.toCreateMap());
+      importedMembers.add(member);
       imported++;
     }
     await batch.commit();
+
+    // Auto-create login accounts
+    await _createUserAccounts(importedMembers, areaId);
 
     await _updateTswaCounts(areaId, tsiwaId);
     return imported;
@@ -256,13 +269,30 @@ class CsvService {
     final collection =
         _firestore.collection(FirestorePaths.leaders(areaId));
 
+    final existingSnapshot = await collection.get();
+    final existingPhones = <String>{};
+    for (final doc in existingSnapshot.docs) {
+      final phone = doc.data()['phone'] as String? ?? '';
+      if (phone.isNotEmpty) existingPhones.add(phone);
+    }
+
     final batch = _firestore.batch();
+    final importedLeaders = <_LeaderAsImport>[];
     for (final leader in leaders) {
       if (leader.fullName.isEmpty) continue;
+      if (leader.phone.isNotEmpty && existingPhones.contains(leader.phone)) {
+        continue;
+      }
+      if (leader.phone.isNotEmpty) existingPhones.add(leader.phone);
       batch.set(collection.doc(), leader.toCreateMap());
+      importedLeaders.add(_LeaderAsImport(leader.fullName, leader.phone));
       imported++;
     }
     await batch.commit();
+
+    // Auto-create login accounts
+    await _createUserAccounts(importedLeaders, areaId);
+
     return imported;
   }
 
@@ -275,16 +305,79 @@ class CsvService {
     final collection =
         _firestore.collection(FirestorePaths.edirMembers(areaId, edirId));
 
+    final existingSnapshot = await collection.get();
+    final existingPhones = <String>{};
+    for (final doc in existingSnapshot.docs) {
+      final phone = doc.data()['phone'] as String? ?? '';
+      if (phone.isNotEmpty) existingPhones.add(phone);
+    }
+
     final batch = _firestore.batch();
+    final importedEdirMembers = <_LeaderAsImport>[];
     for (final member in members) {
       if (member.fullName.isEmpty) continue;
+      if (member.phone.isNotEmpty && existingPhones.contains(member.phone)) {
+        continue;
+      }
+      if (member.phone.isNotEmpty) existingPhones.add(member.phone);
       batch.set(collection.doc(), member.toCreateMap());
+      importedEdirMembers.add(_LeaderAsImport(member.fullName, member.phone));
       imported++;
     }
     await batch.commit();
 
+    // Auto-create login accounts
+    await _createUserAccounts(importedEdirMembers, areaId);
+
     await _updateEdirMemberCount(areaId, edirId);
     return imported;
+  }
+
+  /// Creates login accounts in the `users` collection for imported members.
+  /// Skips members whose phone already exists.
+  Future<void> _createUserAccounts(
+    List<dynamic> entries,
+    String areaId,
+  ) async {
+    final usersCol = _firestore.collection('users');
+
+    for (final entry in entries) {
+      final String name;
+      final String phone;
+
+      if (entry is Member) {
+        name = entry.fullName;
+        phone = entry.phone;
+      } else if (entry is _LeaderAsImport) {
+        name = entry.fullName;
+        phone = entry.phone;
+      } else {
+        continue;
+      }
+
+      if (name.isEmpty || phone.isEmpty) continue;
+
+      // Skip if phone already registered
+      final existing = await usersCol
+          .where('phone', isEqualTo: phone)
+          .limit(1)
+          .get();
+      if (existing.docs.isNotEmpty) continue;
+
+      // Default access code = last 4 digits of phone
+      final code = phone.length >= 4
+          ? phone.substring(phone.length - 4)
+          : phone;
+
+      final user = AppUser(
+        displayName: name,
+        phone: phone,
+        passwordCode: code,
+        areaId: areaId,
+      );
+
+      await usersCol.add(user.toCreateMap());
+    }
   }
 
   // ── File operations ──
@@ -384,4 +477,10 @@ class CsvService {
       });
     } catch (_) {}
   }
+}
+
+class _LeaderAsImport {
+  final String fullName;
+  final String phone;
+  const _LeaderAsImport(this.fullName, this.phone);
 }

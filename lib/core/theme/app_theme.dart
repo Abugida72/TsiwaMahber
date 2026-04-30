@@ -213,4 +213,10 @@ class LocaleProvider extends ChangeNotifier {
     _isAmharic = !_isAmharic;
     notifyListeners();
   }
+
+  @override
+  // ignore: must_call_super
+  void dispose() {
+    // Singleton — must never be disposed.
+  }
 }
