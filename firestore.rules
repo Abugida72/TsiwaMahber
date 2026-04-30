@@ -1,15 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // All authenticated users can read all data
+    // Allow all reads (members use phone+code auth without Firebase Auth,
+    // so request.auth is null for them). Writes still require Firebase Auth.
     match /{document=**} {
-      allow read: if request.auth != null;
+      allow read: if true;
     }
 
-    // Users: allow unauthenticated reads so phone+code login can query,
-    // but only authenticated users can write.
+    // Users collection
     match /users/{userId} {
-      allow read: if true;
       allow create: if request.auth != null;
       allow update, delete: if request.auth != null;
     }
