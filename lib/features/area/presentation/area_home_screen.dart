@@ -35,6 +35,7 @@ class AreaHomeScreen extends StatefulWidget {
   final String areaName;
   final ThemeProvider themeProvider;
   final LocaleProvider localeProvider;
+  final VoidCallback? onLogout;
 
   const AreaHomeScreen({
     super.key,
@@ -43,6 +44,7 @@ class AreaHomeScreen extends StatefulWidget {
     required this.areaName,
     required this.themeProvider,
     required this.localeProvider,
+    this.onLogout,
   });
 
   @override
@@ -99,7 +101,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        const UserManagementScreen(),
+                        UserManagementScreen(areaId: widget.areaId),
                   ),
                 );
               },
@@ -121,6 +123,7 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           AppPopupMenu(
             themeProvider: widget.themeProvider,
             localeProvider: widget.localeProvider,
+            onMemberLogout: widget.onLogout,
           ),
         ],
       ),

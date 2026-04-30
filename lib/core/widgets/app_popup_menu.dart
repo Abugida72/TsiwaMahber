@@ -10,15 +10,19 @@ import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 class AppPopupMenu extends StatelessWidget {
   final ThemeProvider themeProvider;
   final LocaleProvider localeProvider;
+  final VoidCallback? onMemberLogout;
 
   const AppPopupMenu({
     super.key,
     required this.themeProvider,
     required this.localeProvider,
+    this.onMemberLogout,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isFirebaseSignedIn = FirebaseAuth.instance.currentUser != null;
+
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
       onSelected: (value) => _handleSelection(context, value),
@@ -54,20 +58,20 @@ class AppPopupMenu extends StatelessWidget {
         PopupMenuItem<String>(
           value: 'dev_login',
           child: ListTile(
-            leading: Icon(Icons.code, size: 20),
+            leading: const Icon(Icons.code, size: 20),
             title: Text(S.devSignIn),
             contentPadding: EdgeInsets.zero,
             dense: true,
           ),
         ),
-        if (FirebaseAuth.instance.currentUser != null)
+        if (isFirebaseSignedIn || onMemberLogout != null)
           PopupMenuItem<String>(
             value: 'sign_out',
             child: ListTile(
-              leading: Icon(Icons.logout, size: 20,
+              leading: const Icon(Icons.logout, size: 20,
                   color: Colors.orange),
               title: Text(S.signOut,
-                  style: TextStyle(color: Colors.orange)),
+                  style: const TextStyle(color: Colors.orange)),
               contentPadding: EdgeInsets.zero,
               dense: true,
             ),
@@ -76,10 +80,10 @@ class AppPopupMenu extends StatelessWidget {
         PopupMenuItem<String>(
           value: 'exit',
           child: ListTile(
-            leading: Icon(Icons.exit_to_app, size: 20,
+            leading: const Icon(Icons.exit_to_app, size: 20,
                 color: Colors.red),
             title: Text(S.exitApp,
-                style: TextStyle(color: Colors.red)),
+                style: const TextStyle(color: Colors.red)),
             contentPadding: EdgeInsets.zero,
             dense: true,
           ),
@@ -93,9 +97,11 @@ class AppPopupMenu extends StatelessWidget {
       case 'language':
         localeProvider.toggleLanguage();
         final label = localeProvider.isAmharic ? 'አማርኛ' : 'English';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Language: $label')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Language: $label')),
+          );
+        }
         break;
       case 'theme':
         themeProvider.toggleTheme();
@@ -104,8 +110,12 @@ class AppPopupMenu extends StatelessWidget {
         _handleDevLogin(context);
         break;
       case 'sign_out':
-        await GoogleSignIn().signOut();
-        await FirebaseAuth.instance.signOut();
+        if (onMemberLogout != null) {
+          onMemberLogout!();
+        } else {
+          await GoogleSignIn().signOut();
+          await FirebaseAuth.instance.signOut();
+        }
         break;
       case 'exit':
         exit(0);
@@ -132,7 +142,6 @@ class AppPopupMenu extends StatelessWidget {
 
     final error = await devService.signInWithGoogle();
 
-    // Dismiss the loading dialog using root navigator
     try {
       rootNavigator.pop();
     } catch (_) {

@@ -393,7 +393,7 @@ class S {
   static String get emailInUse => _am ? 'ይህ ኢሜይል አስቀድሞ ተመዝግቧል' : 'Email already registered';
   static String get weakPassword => _am ? 'ይለፍ ቃል ደካማ ነው (ቢያንስ 6 ቁምፊ)' : 'Password too weak (min 6 characters)';
   static String get invalidEmail => _am ? 'ትክክለኛ ኢሜይል ያስገቡ' : 'Enter a valid email';
-  static String get invalidCredential => _am ? 'ኢሜይል ወይም ይለፍ ቃል ትክክል አይደለም' : 'Invalid email or password';
+  static String get invalidCredential => _am ? 'ስልክ ቁጥር ወይም ይለፍ ቃል ትክክል አይደለም' : 'Invalid phone number or password';
   static String get tooManyRequests => _am ? 'በጣም ብዙ ሙከራ — ትንሽ ቆይተው ይሞክሩ' : 'Too many attempts — try again later';
   static String get networkError => _am ? 'የኢንተርኔት ግንኙነት ያረጋግጡ' : 'Check internet connection';
   static String unexpectedError(String e) => _am ? 'ያልተጠበቀ ስህተት: $e' : 'Unexpected error: $e';
@@ -401,4 +401,25 @@ class S {
   // ── Developer Sign-In ──
   static String get signInCancelled => _am ? 'ግብዓት ተሰርዟል' : 'Sign-in cancelled';
   static String emailNotAuthorized(String email) => _am ? 'ይህ ኢሜይል ($email) የገንቢ ፈቃድ የለውም' : 'This email ($email) is not authorized as developer';
+
+  // ── Phone + Password Auth ──
+  static String get phoneRequired => _am ? 'ስልክ ቁጥር ያስፈልጋል' : 'Phone number is required';
+  static String get passwordCode => _am ? 'የይለፍ ኮድ' : 'Access Code';
+  static String get codeRequired => _am ? 'የይለፍ ኮድ ያስፈልጋል' : 'Access code is required';
+  static String get phoneNotRegistered => _am ? 'ይህ ስልክ ቁጥር አልተመዘገበም' : 'This phone number is not registered';
+  static String get wrongCode => _am ? 'የተሳሳተ የይለፍ ኮድ' : 'Wrong access code';
+  static String get accountKicked => _am ? 'ከአካውንት ተባርረዋል — አስተዳዳሪን ያነጋግሩ' : 'You have been logged out — contact admin';
+  static String get memberLogin => _am ? 'የአባል መግቢያ' : 'Member Login';
+  static String get enterPhoneAndCode => _am ? 'ስልክ ቁጥርዎን እና የይለፍ ኮድዎን ያስገቡ' : 'Enter your phone number and access code';
+  static String get setPassword => _am ? 'ይለፍ ኮድ ቀይር' : 'Set Access Code';
+  static String get newPassword => _am ? 'አዲስ የይለፍ ኮድ' : 'New Access Code';
+  static String get passwordUpdated => _am ? 'ይለፍ ኮድ ተቀይሯል' : 'Access code updated';
+  static String get kickOut => _am ? 'አስወጣ' : 'Kick Out';
+  static String get kickOutConfirm => _am ? 'ይህን አባል ከአካውንት ማስወጣት ይፈልጋሉ?' : 'Do you want to kick out this member?';
+  static String get kicked => _am ? 'ተባርሯል' : 'Kicked out';
+  static String get reinstated => _am ? 'ተመልሷል' : 'Reinstated';
+  static String get addMemberAccount => _am ? 'አባል ተጠቃሚ ፍጠር' : 'Create Member Account';
+  static String get memberAccountCreated => _am ? 'የአባል አካውንት ተፈጥሯል' : 'Member account created';
+  static String get phoneAlreadyRegistered => _am ? 'ይህ ስልክ ቁጥር አስቀድሞ ተመዝግቧል' : 'This phone number is already registered';
+  static String get areaLabel => _am ? 'አካባቢ' : 'Area';
 }
