@@ -244,17 +244,57 @@ class AuthRepository {
   }
 
   /// Batch-create multiple member accounts from CSV import.
+  /// Deduplicates by phone within the import list and against existing users.
+  /// Respects the Firestore 500-operation batch limit by chunking.
   Future<int> batchCreateMembers(List<AppUser> members) async {
-    int created = 0;
-    final batch = _firestore.batch();
+    if (members.isEmpty) return 0;
 
-    for (final member in members) {
-      final ref = _firestore.collection('users').doc();
-      batch.set(ref, member.toCreateMap());
-      created++;
+    // Deduplicate within the import list by phone
+    final seen = <String>{};
+    final unique = <AppUser>[];
+    for (final m in members) {
+      if (m.phone.isNotEmpty && seen.add(m.phone)) {
+        unique.add(m);
+      }
     }
 
-    await batch.commit();
+    // Check existing phones in DB (query in batches of 10 — Firestore
+    // whereIn limit)
+    final existingPhones = <String>{};
+    final phones = unique.map((m) => m.phone).toList();
+    for (int i = 0; i < phones.length; i += 10) {
+      final chunk = phones.sublist(
+          i, i + 10 > phones.length ? phones.length : i + 10);
+      final snap = await _firestore
+          .collection('users')
+          .where('phone', whereIn: chunk)
+          .get();
+      for (final doc in snap.docs) {
+        final phone = doc.data()['phone'] as String?;
+        if (phone != null) existingPhones.add(phone);
+      }
+    }
+
+    // Filter out members whose phone already exists
+    final toCreate =
+        unique.where((m) => !existingPhones.contains(m.phone)).toList();
+
+    if (toCreate.isEmpty) return 0;
+
+    // Commit in chunks of 500 (Firestore batch limit)
+    int created = 0;
+    for (int i = 0; i < toCreate.length; i += 500) {
+      final chunk = toCreate.sublist(
+          i, i + 500 > toCreate.length ? toCreate.length : i + 500);
+      final batch = _firestore.batch();
+      for (final member in chunk) {
+        final ref = _firestore.collection('users').doc();
+        batch.set(ref, member.toCreateMap());
+      }
+      await batch.commit();
+      created += chunk.length;
+    }
+
     return created;
   }
 
