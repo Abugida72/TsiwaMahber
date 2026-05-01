@@ -95,6 +95,18 @@ class AppUser {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  /// Tsiwa IDs this member is assigned to (can be multiple).
+  final List<String> assignedTsiwaIds;
+
+  /// Edir IDs this member is assigned to (can be multiple).
+  final List<String> assignedEdirIds;
+
+  /// Maps tsiwaId → role name (e.g. 'muse', 'assistant_muse', 'member').
+  final Map<String, String> tsiwaRoles;
+
+  /// Whether this user is an Edir አመራር (can manage payments).
+  final bool isEdirAmerar;
+
   const AppUser({
     this.uid = '',
     this.email = '',
@@ -107,7 +119,20 @@ class AppUser {
     this.kickedOut = false,
     this.createdAt,
     this.updatedAt,
+    this.assignedTsiwaIds = const [],
+    this.assignedEdirIds = const [],
+    this.tsiwaRoles = const {},
+    this.isEdirAmerar = false,
   });
+
+  bool get hasTsiwaAssignment => assignedTsiwaIds.isNotEmpty;
+  bool get hasEdirAssignment => assignedEdirIds.isNotEmpty;
+
+  String tsiwaRoleFor(String tsiwaId) =>
+      tsiwaRoles[tsiwaId] ?? 'member';
+
+  bool isMuse(String tsiwaId) =>
+      tsiwaRoles[tsiwaId] == 'muse';
 
   factory AppUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? <String, dynamic>{};
@@ -123,6 +148,13 @@ class AppUser {
       kickedOut: data['kickedOut'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      assignedTsiwaIds: List<String>.from(
+          data['assignedTsiwaIds'] as List<dynamic>? ?? []),
+      assignedEdirIds: List<String>.from(
+          data['assignedEdirIds'] as List<dynamic>? ?? []),
+      tsiwaRoles: Map<String, String>.from(
+          data['tsiwaRoles'] as Map<dynamic, dynamic>? ?? {}),
+      isEdirAmerar: data['isEdirAmerar'] as bool? ?? false,
     );
   }
 
@@ -139,6 +171,13 @@ class AppUser {
       kickedOut: data['kickedOut'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      assignedTsiwaIds: List<String>.from(
+          data['assignedTsiwaIds'] as List<dynamic>? ?? []),
+      assignedEdirIds: List<String>.from(
+          data['assignedEdirIds'] as List<dynamic>? ?? []),
+      tsiwaRoles: Map<String, String>.from(
+          data['tsiwaRoles'] as Map<dynamic, dynamic>? ?? {}),
+      isEdirAmerar: data['isEdirAmerar'] as bool? ?? false,
     );
   }
 
@@ -152,6 +191,10 @@ class AppUser {
       'areaId': areaId,
       'isActive': true,
       'kickedOut': false,
+      'assignedTsiwaIds': assignedTsiwaIds,
+      'assignedEdirIds': assignedEdirIds,
+      'tsiwaRoles': tsiwaRoles,
+      'isEdirAmerar': isEdirAmerar,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -161,6 +204,22 @@ class AppUser {
     return {
       'displayName': displayName,
       'phone': phone,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  Map<String, dynamic> toFullUpdateMap() {
+    return {
+      'displayName': displayName,
+      'phone': phone,
+      'passwordCode': passwordCode,
+      'role': role.firestoreValue,
+      'areaId': areaId,
+      'assignedTsiwaIds': assignedTsiwaIds,
+      'assignedEdirIds': assignedEdirIds,
+      'tsiwaRoles': tsiwaRoles,
+      'isEdirAmerar': isEdirAmerar,
+      'isActive': isActive,
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
@@ -175,6 +234,10 @@ class AppUser {
     String? areaId,
     bool? isActive,
     bool? kickedOut,
+    List<String>? assignedTsiwaIds,
+    List<String>? assignedEdirIds,
+    Map<String, String>? tsiwaRoles,
+    bool? isEdirAmerar,
   }) {
     return AppUser(
       uid: uid ?? this.uid,
@@ -186,6 +249,10 @@ class AppUser {
       areaId: areaId ?? this.areaId,
       isActive: isActive ?? this.isActive,
       kickedOut: kickedOut ?? this.kickedOut,
+      assignedTsiwaIds: assignedTsiwaIds ?? this.assignedTsiwaIds,
+      assignedEdirIds: assignedEdirIds ?? this.assignedEdirIds,
+      tsiwaRoles: tsiwaRoles ?? this.tsiwaRoles,
+      isEdirAmerar: isEdirAmerar ?? this.isEdirAmerar,
     );
   }
 }

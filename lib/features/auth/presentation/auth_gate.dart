@@ -10,6 +10,7 @@ import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/login_screen.dart';
 import 'package:tsiwa_mahber/features/area/presentation/area_selection_screen.dart';
 import 'package:tsiwa_mahber/features/area/presentation/area_home_screen.dart';
+import 'package:tsiwa_mahber/features/member_home/presentation/member_home_screen.dart';
 
 class AuthGate extends StatefulWidget {
   final ThemeProvider themeProvider;
@@ -145,11 +146,9 @@ class _AuthGateState extends State<AuthGate> {
         }
 
         if (_memberUser != null) {
-          return AreaHomeScreen(
+          return MemberHomeScreen(
             key: ValueKey('member_${_memberUser!.uid}'),
-            currentUser: _memberUser,
-            areaId: _memberUser!.areaId,
-            areaName: _memberUser!.areaId,
+            currentUser: _memberUser!,
             themeProvider: widget.themeProvider,
             localeProvider: widget.localeProvider,
             onLogout: _logoutMember,
