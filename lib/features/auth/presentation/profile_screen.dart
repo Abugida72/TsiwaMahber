@@ -26,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _phoneController;
   bool _isSaving = false;
 
-  bool get _canEdit => widget.user.role.isDeveloper || widget.user.role.isAdminOrAbove;
+  bool get _canEdit => widget.user.role.isDeveloper;
 
   @override
   void initState() {
