@@ -87,6 +87,11 @@ class _AuthGateState extends State<AuthGate> {
   void _logoutMember() {
     _memberWatchSub?.cancel();
     _memberWatchSub = null;
+    // Sign out the anonymous Firebase Auth session.
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null && currentUser.isAnonymous) {
+      FirebaseAuth.instance.signOut();
+    }
     if (mounted) setState(() => _memberUser = null);
   }
 
@@ -109,7 +114,9 @@ class _AuthGateState extends State<AuthGate> {
 
         final firebaseUser = snapshot.data;
 
-        if (firebaseUser != null) {
+        // Anonymous Firebase Auth is used by members for Firestore writes.
+        // Skip dev-user loading for anonymous sessions.
+        if (firebaseUser != null && !firebaseUser.isAnonymous) {
           // Load dev user once (no StreamBuilder, no tree rebuilds).
           if (_loadedDevUid != firebaseUser.uid) {
             // Defer to avoid calling setState during build.

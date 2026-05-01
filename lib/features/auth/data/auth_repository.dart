@@ -46,6 +46,13 @@ class AuthRepository {
       throw S.accountBlocked;
     }
 
+    // Sign in anonymously so the member gets a Firebase Auth token.
+    // This satisfies Firestore security rules (request.auth != null)
+    // for writes like payment recording by Edir አመራር.
+    if (_auth.currentUser == null) {
+      await _auth.signInAnonymously();
+    }
+
     return user;
   }
 
