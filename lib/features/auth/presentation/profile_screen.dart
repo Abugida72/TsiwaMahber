@@ -6,7 +6,7 @@ import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class ProfileScreen extends StatefulWidget {
   final AppUser user;
-  final VoidCallback? onLogout;
+  final Future<void> Function()? onLogout;
 
   const ProfileScreen({
     super.key,
@@ -171,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () async {
                 final navigator = Navigator.of(context);
                 if (widget.onLogout != null) {
-                  widget.onLogout!();
+                  await widget.onLogout!();
                 } else {
                   await _authRepository.signOut();
                 }
