@@ -27,6 +27,7 @@ import 'package:tsiwa_mahber/features/csv_io/presentation/csv_import_screen.dart
 import 'package:tsiwa_mahber/features/reports/presentation/report_home_screen.dart';
 import 'package:tsiwa_mahber/features/tsiwa/presentation/tsiwa_list_screen.dart';
 import 'package:tsiwa_mahber/features/developer/presentation/developer_management_screen.dart';
+import 'package:tsiwa_mahber/features/global_members/presentation/global_member_list_screen.dart';
 import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class AreaHomeScreen extends StatefulWidget {
@@ -281,6 +282,22 @@ class _AreaHomeScreenState extends State<AreaHomeScreen> {
           ),
         ),
         const SizedBox(height: 8),
+        AppInfoCard(
+          icon: Icons.people,
+          title: S.globalMembers,
+          subtitle: S.manageGlobalMembers,
+          iconColor: Colors.teal,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GlobalMemberListScreen(
+                  areaId: widget.areaId,
+                ),
+              ),
+            );
+          },
+        ),
         AppInfoCard(
           icon: Icons.groups,
           title: S.tsiwaGroups,

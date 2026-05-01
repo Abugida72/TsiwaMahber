@@ -1,34 +1,61 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow all reads (members use phone+code auth without Firebase Auth,
-    // so request.auth is null for them). Writes still require Firebase Auth.
+
+    // Helper: true for authenticated non-anonymous users (developers).
+    function isDev() {
+      return request.auth != null
+          && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    // Helper: true for any authenticated user (dev or anonymous member).
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    // Allow all reads (members use phone+code auth with anonymous Firebase
+    // Auth, so they still need read access everywhere).
     match /{document=**} {
       allow read: if true;
     }
 
-    // Users collection
+    // Users collection — only devs can write.
     match /users/{userId} {
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow create, update, delete: if isDev();
     }
 
-    // Areas and all sub-collections
-    match /areas/{areaId} {
-      allow write: if request.auth != null;
+    // Developers collection — only devs can write.
+    match /developers/{email} {
+      allow write: if isDev();
+    }
 
+    // Areas — only devs can write directly to area docs.
+    match /areas/{areaId} {
+      allow write: if isDev();
+
+      // Edir sub-collections: devs can write anything; anonymous members
+      // can only write to edir docs, edir members, and edir payments
+      // (needed for isEdirAmerar payment recording).
+      match /edirs/{edirId} {
+        allow write: if isAuthed();
+
+        match /members/{memberId} {
+          allow write: if isAuthed();
+        }
+
+        match /payments/{paymentId} {
+          allow write: if isAuthed();
+        }
+      }
+
+      // All other area sub-collections — only devs can write.
       match /{subcollection}/{docId} {
-        allow write: if request.auth != null;
+        allow write: if isDev();
       }
 
       match /{sub1}/{docId1}/{sub2}/{docId2} {
-        allow write: if request.auth != null;
+        allow write: if isDev();
       }
-    }
-
-    // Developers collection
-    match /developers/{email} {
-      allow write: if request.auth != null;
     }
   }
 }

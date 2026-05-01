@@ -20,8 +20,6 @@ class AuthRepository {
 
   // ── Member (phone+code) auth ──
 
-  /// Look up a member by phone number and verify the access code.
-  /// Returns the AppUser on success, or throws a descriptive string on failure.
   Future<AppUser> signInWithPhone(String phone, String code) async {
     final query = await _firestore
         .collection('users')
@@ -48,10 +46,16 @@ class AuthRepository {
       throw S.accountBlocked;
     }
 
+    // Sign in anonymously so the member gets a Firebase Auth token.
+    // This satisfies Firestore security rules (request.auth != null)
+    // for writes like payment recording by Edir አመራር.
+    if (_auth.currentUser == null) {
+      await _auth.signInAnonymously();
+    }
+
     return user;
   }
 
-  /// Watch a single AppUser document for real-time changes (kick-out, role changes).
   Stream<AppUser?> watchAppUser(String uid) {
     return _firestore
         .collection('users')
@@ -69,7 +73,7 @@ class AuthRepository {
     return AppUser.fromDoc(doc);
   }
 
-  // ── Member CRUD (used by devs/admins) ──
+  // ── Global Member CRUD (used by devs/admins) ──
 
   Future<String?> createMemberAccount({
     required String displayName,
@@ -77,8 +81,11 @@ class AuthRepository {
     required String passwordCode,
     required String areaId,
     UserRole role = UserRole.member,
+    List<String> assignedTsiwaIds = const [],
+    List<String> assignedEdirIds = const [],
+    Map<String, String> tsiwaRoles = const {},
+    bool isEdirAmerar = false,
   }) async {
-    // Check for duplicate phone
     final existing = await _firestore
         .collection('users')
         .where('phone', isEqualTo: phone)
@@ -95,9 +102,37 @@ class AuthRepository {
       passwordCode: passwordCode,
       role: role,
       areaId: areaId,
+      assignedTsiwaIds: assignedTsiwaIds,
+      assignedEdirIds: assignedEdirIds,
+      tsiwaRoles: tsiwaRoles,
+      isEdirAmerar: isEdirAmerar,
     );
 
     await _firestore.collection('users').add(user.toCreateMap());
+    return null;
+  }
+
+  Future<String?> updateMemberFull({
+    required String uid,
+    required AppUser updatedUser,
+  }) async {
+    // Check phone uniqueness (excluding self)
+    final existing = await _firestore
+        .collection('users')
+        .where('phone', isEqualTo: updatedUser.phone)
+        .limit(2)
+        .get();
+
+    for (final doc in existing.docs) {
+      if (doc.id != uid) {
+        return S.phoneAlreadyRegistered;
+      }
+    }
+
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .update(updatedUser.toFullUpdateMap());
     return null;
   }
 
@@ -112,6 +147,22 @@ class AuthRepository {
     if (phone != null) updates['phone'] = phone;
     if (passwordCode != null) updates['passwordCode'] = passwordCode;
     await _firestore.collection('users').doc(uid).update(updates);
+  }
+
+  Future<void> updateMemberAssignments({
+    required String uid,
+    required List<String> assignedTsiwaIds,
+    required List<String> assignedEdirIds,
+    required Map<String, String> tsiwaRoles,
+    required bool isEdirAmerar,
+  }) async {
+    await _firestore.collection('users').doc(uid).update({
+      'assignedTsiwaIds': assignedTsiwaIds,
+      'assignedEdirIds': assignedEdirIds,
+      'tsiwaRoles': tsiwaRoles,
+      'isEdirAmerar': isEdirAmerar,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> kickOutUser(String uid) async {
@@ -175,8 +226,83 @@ class AuthRepository {
             snapshot.docs.map((doc) => AppUser.fromDoc(doc)).toList());
   }
 
+  Stream<List<AppUser>> watchMembersByTsiwa(String tsiwaId) {
+    return _firestore
+        .collection('users')
+        .where('assignedTsiwaIds', arrayContains: tsiwaId)
+        .orderBy('displayName')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => AppUser.fromDoc(doc)).toList());
+  }
+
+  Stream<List<AppUser>> watchMembersByEdir(String edirId) {
+    return _firestore
+        .collection('users')
+        .where('assignedEdirIds', arrayContains: edirId)
+        .orderBy('displayName')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => AppUser.fromDoc(doc)).toList());
+  }
+
   Future<void> deleteUser(String uid) async {
     await _firestore.collection('users').doc(uid).delete();
+  }
+
+  /// Batch-create multiple member accounts from CSV import.
+  /// Deduplicates by phone within the import list and against existing users.
+  /// Respects the Firestore 500-operation batch limit by chunking.
+  Future<int> batchCreateMembers(List<AppUser> members) async {
+    if (members.isEmpty) return 0;
+
+    // Deduplicate within the import list by phone
+    final seen = <String>{};
+    final unique = <AppUser>[];
+    for (final m in members) {
+      if (m.phone.isNotEmpty && seen.add(m.phone)) {
+        unique.add(m);
+      }
+    }
+
+    // Check existing phones in DB (query in batches of 10 — Firestore
+    // whereIn limit)
+    final existingPhones = <String>{};
+    final phones = unique.map((m) => m.phone).toList();
+    for (int i = 0; i < phones.length; i += 10) {
+      final chunk = phones.sublist(
+          i, i + 10 > phones.length ? phones.length : i + 10);
+      final snap = await _firestore
+          .collection('users')
+          .where('phone', whereIn: chunk)
+          .get();
+      for (final doc in snap.docs) {
+        final phone = doc.data()['phone'] as String?;
+        if (phone != null) existingPhones.add(phone);
+      }
+    }
+
+    // Filter out members whose phone already exists
+    final toCreate =
+        unique.where((m) => !existingPhones.contains(m.phone)).toList();
+
+    if (toCreate.isEmpty) return 0;
+
+    // Commit in chunks of 500 (Firestore batch limit)
+    int created = 0;
+    for (int i = 0; i < toCreate.length; i += 500) {
+      final chunk = toCreate.sublist(
+          i, i + 500 > toCreate.length ? toCreate.length : i + 500);
+      final batch = _firestore.batch();
+      for (final member in chunk) {
+        final ref = _firestore.collection('users').doc();
+        batch.set(ref, member.toCreateMap());
+      }
+      await batch.commit();
+      created += chunk.length;
+    }
+
+    return created;
   }
 
   // ── Firebase Auth (devs only) ──

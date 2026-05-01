@@ -9,7 +9,7 @@ import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/login_screen.dart';
 import 'package:tsiwa_mahber/features/area/presentation/area_selection_screen.dart';
-import 'package:tsiwa_mahber/features/area/presentation/area_home_screen.dart';
+import 'package:tsiwa_mahber/features/member_home/presentation/member_home_screen.dart';
 
 class AuthGate extends StatefulWidget {
   final ThemeProvider themeProvider;
@@ -84,9 +84,14 @@ class _AuthGateState extends State<AuthGate> {
     setState(() => _memberUser = user);
   }
 
-  void _logoutMember() {
+  Future<void> _logoutMember() async {
     _memberWatchSub?.cancel();
     _memberWatchSub = null;
+    // Sign out the anonymous Firebase Auth session.
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null && currentUser.isAnonymous) {
+      await FirebaseAuth.instance.signOut();
+    }
     if (mounted) setState(() => _memberUser = null);
   }
 
@@ -109,7 +114,9 @@ class _AuthGateState extends State<AuthGate> {
 
         final firebaseUser = snapshot.data;
 
-        if (firebaseUser != null) {
+        // Anonymous Firebase Auth is used by members for Firestore writes.
+        // Skip dev-user loading for anonymous sessions.
+        if (firebaseUser != null && !firebaseUser.isAnonymous) {
           // Load dev user once (no StreamBuilder, no tree rebuilds).
           if (_loadedDevUid != firebaseUser.uid) {
             // Defer to avoid calling setState during build.
@@ -145,11 +152,9 @@ class _AuthGateState extends State<AuthGate> {
         }
 
         if (_memberUser != null) {
-          return AreaHomeScreen(
+          return MemberHomeScreen(
             key: ValueKey('member_${_memberUser!.uid}'),
-            currentUser: _memberUser,
-            areaId: _memberUser!.areaId,
-            areaName: _memberUser!.areaId,
+            currentUser: _memberUser!,
             themeProvider: widget.themeProvider,
             localeProvider: widget.localeProvider,
             onLogout: _logoutMember,

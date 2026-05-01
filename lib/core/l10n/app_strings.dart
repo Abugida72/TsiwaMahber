@@ -428,4 +428,54 @@ class S {
   static String get editPhone => _am ? 'ስልክ ቁጥር ቀይር' : 'Edit Phone Number';
   static String get phoneUpdated => _am ? 'ስልክ ቁጥር ተቀይሯል' : 'Phone number updated';
   static String get allUsers => _am ? 'ሁሉም ተጠቃሚዎች' : 'All Users';
+
+  // ── Global Members ──
+  static String get globalMembers => _am ? 'አባላት' : 'Members';
+  static String get manageGlobalMembers => _am ? 'አባላትን ያስተዳድሩ' : 'Manage Members';
+  static String get noGlobalMembersYet => _am ? 'እስካሁን አባል አልተመዘገበም።' : 'No members registered yet.';
+  static String get addGlobalMemberHint => _am ? 'አዲስ አባል ለመጨመር ከታች ያለውን ቁልፍ ይጫኑ' : 'Tap the button below to add a new member';
+  static String get newGlobalMember => _am ? 'አዲስ አባል' : 'New Member';
+  static String get editGlobalMember => _am ? 'አባል አስተካክል' : 'Edit Member';
+  static String get deleteGlobalMember => _am ? 'አባል ሰርዝ' : 'Delete Member';
+  static String get deleteGlobalMemberConfirm => _am ? 'ይህን አባል ለመሰረዝ እርግጠኛ ነዎት?' : 'Are you sure you want to delete this member?';
+  static String get globalMemberDeleted => _am ? 'አባል ተሰርዟል' : 'Member deleted';
+  static String get globalMemberSaved => _am ? 'አባል ተቀምጧል' : 'Member saved';
+  static String get assignToTsiwa => _am ? 'ወደ ፅዋ ማህበር መደብ' : 'Assign to Tsiwa';
+  static String get assignToEdir => _am ? 'ወደ እድር መደብ' : 'Assign to Edir';
+  static String get tsiwaAssignments => _am ? 'የፅዋ ማህበር ምደባ' : 'Tsiwa Assignments';
+  static String get edirAssignments => _am ? 'የእድር ምደባ' : 'Edir Assignments';
+  static String get selectTsiwas => _am ? 'ፅዋ ማህበሮችን ይምረጡ' : 'Select Tsiwa Groups';
+  static String get selectEdirs => _am ? 'እድሮችን ይምረጡ' : 'Select Edirs';
+  static String get tsiwaRole => _am ? 'የፅዋ ሚና' : 'Tsiwa Role';
+  static String get roleMuse => _am ? 'ሙሴ' : 'Muse';
+  static String get roleAssistantMuse => _am ? 'ረዳት ሙሴ' : 'Assistant Muse';
+  static String get roleMemberTsiwa => _am ? 'አባል' : 'Member';
+  static String get roleObserver => _am ? 'ታዛቢ' : 'Observer';
+  static String get isEdirAmerar => _am ? 'የእድር አመራር' : 'Edir Leader';
+  static String get edirAmerarDesc => _am ? 'ክፍያ ማስመዝገብ ይችላል' : 'Can record payments';
+  static String get csvImportMembers => _am ? 'CSV አባላት አስገባ' : 'CSV Import Members';
+  static String get csvImportMembersDesc => _am ? 'CSV ፋይል ከመረጃ ጋር አባላትን አስገባ' : 'Import members from CSV file';
+  static String get importPreview => _am ? 'ቅድመ ዕይታ' : 'Preview';
+  static String importingMembers(int n) => _am ? '$n አባላት በማስገባት ላይ...' : 'Importing $n members...';
+  static String membersImported(int n) => _am ? '$n አባላት ተገብተዋል' : '$n members imported';
+  static String get accessCode => _am ? 'የመግቢያ ኮድ' : 'Access Code';
+
+  // ── Member Home ──
+  static String get myTsiwa => _am ? 'ፅዋዬ' : 'My Tsiwa';
+  static String get myEdir => _am ? 'እድሬ' : 'My Edir';
+  static String get home => _am ? 'መነሻ' : 'Home';
+  static String get teregna => _am ? 'ተረኛ' : 'Current Turn';
+  static String get teregnaCalendar => _am ? 'የተረኛ መርሃ ግብር' : 'Turn Schedule';
+  static String get thisMonth => _am ? 'በዚህ ወር' : 'This Month';
+  static String get nextMonths => _am ? 'ቀጣይ ወራት' : 'Next Months';
+  static String get monthlyPayments => _am ? 'ወርሃዊ መዋጮ' : 'Monthly Contributions';
+  static String get paid => _am ? 'ከፍሏል' : 'Paid';
+  static String get unpaid => _am ? 'አልከፈለም' : 'Unpaid';
+  static String get paymentStatus => _am ? 'የክፍያ ሁኔታ' : 'Payment Status';
+  static String get noAssignments => _am ? 'ወደ ምንም ፅዋ ወይም እድር አልተመደቡም' : 'Not assigned to any Tsiwa or Edir';
+  static String get contactAdminForAssignment => _am ? 'አስተዳዳሪን ያነጋግሩ ለምደባ' : 'Contact admin for assignment';
+  static String get welcome => _am ? 'እንኳን ደህና መጡ' : 'Welcome';
+  static String get makeAdmin => _am ? 'አስተዳዳሪ አድርግ' : 'Make Admin';
+  static String paidBirr(String v) => _am ? '$v ብር ከፍሏል' : '$v Birr paid';
+  static String owedBirr(String v) => _am ? '$v ብር ቀሪ' : '$v Birr owed';
 }
