@@ -84,13 +84,13 @@ class _AuthGateState extends State<AuthGate> {
     setState(() => _memberUser = user);
   }
 
-  void _logoutMember() {
+  Future<void> _logoutMember() async {
     _memberWatchSub?.cancel();
     _memberWatchSub = null;
     // Sign out the anonymous Firebase Auth session.
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null && currentUser.isAnonymous) {
-      FirebaseAuth.instance.signOut();
+      await FirebaseAuth.instance.signOut();
     }
     if (mounted) setState(() => _memberUser = null);
   }
