@@ -233,7 +233,7 @@ class _GlobalMemberFormScreenState extends State<GlobalMemberFormScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: DropdownButtonFormField<String>(
-                value: currentRole,
+                initialValue: currentRole,
                 decoration: InputDecoration(
                   labelText: S.tsiwaRole,
                   isDense: true,

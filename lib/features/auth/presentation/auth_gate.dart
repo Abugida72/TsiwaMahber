@@ -9,7 +9,6 @@ import 'package:tsiwa_mahber/features/auth/data/auth_repository.dart';
 import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/auth/presentation/login_screen.dart';
 import 'package:tsiwa_mahber/features/area/presentation/area_selection_screen.dart';
-import 'package:tsiwa_mahber/features/area/presentation/area_home_screen.dart';
 import 'package:tsiwa_mahber/features/member_home/presentation/member_home_screen.dart';
 
 class AuthGate extends StatefulWidget {

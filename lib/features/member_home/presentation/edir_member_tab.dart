@@ -6,7 +6,6 @@ import 'package:tsiwa_mahber/features/auth/domain/app_user.dart';
 import 'package:tsiwa_mahber/features/edir/data/edir_repository.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir.dart';
 import 'package:tsiwa_mahber/features/edir/domain/edir_member.dart';
-import 'package:tsiwa_mahber/features/edir/domain/payment.dart';
 import 'package:tsiwa_mahber/features/edir/presentation/record_payment_screen.dart';
 
 class EdirMemberTab extends StatefulWidget {
@@ -96,7 +95,7 @@ class _EdirMemberTabState extends State<EdirMemberTab> {
                                 ),
                               ),
                               Text(
-                                '${S.monthlyContribution}: ${edir.monthlyContribution.toStringAsFixed(0)} ${_birr}',
+                                '${S.monthlyContribution}: ${edir.monthlyContribution.toStringAsFixed(0)} $_birr',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppTheme.textMuted,
