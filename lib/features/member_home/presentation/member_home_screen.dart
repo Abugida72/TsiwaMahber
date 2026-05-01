@@ -84,7 +84,10 @@ class _MemberHomeScreenState extends State<MemberHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProfileScreen(user: user),
+                  builder: (context) => ProfileScreen(
+                    user: user,
+                    onLogout: widget.onLogout,
+                  ),
                 ),
               );
             },
