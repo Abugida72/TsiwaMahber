@@ -12,7 +12,7 @@ class MemberHomeScreen extends StatefulWidget {
   final AppUser currentUser;
   final ThemeProvider themeProvider;
   final LocaleProvider localeProvider;
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
 
   const MemberHomeScreen({
     super.key,
@@ -84,7 +84,10 @@ class _MemberHomeScreenState extends State<MemberHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProfileScreen(user: user),
+                  builder: (context) => ProfileScreen(
+                    user: user,
+                    onLogout: widget.onLogout,
+                  ),
                 ),
               );
             },

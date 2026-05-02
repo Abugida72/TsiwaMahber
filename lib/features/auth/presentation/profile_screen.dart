@@ -6,10 +6,12 @@ import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 
 class ProfileScreen extends StatefulWidget {
   final AppUser user;
+  final Future<void> Function()? onLogout;
 
   const ProfileScreen({
     super.key,
     required this.user,
+    this.onLogout,
   });
 
   @override
@@ -23,6 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   bool _isSaving = false;
+
+  bool get _canEdit => widget.user.role.isDeveloper;
 
   @override
   void initState() {
@@ -98,63 +102,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'መገለጫ አስተካክል',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: S.fullName,
-                        prefixIcon: Icon(Icons.person_outlined),
+          // Only show edit form for devs (members can't write to users collection)
+          if (_canEdit) ...[
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'መገለጫ አስተካክል',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return S.nameRequired;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: InputDecoration(
-                        labelText: S.phone,
-                        prefixIcon: Icon(Icons.phone_outlined),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: S.fullName,
+                          prefixIcon: Icon(Icons.person_outlined),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return S.nameRequired;
+                          }
+                          return null;
+                        },
                       ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: _isSaving ? null : _saveProfile,
-                        child: _isSaving
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
-                              )
-                            : Text(S.save),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          labelText: S.phone,
+                          prefixIcon: Icon(Icons.phone_outlined),
+                        ),
+                        keyboardType: TextInputType.phone,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _isSaving ? null : _saveProfile,
+                          child: _isSaving
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2),
+                                )
+                              : Text(S.save),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
           const SizedBox(height: 16),
           Card(
             child: ListTile(
@@ -163,7 +170,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(color: Colors.red)),
               onTap: () async {
                 final navigator = Navigator.of(context);
-                await _authRepository.signOut();
+                if (widget.onLogout != null) {
+                  await widget.onLogout!();
+                } else {
+                  await _authRepository.signOut();
+                }
                 if (mounted) {
                   navigator.popUntil((route) => route.isFirst);
                 }

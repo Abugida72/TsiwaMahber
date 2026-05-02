@@ -10,7 +10,7 @@ import 'package:tsiwa_mahber/core/l10n/app_strings.dart';
 class AppPopupMenu extends StatelessWidget {
   final ThemeProvider themeProvider;
   final LocaleProvider localeProvider;
-  final VoidCallback? onMemberLogout;
+  final Future<void> Function()? onMemberLogout;
 
   const AppPopupMenu({
     super.key,
@@ -111,7 +111,7 @@ class AppPopupMenu extends StatelessWidget {
         break;
       case 'sign_out':
         if (onMemberLogout != null) {
-          onMemberLogout!();
+          await onMemberLogout!();
         } else {
           await GoogleSignIn().signOut();
           await FirebaseAuth.instance.signOut();

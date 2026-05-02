@@ -36,7 +36,7 @@ class AreaHomeScreen extends StatefulWidget {
   final String areaName;
   final ThemeProvider themeProvider;
   final LocaleProvider localeProvider;
-  final VoidCallback? onLogout;
+  final Future<void> Function()? onLogout;
 
   const AreaHomeScreen({
     super.key,

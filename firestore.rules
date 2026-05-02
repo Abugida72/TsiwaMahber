@@ -33,18 +33,22 @@ service cloud.firestore {
     match /areas/{areaId} {
       allow write: if isDev();
 
-      // Edir sub-collections: devs can write anything; anonymous members
-      // can only write to edir docs, edir members, and edir payments
-      // (needed for isEdirAmerar payment recording).
+      // Edir sub-collections: devs have full write access; anonymous
+      // members only get the specific operations needed for payment
+      // recording (update edir treasury, update member totals, create
+      // payment records).
       match /edirs/{edirId} {
-        allow write: if isAuthed();
+        allow create, delete: if isDev();
+        allow update: if isAuthed();
 
         match /members/{memberId} {
-          allow write: if isAuthed();
+          allow create, delete: if isDev();
+          allow update: if isAuthed();
         }
 
         match /payments/{paymentId} {
-          allow write: if isAuthed();
+          allow create: if isAuthed();
+          allow update, delete: if isDev();
         }
       }
 
